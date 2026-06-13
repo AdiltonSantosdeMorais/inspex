@@ -2,73 +2,95 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Checklist Miniexcavadora / Mini Carregadora - SST</title>
 <style>
-    *{ margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
-    body{ background:#e5e5e5; padding:20px; color: #000; }
-    .page{ width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { background:#e5e5e5; padding:10px; color: #000; }
     
-    .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
-    .header-table td { border: 1px solid #000; vertical-align: middle; }
-    .logo-box { width: 20%; height: 100px; text-align: center; padding: 5px; }
-    .logo-box img { max-height: 80px; max-width: 100%; object-fit: contain; }
-    .title-box { width: 55%; text-align: center; font-weight: bold; font-size: 16px; padding: 10px; }
+    /* CONTAINER PRINCIPAL RESPONSIVO */
+    .page { width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     
+    /* TABELAS ADAPTÁVEIS */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+    td, th { border: 1px solid #000; padding: 8px; vertical-align: top; font-size: 11px; }
+    
+    /* CABEÇALHO */
+    .logo-box { width: 20%; text-align: center; padding: 5px; vertical-align: middle; }
+    .logo-box img { max-height: 60px; max-width: 100%; object-fit: contain; }
+    .title-box { width: 55%; text-align: center; font-weight: bold; font-size: 14px; vertical-align: middle; padding: 5px; }
     .info-box-cell { width: 25%; padding: 0 !important; }
-    .info-sub-table { width: 100%; border-collapse: collapse; }
-    .info-sub-table td { border: none !important; border-bottom: 1px solid #000 !important; padding: 3px 8px !important; font-size: 11px; line-height: 1.3; }
+    .info-sub-table td { border: none !important; border-bottom: 1px solid #000 !important; padding: 4px 6px !important; font-size: 10px; }
     .info-sub-table tr:last-child td { border-bottom: none !important; }
     
-    .vehicle-data-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; }
-    .vehicle-data-table input { width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; }
-    .col-1 { width: 45%; } .col-2 { width: 30%; } .col-3 { width: 25%; }
+    /* DADOS DO VEÍCULO */
+    .vehicle-data-table td { font-weight: bold; height: auto; padding: 8px; }
+    .vehicle-data-table input { width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 4px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; }
     
-    .legend-row { background-color: #4472c4; color: #ffffff; text-align: center; font-weight: bold; font-size: 12px; height: 28px; letter-spacing: 0.5px; padding: 6px 0 !important; }
+    .legend-row { background-color: #4472c4; color: #ffffff; text-align: center; font-weight: bold; font-size: 11px; padding: 8px !important; letter-spacing: 0.5px; }
     
-    .checklist { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: -1px; }
-    .checklist th, .checklist td { border: 1px solid #000; padding: 6px 8px; vertical-align: middle; }
-    .checklist th { background:#f2f2f2; font-weight: bold; text-align: center; height: 32px; }
+    /* GRID DO CHECKLIST RESPONSIVO */
+    .checklist th { background:#f2f2f2; font-weight: bold; text-align: center; padding: 10px 5px; }
+    .checklist td { vertical-align: middle; }
+    .center { text-align: center; width: 45px; }
+    .center input[type="radio"] { transform: scale(1.4); cursor: pointer; width: 20px; height: 20px; margin: auto; display: block; }
     
-    .center { text-align: center; width: 55px; }
-    .center input[type="radio"] { transform: scale(1.3); cursor: pointer; width: 18px; height: 18px; }
+    .comment-col { width: 22%; }
+    .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #ccc; text-transform: uppercase; padding: 2px; }
     
-    .comment-col { width: 25%; }
-    .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #eee; text-transform: uppercase; }
+    /* OBSERVAÇÕES */
+    .footer-obs-table textarea { width: 100%; height: 70px; border: 1px solid #ccc; resize: none; font-size: 11px; outline: none; margin-top: 5px; padding: 6px; text-transform: uppercase; border-radius: 4px; }
     
-    .footer-obs-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .footer-obs-table td { border: 1px solid #000; padding: 8px; font-size: 11px; font-weight: bold; vertical-align: top; }
-    .footer-obs-table textarea { width: 100%; height: 60px; border: 1px solid #eee; resize: none; font-size: 11px; outline: none; margin-top: 5px; font-family: Arial; padding: 5px; text-transform: uppercase; }
-    
-    .photos-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .photos-table td { border: 1px solid #000; padding: 10px; font-size: 11px; font-weight: bold; }
-    .photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
-    .photo-item { position: relative; border: 1px dashed #bbb; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; }
+    /* MATRIZ DE FOTOS RESPONSIVA */
+    .photo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+    @media (min-width: 768px) { .photo-grid { grid-template-columns: repeat(4, 1fr); } }
+    .photo-item { position: relative; border: 1px dashed #999; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; border-radius: 4px; }
     .photo-item img { width: 100%; height: 100%; object-fit: cover; }
-    .photo-item input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-    .photo-label { font-size: 10px; color: #7f8c8d; text-align: center; pointer-events: none; }
+    .photo-item input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5; }
+    .photo-label { font-size: 10px; color: #555; font-weight: bold; text-align: center; pointer-events: none; }
 
-    .result-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .result-table td { border: 1px solid #000; padding: 8px; font-size: 11px; font-weight: bold; vertical-align: middle; }
-    .result-title { background-color: #e1e1e1; text-align: center; width: 25%; }
-    .result-option { width: 17%; text-align: center; }
-    .result-checkbox { width: 8%; text-align: center; }
+    /* SEÇÃO DE RESULTADOS */
+    .result-table { margin-top: 5px; }
+    .result-title { background-color: #e1e1e1; text-align: center; width: 20%; }
+    .result-option { width: 20%; text-align: center; font-size: 10px; }
+    .result-checkbox { width: 6%; text-align: center; }
     .result-checkbox input { transform: scale(1.4); cursor: pointer; }
     
-    .disabled-option { opacity: 0.4; pointer-events: none; background-color: #f2f2f2; }
+    /* ASSINATURAS E CANVAS RESPONSIVOS */
+    .signatures-table { margin-top: 5px; }
+    .signatures-table td { text-align: center; height: auto; vertical-align: top; font-weight: bold; padding: 10px 5px; width: 33.33%; }
+    .canvas-container { margin-top: 6px; background: #fcfcfc; width: 100%; max-width: 240px; display: inline-block; }
+    .sig-canvas { border: 1px dashed #999; background: #fff; display: block; width: 100%; height: 80px; cursor: crosshair; touch-action: none; }
     
-    .signatures-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .signatures-table td { border: 1px solid #000; text-align: center; height: 140px; vertical-align: top; font-weight: bold; font-size: 11px; padding: 6px; width: 33.33%; color: #333; }
-    
-    .canvas-container { margin-top: 5px; background: #fcfcfc; display: inline-block; text-align: center; }
-    .canvas-container canvas { border: 1px dashed #999; background: #fff; display: block; cursor: crosshair; }
-    .btn-clear { background: #e74c3c; color: white; border: none; padding: 2px 6px; font-size: 9px; border-radius: 2px; cursor: pointer; margin-top: 4px; display: inline-block; }
+    /* BOTÕES DE ENVIO */
+    .btn-container { display: flex; flex-direction: column; gap: 10px; margin: 15px auto; width: 100%; max-width: 1050px; padding: 0; }
+    @media (min-width: 600px) { .btn-container { flex-direction: row; justify-content: center; } }
+    .btn-salvar { background: #4472c4; color: white; border: none; padding: 16px; font-size: 15px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+    .btn-voltar { background: #95a5a6; color: white; border: none; padding: 16px; font-size: 15px; font-weight: bold; border-radius: 4px; cursor: pointer; text-decoration: none; text-align: center; width: 100%; max-width: 200px; }
 
-    .btn-container { display: flex; justify-content: center; gap: 15px; margin: 20px auto; width: 100%; max-width: 1050px; padding: 0 10px; }
-    .btn-salvar { background: #4472c4; color: white; border: none; padding: 16px 45px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .btn-salvar:hover { background: #355a9c; }
-    .btn-voltar { background: #95a5a6; color: white; border: none; padding: 16px 25px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; text-decoration: none; text-align: center; }
+    /* REGRAS ADAPTATIVAS ESPECÍFICAS PARA TELAS DE CELULAR */
+    @media (max-width: 600px) {
+        body { padding: 5px; }
+        .page { padding: 8px; border: none; }
+        .header-table tr { display: flex; flex-direction: column; width: 100%; }
+        .logo-box, .title-box, .info-box-cell { width: 100% !important; display: block; text-align: center; border-bottom: none !important; }
+        .info-sub-table { border: 1px solid #000; margin-top: 5px; }
+        
+        .vehicle-data-table tr { display: flex; flex-direction: column; width: 100%; }
+        .vehicle-data-table td { width: 100% !important; display: block; border-bottom: none !important; }
+        
+        .checklist th:nth-child(5), .checklist td:nth-child(5) { display: none; } /* Oculta coluna comentários no celular para não esmagar os rádios */
+        .result-table tr { display: flex; flex-wrap: wrap; }
+        .result-title { width: 100% !important; padding: 8px; }
+        .result-option { width: 35% !important; padding: 8px 4px; }
+        .result-checkbox { width: 15% !important; }
+        
+        .signatures-table tr { display: flex; flex-direction: column; }
+        .signatures-table td { width: 100% !important; display: block; border-bottom: none !important; padding-bottom: 20px; }
+        .canvas-container { max-width: 100%; }
+    }
+
+    .disabled-option { opacity: 0.3; pointer-events: none; background-color: #f2f2f2; }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -96,14 +118,14 @@
 
     <table class="vehicle-data-table">
         <tr>
-            <td class="col-1">EQUIPO / MODELO: <input type="text" id="v_equipo" value="MINIEXCAVADORA / MINI CARREGADORA"></td>
-            <td class="col-2">PATENTE / IDENT.: <input type="text" id="v_patente" placeholder="DIGITE AQUÍ EL N° INTERNO"></td>
-            <td class="col-3">FECHA DE INSPECCIÓN: <input type="date" id="v_fecha"></td>
+            <td style="width: 45%;">EQUIPO / MODELO: <input type="text" id="v_equipo" value="MINIEXCAVADORA / MINI CARREGADORA"></td>
+            <td style="width: 30%;">PATENTE / IDENT.: <input type="text" id="v_patente" placeholder="DIGITE AQUÍ EL N° INTERNO"></td>
+            <td style="width: 25%;">FECHA DE INSPECCIÓN: <input type="date" id="v_fecha"></td>
         </tr>
         <tr>
-            <td class="col-1">EMPRESA: <input type="text" id="v_empresa" value="ELECNOR"></td>
-            <td class="col-2">AÑO: <input type="text" id="v_anio" placeholder="Ex: 2024"></td>
-            <td class="col-3">HORÓMETRO: <input type="text" id="v_km" placeholder="Ex: 1200 H"></td>
+            <td style="width: 45%;">EMPRESA: <input type="text" id="v_empresa" value="ELECNOR"></td>
+            <td style="width: 30%;">AÑO: <input type="text" id="v_anio" placeholder="Ex: 2024"></td>
+            <td style="width: 25%;">HORÓMETRO: <input type="text" id="v_km" placeholder="Ex: 1200 H"></td>
         </tr>
         <tr>
             <td colspan="3" class="legend-row">
@@ -174,20 +196,20 @@
     <table class="signatures-table">
         <tr>
             <td>OPERADOR / CONDUCTOR
-                <div class="canvas-container no-print">
-                    <canvas id="canvas_conductor" class="sig-canvas" width="220" height="75"></canvas>
+                <div class="canvas-container">
+                    <canvas id="canvas_conductor" class="sig-canvas" width="220" height="80"></canvas>
                     <button class="btn-clear" onclick="limparCanvas('canvas_conductor')">🗑️ Limpar</button>
                 </div>
             </td>
             <td>SUPERVISOR / ENCARGADO / CAPATAZ
-                <div class="canvas-container no-print">
-                    <canvas id="canvas_supervisor" class="sig-canvas" width="220" height="75"></canvas>
+                <div class="canvas-container">
+                    <canvas id="canvas_supervisor" class="sig-canvas" width="220" height="80"></canvas>
                     <button class="btn-clear" onclick="limparCanvas('canvas_supervisor')">🗑️ Limpar</button>
                 </div>
             </td>
             <td>SEGURIDAD DO TRABAJO
-                <div class="canvas-container no-print">
-                    <canvas id="canvas_seguridad" class="sig-canvas" width="220" height="75"></canvas>
+                <div class="canvas-container">
+                    <canvas id="canvas_seguridad" class="sig-canvas" width="220" height="80"></canvas>
                     <button class="btn-clear" onclick="limparCanvas('canvas_seguridad')">🗑️ Limpar</button>
                 </div>
             </td>
@@ -215,7 +237,7 @@
         "¿Alarma de reversa/CÁMARA DE MARCHA ATRÁS? - IMP",
         "¿Frenos funcionando? - IMP",
         "¿Cinturón de seguridad en buenas condiciones? - IMP",
-        "¿Palancas de seguridad funcionando correctamente?",
+        "¿Palancas de segurança funcionando corretamente?",
         "¿Extintor de incendios disponible y cargado?",
         "¿El motor arranca y se detiene sin dificultad?",
         "¿Controles (brazos, levantamiento, inclinación) respondiendo correctamente? - IMP",
@@ -251,7 +273,11 @@
             const rect = canvas.getBoundingClientRect();
             const clienteX = e.touches ? e.touches[0].clientX : e.clientX;
             const clienteY = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: clienteX - rect.left, y: clienteY - rect.top };
+            // Mapeamento responsivo escalonado para as dimensões reais do elemento canvas
+            return { 
+                x: ((clienteX - rect.left) / rect.width) * canvas.width, 
+                y: ((clienteY - rect.top) / rect.height) * canvas.height 
+            };
         }
         function iniciar(e) { desenhando = true; ctx.beginPath(); const p = obterPosicao(e); ctx.moveTo(p.x, p.y); }
         function mover(e) {
@@ -403,7 +429,7 @@
         }
 
         if (precisaDeFoto && fotosBase64.length === 0) {
-            alert("❌ Erro de Segurança Elecnor:\nVocê marcou itens como 'NC' ou 'NA'. É OBRIGATÓRIO tirar ou anexar pelo menos 01 foto como evidência antes de salvar!");
+            alert("❌ Erro de Seguridad Elecnor:\nVocê marcou itens como 'NC' ou 'NA'. É OBRIGATÓRIO tirar ou anexar pelo menos 01 foto como evidência antes de salvar!");
             return;
         }
 
@@ -456,7 +482,6 @@
         executarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal);
     }
 
-    // CALIBRACIÓN INTEGRAL DE PÁGINAS: Distribución balanceada (1-13 Pág 1 / 14-16 Pág 2 / Fotos Pág 3)
     function ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
@@ -502,7 +527,6 @@
 
         let y_dinamico = 70;
         doc.setFont("helvetica", "bold"); doc.setFontSize(7.5);
-        // Ítems 1 al 13 fijos en la primera página
         for (let i = 1; i <= 13; i++) {
             doc.rect(10, y_dinamico, 190, 14); doc.line(120, y_dinamico, 120, y_dinamico + 14); doc.line(132, y_dinamico, 132, y_dinamico + 14); doc.line(144, y_dinamico, 144, y_dinamico + 14); doc.line(156, y_dinamico, 156, y_dinamico + 14);
             doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(`${i}. ${preguntas[i-1]}`, 108), 12, y_dinamico + 5);
@@ -529,7 +553,6 @@
         doc.text("C", 126, y_dinamico + 4.5, {align:"center"}); doc.text("NC", 138, y_dinamico + 4.5, {align:"center"}); doc.text("NA", 150, y_dinamico + 4.5, {align:"center"}); doc.text("COMENTARIOS", 158, y_dinamico + 4.5);
         y_dinamico += 7;
 
-        // Ítems 14 al 16 pasan de forma segura a la página 2
         for (let i = 14; i <= preguntas.length; i++) {
             doc.rect(10, y_dinamico, 190, 14); doc.line(120, y_dinamico, 120, y_dinamico + 14); doc.line(132, y_dinamico, 132, y_dinamico + 14); doc.line(144, y_dinamico, 144, y_dinamico + 14); doc.line(156, y_dinamico, 156, y_dinamico + 14);
             doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(`${i}. ${preguntas[i-1]}`, 108), 12, y_dinamico + 5);
@@ -545,7 +568,6 @@
             y_dinamico += 14;
         }
 
-        // Cuadros informativos se acoplan en la página 2 sin sobreescribir ni cortar el PDF
         doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 6, 'F'); doc.rect(10, y_dinamico, 190, 6);
         doc.setFont("helvetica", "bold"); doc.text("COMENTARIOS Y OBSERVACIONES GENERALES", 12, y_dinamico + 4);
         y_dinamico += 6; doc.rect(10, y_dinamico, 190, 16); doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(document.getElementById('obs_generales').value.toUpperCase() || "SIN OBSERVACIONES", 185), 12, y_dinamico + 5);
@@ -561,7 +583,7 @@
         y_dinamico += 6; doc.rect(10, y_dinamico, 190, 8); doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.text(`STATUS FINAL: ${resultadoFinal}`, 12, y_dinamico + 5.5);
         y_dinamico += 8;
 
-        // --- PÁGINA 3 (Exclusiva para evidencias limpias y firmas digitales) ---
+        // --- PÁGINA 3 ---
         doc.addPage(); paginaActual = 3;
         desenharCabecalho(paginaActual);
         y_dinamico = 32;

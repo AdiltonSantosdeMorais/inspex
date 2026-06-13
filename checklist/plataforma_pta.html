@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist Plataforma de Trabajo en Altura (PTA) - InspeX</title>
+<style>
+    *{ margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
+    body{ background:#e5e5e5; padding:20px; color: #000; }
+    .page{ width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    
+    .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+    .header-table td { border: 1px solid #000; vertical-align: middle; }
+    .logo-box { width: 20%; height: 100px; text-align: center; padding: 5px; }
+    .logo-box img { max-height: 80px; max-width: 100%; object-fit: contain; }
+    .title-box { width: 55%; text-align: center; font-weight: bold; font-size: 16px; padding: 10px; }
+    
+    .info-box-cell { width: 25%; padding: 0 !important; }
+    .info-sub-table { width: 100%; border-collapse: collapse; }
+    .info-sub-table td { border: none !important; border-bottom: 1px solid #000 !important; padding: 3px 8px !important; font-size: 11px; line-height: 1.3; }
+    .info-sub-table tr:last-child td { border-bottom: none !important; }
+    
+    .vehicle-data-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
+    .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; }
+    .vehicle-data-table input { width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; }
+    .col-1 { width: 45%; } .col-2 { width: 30%; } .col-3 { width: 25%; }
+    
+    .legend-row { background-color: #4472c4; color: #ffffff; text-align: center; font-weight: bold; font-size: 12px; height: 28px; letter-spacing: 0.5px; padding: 6px 0 !important; }
+    
+    .checklist { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: -1px; }
+    .checklist th, .checklist td { border: 1px solid #000; padding: 6px 8px; vertical-align: middle; }
+    .checklist th { background:#f2f2f2; font-weight: bold; text-align: center; height: 32px; }
+    
+    .center { text-align: center; width: 55px; }
+    .center input[type="radio"] { transform: scale(1.3); cursor: pointer; width: 18px; height: 18px; }
+    
+    .comment-col { width: 25%; }
+    .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #eee; text-transform: uppercase; }
+    
+    .footer-obs-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
+    .footer-obs-table td { border: 1px solid #000; padding: 8px; font-size: 11px; font-weight: bold; vertical-align: top; }
+    .footer-obs-table textarea { width: 100%; height: 60px; border: 1px solid #eee; resize: none; font-size: 11px; outline: none; margin-top: 5px; font-family: Arial; padding: 5px; text-transform: uppercase; }
+    
+    .photos-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
+    .photos-table td { border: 1px solid #000; padding: 10px; font-size: 11px; font-weight: bold; }
+    .photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+    .photo-item { position: relative; border: 1px dashed #bbb; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; }
+    .photo-item img { width: 100%; height: 100%; object-fit: cover; }
+    .photo-item input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    .photo-label { font-size: 10px; color: #7f8c8d; text-align: center; pointer-events: none; }
+
+    .result-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
+    .result-table td { border: 1px solid #000; padding: 8px; font-size: 11px; font-weight: bold; vertical-align: middle; }
+    .result-title { background-color: #e1e1e1; text-align: center; width: 25%; }
+    .result-option { width: 17%; text-align: center; }
+    .result-checkbox { width: 8%; text-align: center; }
+    .result-checkbox input { transform: scale(1.4); cursor: pointer; }
+    
+    .disabled-option { opacity: 0.4; pointer-events: none; background-color: #f2f2f2; }
+    
+    .signatures-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
+    .signatures-table td { border: 1px solid #000; text-align: center; height: 140px; vertical-align: top; font-weight: bold; font-size: 11px; padding: 6px; width: 33.33%; color: #333; }
+    
+    .canvas-container { margin-top: 5px; background: #fcfcfc; display: inline-block; text-align: center; }
+    .sig-canvas { border: 1px dashed #999; background: #fff; display: block; cursor: crosshair; }
+    .btn-clear { background: #e74c3c; color: white; border: none; padding: 2px 6px; font-size: 9px; border-radius: 2px; cursor: pointer; margin-top: 4px; display: inline-block; }
+
+    .btn-container { display: flex; justify-content: center; gap: 15px; margin: 20px auto; width: 100%; max-width: 1050px; padding: 0 10px; }
+    .btn-salvar { background: #4472c4; color: white; border: none; padding: 16px 45px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .btn-salvar:hover { background: #355a9c; }
+    .btn-voltar { background: #95a5a6; color: white; border: none; padding: 16px 25px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; text-decoration: none; text-align: center; }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<div class="page" id="printable-area">
+
+    <table class="header-table">
+        <tr>
+            <td class="logo-box"><img id="v_logo" src="/static/logo-elecnor.png" alt="Logo Elecnor"></td>
+            <td class="title-box">LISTA DE VERIFICACIÓN MENSUAL PARA PLATAFORMA DE TRABAJO EN ALTURA (PTA)</td>
+            <td class="info-box-cell">
+                <table class="info-sub-table">
+                    <tr><td><strong>Código:</strong> 20.0009-SST-FL-0052</td></tr>
+                    <tr><td><strong>Fecha:</strong> 09/06/2026</td></tr>
+                    <tr><td><strong>Página:</strong> 1/1</td></tr>
+                    <tr><td><strong>Revisión:</strong> 00</td></tr>
+                    <tr><td><strong>Categoria:</strong> Altura / Izaje</td></tr>
+                    <tr><td><strong>Sector:</strong> Operaciones</td></tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <table class="vehicle-data-table">
+        <tr>
+            <td class="col-1">EQUIPO / MODELO: <input type="text" id="v_equipo" value="PLATAFORMA DE TRABAJO EN ALTURA – PTA"></td>
+            <td class="col-2">N° INTERNO / SERIE: <input type="text" id="v_patente" placeholder="Ex: PTA-01 O N° SERIE"></td>
+            <td class="col-3">FECHA DE INSPECCIÓN: <input type="date" id="v_fecha"></td>
+        </tr>
+        <tr>
+            <td class="col-1">EMPRESA: <input type="text" id="v_empresa" value="ELECNOR"></td>
+            <td class="col-2">AÑO: <input type="text" id="v_anio" placeholder="Ex: 2024"></td>
+            <td class="col-3">HORÓMETRO: <input type="text" id="v_km" placeholder="Ex: 850 H"></td>
+        </tr>
+        <tr>
+            <td colspan="3" class="legend-row">
+                C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO
+            </td>
+        </tr>
+    </table>
+
+    <table class="checklist">
+        <thead>
+            <tr>
+                <th>ELEMENTOS VERIFICADOS</th>
+                <th class="center">C</th>
+                <th class="center">NC</th>
+                <th class="center">NA</th>
+                <th class="comment-col">COMENTARIOS</th>
+            </tr>
+        </thead>
+        <tbody id="checklist-body">
+        </tbody>
+    </table>
+
+    <table class="footer-obs-table">
+        <tr>
+            <td>COMENTARIOS Y OBSERVACIONES GENERALES
+                <textarea id="obs_generales" placeholder="Digite observaciones generales sobre el estado de la plataforma elevatória..."></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>MEDIDAS CORRECTIVAS ADOPTADAS:
+                <textarea id="medidas_correctivas" placeholder="Descreva ações tomadas para os itens marcados como NC..."></textarea>
+            </td>
+        </tr>
+    </table>
+
+    <table class="photos-table">
+        <tr>
+            <td>EVIDENCIAS FOTOGRÁFICAS (MÁXIMO 08 FOTOS)
+                <div class="photo-grid">
+                    <script>
+                        for(let f_count=1; f_count<=8; f_count++) {
+                            document.write(`
+                                <div class="photo-item" id="box_photo_${f_count}">
+                                    <span class="photo-label" id="label_photo_${f_count}">📸 Foto ${f_count}</span>
+                                    <input type="file" accept="image/*" capture="environment" onchange="compressAndLoadPhoto(this, ${f_count})">
+                                    <img id="img_preview_${f_count}" style="display:none;">
+                                </div>
+                            `);
+                        }
+                    </script>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <table class="result-table">
+        <tr>
+            <td class="result-title">RESULTADO</td>
+            <td class="result-option" id="cell_liberado">LIBERADO</td>
+            <td class="result-checkbox" id="check_liberado"><input type="radio" name="resultado_final" id="res_liberado" value="LIBERADO"></td>
+            <td class="result-option" id="cell_obs">LIBERADO COM OBS.</td>
+            <td class="result-checkbox" id="check_obs"><input type="radio" name="resultado_final" id="res_obs" value="LIBERADO_OBS"></td>
+            <td class="result-option" id="cell_no_liberado">NO LIBERADO</td>
+            <td class="result-checkbox" id="check_no_liberado"><input type="radio" name="resultado_final" id="res_no_liberado" value="NO_LIBERADO"></td>
+        </tr>
+    </table>
+
+    <table class="signatures-table">
+        <tr>
+            <td>OPERADOR / RESPONSABLE
+                <div class="canvas-container no-print">
+                    <canvas id="canvas_conductor" class="sig-canvas" width="220" height="75"></canvas>
+                    <button class="btn-clear" onclick="limparCanvas('canvas_conductor')">🗑️ Limpar</button>
+                </div>
+            </td>
+            <td>SUPERVISOR / ENCARGADO / CAPATAZ
+                <div class="canvas-container no-print">
+                    <canvas id="canvas_supervisor" class="sig-canvas" width="220" height="75"></canvas>
+                    <button class="btn-clear" onclick="limparCanvas('canvas_supervisor')">🗑️ Limpar</button>
+                </div>
+            </td>
+            <td>SEGURIDAD DO TRABAJO
+                <div class="canvas-container no-print">
+                    <canvas id="canvas_seguridad" class="sig-canvas" width="220" height="75"></canvas>
+                    <button class="btn-clear" onclick="limparCanvas('canvas_seguridad')">🗑️ Limpar</button>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+<div class="btn-container">
+    <a href="/" class="btn-voltar">⬅ Voltar</a>
+    <button class="btn-salvar" onclick="validarEEnviar()">💾 ENVIAR Y SALVAR CHECKLIST</button>
+</div>
+
+<script src="/static/config.js"></script>
+
+<script>
+    const preguntas = [
+        "NEUMÁTICOS Y RUEDAS EN BUEN ESTADO DE CONSERVACIÓN Y FUNCIONAMIENTO - IMP",
+        "DISPOSITIVOS DE SEGURIDAD QUE GARANTISEN SU PERFECTO NIVELAMIENTO EN EL PUNTO DE TRABAJO, SEGÚN ESPECIFICACIONES DEL FABRICANTE",
+        "ASA DE APOYO INTERNA",
+        "BARANDILLA QUE CUMPLA CON LAS ESPECIFICACIONES DEL FABRICANTE",
+        "PANEL DE CONTROL CON BOTÓN DE PARADA DE EMERGENCIA - IMP",
+        "SISTEMA SONORO AUTOMÁTICO DE SEÑALIZACIÓN ACTIVADO DURING EL ASCENSO Y EL DESCENSO",
+        "PROTECCIÓN CONTRA DESCARGAS ELÉCTRICAS, MEDIANTE CABLES DE ALIMENTACIÓN DE DOBLE AISLAMIENTO; ENCHUFES Y TOMAS REFORZADOS; PUESTA A TIERRA ELÉCTRICA;",
+        "MANUALES DE OPERACIÓN Y MANTENIMIENTO DE LA PTA DEBEN ESTAR REDACTADOS EN ESPANHOL Y DISPONIBLES EN EL SITIO DE OBRA O FRENTE DE TRABAJO - IMP",
+        "PLACAS, SEÑALES DE AVISO Y DE CONTROL",
+        "NIVEL DE ACEITE HIDRÁULICO"
+    ];
+
+    document.getElementById('v_fecha').valueAsDate = new Date();
+
+    const tbody = document.getElementById('checklist-body');
+    preguntas.forEach((pregunta, index) => {
+        const id = index + 1;
+        const row = `
+            <tr>
+                <td><strong>${id}.</strong> ${pregunta}</td>
+                <td class="center"><input type="radio" name="item_${id}" value="C" onchange="verificarReglasResultados()"></td>
+                <td class="center"><input type="radio" name="item_${id}" value="NC" onchange="verificarReglasResultados()"></td>
+                <td class="center"><input type="radio" name="item_${id}" value="NA" onchange="verificarReglasResultados()"></td>
+                <td class="comment-col"><input type="text" id="comment_${id}" placeholder="Nota..."></td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+
+    const canvases = ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'];
+    canvases.forEach(id => {
+        const canvas = document.getElementById(id);
+        const ctx = canvas.getContext('2d');
+        ctx.lineWidth = 2; ctx.strokeStyle = "#004B87";
+        let desenhando = false;
+        
+        function obterPosicao(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clienteX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clienteY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clienteX - rect.left, y: clienteY - rect.top };
+        }
+        function iniciar(e) { desenhando = true; ctx.beginPath(); const p = obterPosicao(e); ctx.moveTo(p.x, p.y); }
+        function mover(e) {
+            if (!desenhando) return;
+            if (e.touches) e.preventDefault();
+            const pos = obterPosicao(e); ctx.lineTo(pos.x, pos.y); ctx.stroke();
+        }
+        function parar() { desenhando = false; }
+
+        canvas.addEventListener('mousedown', iniciar);
+        canvas.addEventListener('mousemove', mover);
+        window.addEventListener('mouseup', parar);
+        canvas.addEventListener('touchstart', iniciar, {passive:false});
+        canvas.addEventListener('touchmove', mover, {passive:false});
+        window.addEventListener('touchend', parar);
+    });
+
+    function limparCanvas(id) {
+        const canvas = document.getElementById(id);
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function verificarCanvasVazio(id) {
+        const canvas = document.getElementById(id);
+        const branco = document.createElement('canvas');
+        branco.width = canvas.width; branco.height = canvas.height;
+        return canvas.toDataURL() === branco.toDataURL();
+    }
+
+    function verificarReglasResultados() {
+        let bloqueioImpeditivo = false;
+        let falhaComumDetectada = false;
+
+        preguntas.forEach((pregunta, index) => {
+            const id = index + 1;
+            const radioNC = document.querySelector(`input[name="item_${id}"][value="NC"]:checked`);
+            if (radioNC) {
+                if (pregunta.toUpperCase().includes("IMP")) {
+                    bloqueioImpeditivo = true;
+                } else {
+                    falhaComumDetectada = true;
+                }
+            }
+        });
+
+        const btnLiberado = document.getElementById('res_liberado');
+        const btnObs = document.getElementById('res_obs');
+        const btnNoLiberado = document.getElementById('res_no_liberado');
+
+        const itensLayout = [
+            document.getElementById('cell_liberado'), document.getElementById('check_liberado'),
+            document.getElementById('cell_obs'), document.getElementById('check_obs'),
+            document.getElementById('cell_no_liberado'), document.getElementById('check_no_liberado')
+        ];
+
+        itensLayout.forEach(el => el.classList.remove('disabled-option'));
+        btnLiberado.disabled = false; btnObs.disabled = false; btnNoLiberado.disabled = false;
+
+        if (bloqueioImpeditivo) {
+            btnNoLiberado.checked = true;
+            itensLayout.slice(0, 4).forEach(el => el.classList.add('disabled-option'));
+            btnLiberado.disabled = true; btnObs.disabled = true;
+        } else if (falhaComumDetectada) {
+            btnObs.checked = true;
+            itensLayout.slice(0, 2).concat(itensLayout.slice(4, 6)).forEach(el => el.classList.add('disabled-option'));
+            btnLiberado.disabled = true; btnNoLiberado.disabled = true;
+        } else {
+            btnLiberado.checked = true;
+        }
+    }
+
+    function compressAndLoadPhoto(input, index) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgElement = new Image();
+                const imgBox = document.getElementById(`img_preview_${index}`);
+                imgElement.src = e.target.result;
+                imgElement.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const MAX_WIDTH = 600;
+                    const MAX_HEIGHT = 450;
+                    let width = imgElement.width;
+                    let height = imgElement.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                    }
+                    canvas.width = width; canvas.height = height;
+                    ctx.drawImage(imgElement, 0, 0, width, height);
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
+                    document.getElementById(`label_photo_${index}`).style.display = "none";
+                    imgBox.src = compressedBase64; imgBox.style.display = "block";
+                }
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    let logoBase64Global = "";
+    function carregarLogoParaPdf() {
+        const img = document.getElementById('v_logo');
+        if (img) {
+            const extrair = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+                canvas.getContext('2d').drawImage(img, 0, 0);
+                logoBase64Global = canvas.toDataURL('image/png');
+            };
+            if (img.complete) extrair();
+            else img.onload = extrair;
+        }
+    }
+    window.addEventListener('DOMContentLoaded', carregarLogoParaPdf);
+
+    async function validarEEnviar() {
+        const patenteRaw = document.getElementById('v_patente').value;
+        if (!patenteRaw) { alert("❌ Erro: O preenchimento da PATENTE / IDENT. é obrigatório!"); return; }
+
+        let itensIncompletos = [];
+        let precisaDeFoto = false;
+        let payloadAnswers = {};
+        let payloadComments = {};
+
+        for (let i = 1; i <= preguntas.length; i++) {
+            const radio = document.querySelector(`input[name="item_${i}"]:checked`);
+            if (!radio) { 
+                itensIncompletos.push(i); 
+            } else {
+                payloadAnswers[`item_${i}`] = radio.value;
+                payloadComments[`item_${i}`] = document.getElementById(`comment_${i}`).value.toUpperCase();
+                if (radio.value === "NC" || radio.value === "NA") { precisaDeFoto = true; }
+            }
+        }
+
+        if (itensIncompletos.length > 0) {
+            alert(`❌ Erro impeditivo: Todos os itens de escolha são obrigatórios!\nVocê esqueceu de marcar os seguintes itens: ${itensIncompletos.join(', ')}`);
+            return;
+        }
+
+        let fotosBase64 = [];
+        for (let f_count = 1; f_count <= 8; f_count++) {
+            const img = document.getElementById('img_preview_' + f_count);
+            if(img && img.src && img.style.display !== "none") fotosBase64.push(img.src);
+        }
+
+        if (precisaDeFoto && fotosBase64.length === 0) {
+            alert("❌ Erro de Segurança Elecnor:\nVocê marcou itens como 'NC' ou 'NA'. É OBRIGATÓRIO tirar ou anexar pelo menos 01 foto como evidência antes de salvar!");
+            return;
+        }
+
+        if (verificarCanvasVazio('canvas_conductor')) {
+            alert("❌ Erro: A assinatura em tela do OPERADOR / RESPONSABLE é obrigatória!");
+            return;
+        }
+
+        let nomeInspetor = "";
+        while (nomeInspetor.trim().length < 5) {
+            nomeInspetor = prompt("✍️ Digite seu NOME COMPLETO para registro digital da folha:");
+            if (nomeInspetor === null) return;
+        }
+
+        const nomeEmMaiusculo = nomeInspetor.toUpperCase();
+        const botaoSalvar = document.querySelector('.btn-salvar');
+        if(botaoSalvar) { botaoSalvar.innerText = "⏳ Compilando Reporte PDF..."; botaoSalvar.disabled = true; }
+
+        let conductorSigBase64 = document.getElementById('canvas_conductor').toDataURL();
+        let supervisorSigBase64 = !verificarCanvasVazio('canvas_supervisor') ? document.getElementById('canvas_supervisor').toDataURL() : "";
+        let seguridadSigBase64 = !verificarCanvasVazio('canvas_seguridad') ? document.getElementById('canvas_seguridad').toDataURL() : "";
+        
+        const radioResultado = document.querySelector('input[name="resultado_final"]:checked');
+        const resultadoFinal = radioResultado ? radioResultado.value : "LIBERADO";
+
+        let payload = {
+            id_interno: Date.now().toString(),
+            inspector: nomeEmMaiusculo,
+            equipo: "PLATAFORMA DE TRABAJO EN ALTURA – PTA",
+            patente: patenteRaw.toUpperCase(),
+            fecha: document.getElementById('v_fecha').value,
+            empresa: document.getElementById('v_empresa').value.toUpperCase(),
+            anio: document.getElementById('v_anio').value.toUpperCase(),
+            km_horometro: document.getElementById('v_km').value.toUpperCase(),
+            respuestas: payloadAnswers,
+            comentarios: payloadComments,
+            observaciones_generales: document.getElementById('obs_generales').value.toUpperCase(),
+            medidas_correctivas: document.getElementById('medidas_correctivas').value.toUpperCase(),
+            resultado_final: resultadoFinal,
+            fotos: fotosBase64,
+            assinatura_conductor: conductorSigBase64,
+            assinatura_supervisor: supervisorSigBase64,
+            assinatura_seguridad: seguridadSigBase64
+        };
+
+        let inspecoesSalvas = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
+        inspecoesSalvas.push(payload);
+        localStorage.setItem('inspecoes_offline', JSON.stringify(inspecoesSalvas));
+        
+        executarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal);
+    }
+
+    function executarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        const azulElecnor = [0, 51, 102];
+        const cinzaFundo = [226, 232, 240];
+        let paginaActual = 1;
+
+        function desenharCabecalho(numPagina) {
+            doc.setDrawColor(0); doc.setLineWidth(0.4);
+            doc.rect(10, 10, 190, 22);
+            doc.line(45, 10, 45, 32); doc.line(145, 10, 145, 32);
+            if (logoBase64Global) doc.addImage(logoBase64Global, 'PNG', 13, 12, 28, 17);
+            
+            doc.setFont("helvetica", "bold"); doc.setFontSize(9.5); doc.setTextColor(0);
+            const tituloQuebrado = doc.splitTextToSize("LISTA DE VERIFICACIÓN MENSUAL PARA PLATAFORMA DE TRABAJO EN ALTURA (PTA)", 95);
+            doc.text(tituloQuebrado, 95, 18, {align:"center"});
+            
+            doc.setFontSize(6.5);
+            doc.text(`CÓDIGO: 20.0009-SST-FL-0052\nFECHA REF: 09/06/2026\nPÁGINA: ${numPagina} DE 3\nREVISIÓN: 00\nCATEGORÍA: ALTURA / IZAJE\nSECTOR: OPERACIONES`, 147, 14);
+        }
+
+        // --- PÁGINA 1 ---
+        desenharCabecalho(1);
+        doc.rect(10, 32, 190, 13); doc.line(75, 32, 75, 45); doc.line(140, 32, 140, 45);
+        doc.setFontSize(6.5); doc.setTextColor(...azulElecnor);
+        doc.text("EQUIPO / MODELO:", 12, 35.5); doc.text("N° INTERNO / SERIE:", 77, 35.5); doc.text("FECHA DE INSPECCIÓN:", 142, 35.5);
+        doc.setFontSize(9); doc.setTextColor(0);
+        const modeloTexto = doc.splitTextToSize("PLATAFORMA DE TRABAJO EN ALTURA – PTA", 62);
+        doc.text(modeloTexto, 12, 40.5); doc.text(patenteRaw.toUpperCase(), 77, 41); doc.text(document.getElementById('v_fecha').value, 142, 41);
+
+        doc.rect(10, 44, 190, 12); doc.line(75, 45, 75, 57); doc.line(140, 45, 140, 57);
+        doc.setFontSize(6.5); doc.setTextColor(...azulElecnor);
+        doc.text("EMPRESA:", 12, 48); doc.text("INSPECTOR / REVISADO POR:", 77, 48); doc.text("HORÓMETRO:", 142, 48);
+        doc.setFontSize(8.5); doc.setTextColor(0); doc.text(document.getElementById('v_empresa').value.toUpperCase(), 12, 51); doc.text(nomeEmMaiusculo, 77, 53); doc.text(document.getElementById('v_km').value.toUpperCase(), 142, 53);
+
+        doc.setFillColor(...azulElecnor); doc.rect(10, 57, 190, 6, 'F');
+        doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(255);
+        doc.text("C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO", 105, 61, {align:"center"});
+
+        doc.setTextColor(0); doc.setFillColor(...cinzaFundo); doc.rect(10, 63, 190, 7, 'F'); doc.rect(10, 63, 190, 7);
+        doc.line(120, 63, 120, 70); doc.line(132, 63, 132, 70); doc.line(144, 63, 144, 70); doc.line(156, 63, 156, 70);
+        doc.text("ELEMENTOS VERIFICADOS", 12, 67.5); doc.text("C", 126, 67.5, {align:"center"}); doc.text("NC", 138, 67.5, {align:"center"}); doc.text("NA", 150, 67.5, {align:"center"}); doc.text("COMENTARIOS", 158, 67.5);
+
+        let y_dinamico = 70;
+        doc.setFont("helvetica", "bold"); doc.setFontSize(7.5);
+        
+        // CORRECCIÓN DE BUCLE CONTINUO: Renderizado exacto de los 10 elementos sin cortes artificiales
+        for (let i = 1; i <= preguntas.length; i++) {
+            doc.rect(10, y_dinamico, 190, 14); doc.line(120, y_dinamico, 120, y_dinamico + 14); doc.line(132, y_dinamico, 132, y_dinamico + 14); doc.line(144, y_dinamico, 144, y_dinamico + 14); doc.line(156, y_dinamico, 156, y_dinamico + 14);
+            doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(`${i}. ${preguntas[i-1]}`, 108), 12, y_dinamico + 5);
+            doc.setFont("helvetica", "bold");
+            const radioMarcado = document.querySelector(`input[name="item_${i}"]:checked`);
+            if (radioMarcado) {
+                if (radioMarcado.value === "C") doc.text("C", 126, y_dinamico + 8, {align:"center"});
+                if (radioMarcado.value === "NC") { doc.text(preguntas[i-1].toUpperCase().includes("IMP") ? "IMP" : "NC", 138, y_dinamico + 8, {align:"center"}); }
+                if (radioMarcado.value === "NA") doc.text("NA", 150, y_dinamico + 8, {align:"center"});
+            }
+            const txtCom = document.getElementById(`comment_${i}`).value.toUpperCase();
+            if (txtCom) doc.text(doc.splitTextToSize(txtCom, 36), 158, y_dinamico + 5);
+            y_dinamico += 14;
+        }
+
+        doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 6, 'F'); doc.rect(10, y_dinamico, 190, 6);
+        doc.setFont("helvetica", "bold"); doc.text("COMENTARIOS Y OBSERVACIONES GENERALES", 12, y_dinamico + 4);
+        y_dinamico += 6; doc.rect(10, y_dinamico, 190, 16); doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(document.getElementById('obs_generales').value.toUpperCase() || "SIN OBSERVACIONES", 185), 12, y_dinamico + 5);
+        y_dinamico += 16;
+
+        doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 6, 'F'); doc.rect(10, y_dinamico, 190, 6);
+        doc.setFont("helvetica", "bold"); doc.text("MEDIDAS CORRECTIVAS ADOPTADAS", 12, y_dinamico + 4);
+        y_dinamico += 6; doc.rect(10, y_dinamico, 190, 16); doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(document.getElementById('medidas_correctivas').value.toUpperCase() || "SIN MEDIDAS CORRECTIVAS REGISTRADAS", 185), 12, y_dinamico + 5);
+        y_dinamico += 16;
+
+        doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 6, 'F'); doc.rect(10, y_dinamico, 190, 6);
+        doc.setFont("helvetica", "bold"); doc.text("RESULTADO DE LA LIBERACIÓN", 12, y_dinamico + 4);
+        y_dinamico += 6; doc.rect(10, y_dinamico, 190, 8); doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.text(`STATUS FINAL: ${resultadoFinal}`, 12, y_dinamico + 5.5);
+        y_dinamico += 8;
+
+        // --- PÁGINA 2 ---
+        doc.addPage(); paginaActual = 2;
+        desenharCabecalho(paginaActual);
+        y_dinamico = 32;
+
+        doc.rect(10, y_dinamico, 190, 58);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(6.5); doc.setTextColor(...azulElecnor); doc.text("EVIDENCIAS FOTOGRÁFICAS ANEXADAS (SISTEMA INTEGRAL DE IMÁGENES):", 12, y_dinamico + 4);
+        
+        let f_col = 0;
+        let x_img = 12;
+        let y_img = y_dinamico + 6;
+
+        for (let idx = 1; idx <= 8; idx++) {
+            const imgBox = document.getElementById(`img_preview_${idx}`);
+            if (imgBox && imgBox.src && imgBox.style.display !== 'none') {
+                doc.addImage(imgBox.src, 'JPEG', x_img, y_img, 42, 23);
+                x_img += 46;
+                f_col++;
+                if(f_col === 4) {
+                    f_col = 0;
+                    x_img = 12;
+                    y_img += 25;
+                }
+            }
+        }
+        y_dinamico += 58;
+
+        doc.rect(10, y_dinamico, 190, 26); doc.line(73.33, y_dinamico, 73.33, y_dinamico + 26); doc.line(136.66, y_dinamico, 136.66, y_dinamico + 26);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(6); doc.setTextColor(...azulElecnor); doc.text("OPERADOR / RESPONSABLE", 12, y_dinamico + 4); doc.text("SUPERVISOR / ENCARGADO", 75.33, y_dinamico + 4); doc.text("SEGURIDAD TRABAJO", 138.66, y_dinamico + 4);
+        
+        doc.addImage(document.getElementById('canvas_conductor').toDataURL(), 'PNG', 14, y_dinamico + 6, 48, 14);
+        if(!verificarCanvasVazio('canvas_supervisor')) doc.addImage(document.getElementById('canvas_supervisor').toDataURL(), 'PNG', 77, y_dinamico + 6, 48, 14);
+        if(!verificarCanvasVazio('canvas_seguridad')) doc.addImage(document.getElementById('canvas_seguridad').toDataURL(), 'PNG', 140, y_dinamico + 6, 48, 14);
+
+        setTimeout(async function() {
+            const pdfBase64 = doc.output('datauristring').split(',')[1];
+            const nomeDoArquivo = `Checklist_Plataforma_Altura_${patenteRaw.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
+            const payloadDrive = { name: nomeDoArquivo, bytes: pdfBase64 };
+            const urlGoogleScript = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
+
+            try {
+                await fetch(urlGoogleScript, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payloadDrive) });
+                alert("✅ ¡Reporte PDF transmitido diretamente a tu Drive!");
+                window.location.href = "/";
+            } catch (err) {
+                console.error(err); window.location.href = "/";
+            }
+        }, 1000);
+    }
+</script>
+</body>
+</html>

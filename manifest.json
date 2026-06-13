@@ -1,0 +1,21 @@
+{
+  "short_name": "InspeX",
+  "name": "InspeX - Inspección Mensual Elecnor",
+  "icons": [
+    {
+      "src": "/static/inspex.jpg",
+      "type": "image/jpeg",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/static/inspex.jpg",
+      "type": "image/jpeg",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#004B87",
+  "display": "standalone",
+  "orientation": "portrait"
+}

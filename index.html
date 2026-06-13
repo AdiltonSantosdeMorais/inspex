@@ -106,7 +106,7 @@
 </div>
 
 <script>
-    // MAPEAMENTO CORRIGIDO E ATUALIZADO CONFORME SEU PADRÃO
+    // MAPEAMENTO CORRIGIDO E SINCRONIZADO COM O SEU GITHUB
     const equipamentos = [
         { nome: "AMBULANCIA", pronto: true, arquivo: "ambulancia" },
         { nome: "CAMIÓN ALJIBE", pronto: true, arquivo: "camion_aljibe" },
@@ -136,11 +136,12 @@
 
     const listaDiv = document.getElementById('lista');
     equipamentos.forEach(eq => {
-        const rota = eq.arquivo !== "" ? eq.arquivo + ".html" : eq.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[\/–—-]/g, " ").replace(/\s+/g, " ").trim().replace(/ /g, "_") + ".html";
+        // Gera a rota limpa compatível com as regras do vercel.json
+        const rotaLimpa = eq.arquivo !== "" ? eq.arquivo : eq.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[\/–—-]/g, " ").replace(/\s+/g, " ").trim().replace(/ /g, "_");
         
         if (eq.pronto) {
             listaDiv.innerHTML += `
-                <a href="/${rota}" class="card-equipamento">
+                <a href="/checklist/${rotaLimpa}" class="card-equipamento">
                     <span>${eq.nome}</span> <span class="badge-pronto">Disponível</span>
                 </a>
             `;
@@ -170,16 +171,16 @@
         alert("O checklist para " + nome + " está sendo configurado no sistema!");
     }
 
-    // REGISTRO OBRIGATÓRIO DO SERVICE WORKER PARA DESTRAVAR INSTALAÇÃO
+    // REGISTRO DO SERVICE WORKER
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/service-worker.js')
-                .then(reg => console.log('Service Worker instalado.'))
+                .then(reg => console.log('Service Worker ativo.'))
                 .catch(err => console.error('Erro de SW:', err));
         });
     }
 
-    // GERENCIADOR DE INSTALAÇÃO PERMANENTE (PWA)
+    // INSTALAÇÃO DO PWA INTERNA
     let gatilhoInstalacao;
     const divInstalar = document.getElementById('install-container');
     const botaoInstalar = document.getElementById('btn-instalar');
@@ -187,7 +188,7 @@
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         gatilhoInstalacao = e;
-        divInstalar.style.display = 'block'; // Mostra o botão nativo imediatamente se não instalado
+        divInstalar.style.display = 'block';
     });
 
     botaoInstalar.addEventListener('click', async () => {
@@ -229,7 +230,6 @@
         }
     }
 
-    // SINCRONIZAÇÃO AUTOMÁTICA EM LOTE CONECTADA DIRETO AO GOOGLE DRIVE DO SCRIPT
     async function sincronizarDadosOffline() {
         if (!navigator.onLine) return;
         
@@ -243,7 +243,6 @@
             banner.innerText = `⏳ Transmitindo lote offline... (${listaOffline.length} restantes)`;
             const itemParaEnviar = listaOffline[0];
             
-            // Reconstrói o payload binário idêntico para a API do Apps Script
             const nomeDoArquivo = `Checklist_Offline_${itemParaEnviar.equipo}_${itemParaEnviar.patente}_${itemParaEnviar.fecha}.pdf`;
             const payloadDrive = { 
                 name: nomeDoArquivo, 
@@ -257,12 +256,11 @@
                     body: JSON.stringify(payloadDrive) 
                 });
                 
-                // Remove o item da fila após envio com sucesso
                 listaOffline.shift();
                 localStorage.setItem('inspecoes_offline', JSON.stringify(listaOffline));
                 verificarFilaOffline();
             } catch (error) {
-                console.error("Conexão com Drive ocupada, aguardando próxima tentativa.", error);
+                console.error("Erro na transmissão do lote.", error);
                 break;
             }
         }

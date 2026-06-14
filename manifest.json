@@ -1,21 +1,24 @@
 {
+  "name": "InspeX - Inspección Mensual",
   "short_name": "InspeX",
-  "name": "InspeX - Inspección Mensual Elecnor",
+  "description": "Sistema de checklists de equipos e inspección mensual Elecnor",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#004B87",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "/static/inspex.jpg",
+      "sizes": "192x192",
       "type": "image/jpeg",
-      "sizes": "192x192"
+      "purpose": "any maskable"
     },
     {
       "src": "/static/inspex.jpg",
+      "sizes": "512x512",
       "type": "image/jpeg",
-      "sizes": "512x512"
+      "purpose": "any maskable"
     }
-  ],
-  "start_url": "/",
-  "background_color": "#ffffff",
-  "theme_color": "#004B87",
-  "display": "standalone",
-  "orientation": "portrait"
+  ]
 }

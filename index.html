@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InspeX - Seleção de Equipamento</title>
     
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/static/inspex.jpg">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #f4f6f9; color: #333; padding: 20px; }
@@ -26,31 +21,6 @@
         .online { background: #2ecc71; }
         .offline { background: #e74c3c; }
 
-        /* BOTÃO DE FORÇAR INSTALAÇÃO */
-        #install-container { 
-            display: none; 
-            background: #ffffff; 
-            padding: 15px; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
-            margin-bottom: 20px; 
-            text-align: center;
-            border: 2px solid #27ae60;
-        }
-        #btn-instalar { 
-            background: #27ae60; 
-            color: white; 
-            border: none; 
-            padding: 14px 20px; 
-            font-size: 15px; 
-            font-weight: bold; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            width: 100%; 
-            transition: background 0.3s;
-        }
-        #btn-instalar:hover { background: #219150; }
-
         .search-box { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 20px; font-size: 16px; outline: none; }
         .grid-lista { display: flex; flex-direction: column; gap: 10px; }
         
@@ -60,6 +30,12 @@
             display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .badge-pronto { background: #2ecc71; color: white; font-size: 11px; padding: 3px 8px; border-radius: 12px; }
+        
+        /* ALERTA VISUAL DE ATUALIZAÇÃO SUCESSO */
+        #update-banner {
+            display: none; background: #2980b9; color: white; padding: 12px; border-radius: 6px;
+            margin-bottom: 20px; text-align: center; font-weight: bold; font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -71,10 +47,7 @@
         <img src="/static/inspex.jpg" alt="Logo InspeX" class="logo-inspex">
     </header>
 
-    <div id="install-container">
-        <p style="margin-bottom: 10px; font-weight: bold; color: #2c3e50;">💡 Instale o InspeX para trabalhar 100% Offline</p>
-        <button id="btn-instalar">📲 INSTALAR APLICATIVO NO TABLET</button>
-    </div>
+    <div id="update-banner">🔄 O aplicativo foi atualizado com as últimas melhorias!</div>
 
     <input type="text" id="busca" class="search-box" placeholder="🔎 Buscar equipamento..." onkeyup="filtrarEquipamentos()">
 
@@ -82,7 +55,6 @@
 </div>
 
 <script>
-    // LISTA INTEGRAL COORDENADA COM OS NOMES EXATOS DA SUA PASTA 'CHECKLIST'
     const equipamentos = [
         { nome: "AMBULANCIA", arquivo: "ambulancia.html" },
         { nome: "CAMIÓN ALJIBE", arquivo: "camion_aljibe.html" },
@@ -112,7 +84,6 @@
 
     const listaDiv = document.getElementById('lista');
     equipamentos.forEach(eq => {
-        // Redirecionamento configurado para a subpasta física /checklist/
         listaDiv.innerHTML += `
             <a href="/checklist/${eq.arquivo}" class="card-equipamento">
                 <span>${eq.nome}</span> <span class="badge-pronto">Disponível</span>
@@ -129,50 +100,33 @@
         }
     }
 
-    // --- SCRIPT DE REGISTRO DO SERVICE WORKER ---
+    // --- ENGENHARIA DE ATUALIZAÇÃO AUTOMÁTICA DENTRO DO APK ---
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/service-worker.js')
                 .then(reg => {
-                    console.log('Service Worker registrado!');
-                    reg.update(); // Força atualização se houver código novo
+                    console.log('Monitor de sincronização ativo.');
+                    
+                    // Verifica se o servidor da Vercel tem arquivos novos
+                    reg.update();
+
+                    // Se detectar um novo código vindo da Vercel, força o APK a recarregar e aplicar na hora
+                    reg.onupdatefound = () => {
+                        const instalandoWorker = reg.installing;
+                        instalandoWorker.onstatechange = () => {
+                            if (instalandoWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                document.getElementById('update-banner').style.display = 'block';
+                                setTimeout(() => {
+                                    window.location.reload(); // Recarrega o app atualizado sozinho
+                                }, 2500);
+                            }
+                        };
+                    };
                 })
-                .catch(err => console.error('Erro ao registrar SW:', err));
+                .catch(err => console.error(err));
         });
     }
 
-    // --- CAPTURA NATIVA DO BOTÃO DE INSTALAÇÃO (PWA) ---
-    let deferredPrompt;
-    const installContainer = document.getElementById('install-container');
-    const btnInstalar = document.getElementById('btn-instalar');
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // Previne o comportamento padrão para gerenciar manualmente
-        e.preventDefault();
-        deferredPrompt = e;
-        // Torna o bloco de instalação visível no topo
-        installContainer.style.display = 'block';
-    });
-
-    btnInstalar.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
-        // Mostra a janela oficial de instalação do tablet
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            console.log('Usuário aceitou a instalação nativa');
-            deferredPrompt = null;
-            installContainer.style.display = 'none';
-        }
-    });
-
-    window.addEventListener('appinstalled', () => {
-        console.log('Aplicativo instalado com sucesso no sistema!');
-        installContainer.style.display = 'none';
-        deferredPrompt = null;
-    });
-
-    // --- MONITOR DE REDE REAL-TIME ---
     function atualizarStatusRede() {
         const badge = document.getElementById('network-status');
         if (navigator.onLine) {

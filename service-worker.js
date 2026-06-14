@@ -1,16 +1,18 @@
-const CACHE_NAME = 'inspex-v5';
+const CACHE_NAME = 'inspex-apk-v1';
 
-// Arquivos base para o Chrome aceitar a instalação inicial
-const INITIAL_CACHE = [
+// Arquivos base para o aplicativo abrir instantaneamente
+const PRE_CACHE = [
     '/',
     '/index.html',
-    '/manifest.json'
+    '/manifest.json',
+    '/static/logo-elecnor.png',
+    '/static/inspex.jpg'
 ];
 
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(INITIAL_CACHE);
+            return cache.addAll(PRE_CACHE);
         })
     );
     self.skipWaiting();
@@ -29,15 +31,22 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Responde offline instantaneamente e guarda as páginas que você abrir
+// Inteligência Offline: Se abrir sem internet, o APK busca direto no armazenamento interno do chip
 self.addEventListener('fetch', (event) => {
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {
+                // Se tiver rede, atualiza o cache de fundo com novidades do GitHub
+                fetch(event.request).then((networkResponse) => {
+                    if (networkResponse.status === 200) {
+                        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
+                    }
+                }).catch(() => {});
                 return cachedResponse;
             }
+
             return fetch(event.request).then((networkResponse) => {
-                if (networkResponse.status === 200 && event.request.url.includes('/checklist/')) {
+                if (networkResponse.status === 200) {
                     const responseClone = networkResponse.clone();
                     caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
                 }

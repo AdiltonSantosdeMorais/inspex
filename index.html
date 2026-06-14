@@ -24,10 +24,6 @@
         .online { background: #2ecc71; }
         .offline { background: #e74c3c; }
 
-        /* BOTÃO PWA */
-        #install-container { display: none; margin-bottom: 20px; }
-        #btn-instalar { background: #27ae60; color: white; border: none; padding: 15px; font-size: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-
         .search-box { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 20px; font-size: 16px; outline: none; }
         .grid-lista { display: flex; flex-direction: column; gap: 10px; }
         
@@ -51,45 +47,43 @@
 
     <div id="sync-banner" class="sync-alert">⚠️ Fila de Sincronização pendente.</div>
 
-    <div id="install-container">
-        <button id="btn-instalar">📲 INSTALAR APLICATIVO NO CELULAR</button>
-    </div>
-
     <input type="text" id="busca" class="search-box" placeholder="🔎 Buscar equipamento..." onkeyup="filtrarEquipamentos()">
 
     <div class="grid-lista" id="lista"></div>
 </div>
 
 <script>
+    // LISTA 100% CORRIGIDA BASEADA NA SUA FOTO DE ARQUIVOS INTERNOS
     const equipamentos = [
-        { nome: "AMBULANCIA", arquivo: "ambulancia" },
-        { nome: "CAMIÓN ALJIBE", arquivo: "camion_aljibe" },
-        { nome: "CAMIÓN CAMA BAJA", arquivo: "camion_cama_baja" },
-        { nome: "CAMIÓN DE PETROLEO", arquivo: "camion_de_petroleo" },
-        { nome: "CAMIÓN TOLVA", arquivo: "camion_tolva" },
-        { nome: "CAMIONES 3/4", arquivo: "camiones_3_4" },
-        { nome: "CAMION BETONERA", arquivo: "camion_betonera" },
-        { nome: "ESLINGAS Y GRILLETES", arquivo: "eslingas_y_grilletes" },
-        { nome: "EXCAVADORA HIDRÁULICA", arquivo: "excavadora_hidraulica" },
-        { nome: "GRÚA Y PLUMA", arquivo: "grua_y_pluma" },
-        { nome: "MANIPULADORA TELESCÓPICA", arquivo: "manipuladora_telescopica" },
-        { nome: "MÁQUINA PERFORADORA", arquivo: "maquina_perforadora" },
-        { nome: "MINI RODILLO COMPACTADOR", arquivo: "mini_rodillo_compactador" },
-        { nome: "MINIEXCAVADORA / MINI CARREGADORA", arquivo: "miniexcavadora_mini_carregadora" },
-        { nome: "MOTOR GENERADOR", arquivo: "motor_generador" },
-        { nome: "PLATAFORMA DE TRABAJO EN ALTURA", arquivo: "plataforma_altura" },
-        { nome: "REMOLQUE TANQUE DE PETROLEO", arquivo: "remolque_tanque" },
-        { nome: "RETROEXCAVADORA", arquivo: "retroexcavadora" },
-        { nome: "RODILLO COMPACTADOR", arquivo: "rodillo_compactador" },
-        { nome: "TALADRO DE ROCA (ROCK DRILL)", arquivo: "taladro_roca" },
-        { nome: "TRACTOR DE NEUMÁTICOS", arquivo: "tractor_neumaticos" },
-        { nome: "TRACTOR DE ORUGAS / MOTONIVELADORA", arquivo: "tractor_orugas_motoniveladora" },
-        { nome: "TRANSPORTE COLECTIVO Y FURGONETAS", arquivo: "transporte_colectivo" },
-        { nome: "VEHÍCULOS LIGEROS Y CAMIONETAS", arquivo: "vehiculos_ligeros" }
+        { nome: "AMBULANCIA", arquivo: "ambulancia.html" },
+        { nome: "CAMIÓN ALJIBE", arquivo: "camion_aljibe.html" },
+        { nome: "CAMION BETONERA", arquivo: "camion_betonera.html" },
+        { nome: "CAMIÓN CAMA BAJA", arquivo: "camion_cama_baja.html" },
+        { nome: "CAMIÓN DE PETROLEO", arquivo: "camion_de_petroleo.html" },
+        { nome: "CAMIÓN TOLVA", arquivo: "camion_tolva.html" },
+        { nome: "CAMIONES 3/4", arquivo: "camiones_3_4.html" },
+        { nome: "ESLINGAS Y GRILLETES", arquivo: "eslingas_y_grilletes.html" },
+        { nome: "EXCAVADORA HIDRÁULICA", arquivo: "excavadora_hidraulica.html" },
+        { nome: "GRÚA Y PLUMA", arquivo: "grua_y_pluma.html" },
+        { nome: "MANIPULADORA TELESCÓPICA", arquivo: "manipuladora_telescopica.html" },
+        { nome: "MÁQUINA PERFORADORA", arquivo: "maquina_perforadora.html" },
+        { nome: "MINI RODILLO COMPACTADOR", arquivo: "mini_rodillo_compactador.html" },
+        { nome: "MINIEXCAVADORA / MINI CARREGADORA", arquivo: "miniexcavadora_mini_carregadora.html" },
+        { nome: "MOTOR GENERADOR", arquivo: "motor_generador.html" },
+        { nome: "PLATAFORMA DE TRABAJO EN ALTURA (PTA)", arquivo: "plataforma_pta.html" },
+        { nome: "REMOLQUE TANQUE DE PETROLEO", arquivo: "remolque_tanque_de_petroleo.html" },
+        { nome: "RETROEXCAVADORA", arquivo: "retroexcavadora.html" },
+        { nome: "RODILLO COMPACTADOR", arquivo: "rodillo_compactador.html" },
+        { nome: "TALADRO DE ROCA (ROCK DRILL)", arquivo: "taladro_de_roca.html" },
+        { nome: "TRACTOR DE NEUMÁTICOS", arquivo: "tractor_de_neumaticos.html" },
+        { nome: "TRACTOR DE ORUGAS / MOTONIVELADORA", arquivo: "tractor_orugas_motoniveladora.html" },
+        { nome: "TRANSPORTE COLECTIVO / FURGONETAS", arquivo: "transporte_colectivo_furgonetas.html" },
+        { nome: "VEHÍCULOS LIGEROS / CAMIONETAS", arquivo: "vehiculos_ligeros_camionetas.html" }
     ];
 
     const listaDiv = document.getElementById('lista');
     equipamentos.forEach(eq => {
+        // Aponta para a pasta /checklist/ que vimos na foto
         listaDiv.innerHTML += `
             <a href="/checklist/${eq.arquivo}" class="card-equipamento">
                 <span>${eq.nome}</span> <span class="badge-pronto">Disponível</span>
@@ -106,49 +100,16 @@
         }
     }
 
-    // --- SISTEMA DE REGISTRO E DIAGNÓSTICO DO PWA ---
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/service-worker.js')
                 .then(reg => {
-                    console.log('Service Worker registrado com sucesso!');
-                    // Força a verificação de atualizações no servidor
+                    console.log('Service Worker ativo!');
                     reg.update();
                 })
-                .catch(err => {
-                    alert('Erro Crítico no Service Worker: ' + err.message);
-                });
+                .catch(err => console.error(err));
         });
-    } else {
-        alert('Este navegador ou celular antigo não suporta aplicativos offline (PWA).');
     }
-
-    let deferredPrompt;
-    const installContainer = document.getElementById('install-container');
-    const btnInstalar = document.getElementById('btn-instalar');
-
-    // Escuta o comando do sistema para liberar a instalação
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        // Faz o botão verde aparecer na marra
-        installContainer.style.display = 'block';
-    });
-
-    btnInstalar.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            deferredPrompt = null;
-            installContainer.style.display = 'none';
-        }
-    });
-
-    window.addEventListener('appinstalled', () => {
-        installContainer.style.display = 'none';
-        deferredPrompt = null;
-    });
 
     function atualizarStatusRede() {
         const badge = document.getElementById('network-status');

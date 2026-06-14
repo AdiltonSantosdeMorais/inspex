@@ -1,29 +1,18 @@
 {
   "cleanUrls": true,
-  "rewrites": [
-    { "source": "/checklist/ambulancia", "destination": "/ambulancia.html" },
-    { "source": "/checklist/camion_aljibe", "destination": "/camion_aljibe.html" },
-    { "source": "/checklist/camion_cama_baja", "destination": "/camion_cama_baja.html" },
-    { "source": "/checklist/camion_de_petroleo", "destination": "/camion_de_petroleo.html" },
-    { "source": "/checklist/camion_tolva", "destination": "/camion_tolva.html" },
-    { "source": "/checklist/camiones_3_4", "destination": "/camiones_3_4.html" },
-    { "source": "/checklist/camion_betonera", "destination": "/camion_betonera.html" },
-    { "source": "/checklist/eslingas_y_grilletes", "destination": "/eslingas_y_grilletes.html" },
-    { "source": "/checklist/excavadora_hidraulica", "destination": "/excavadora_hidraulica.html" },
-    { "source": "/checklist/grua_y_pluma", "destination": "/grua_y_pluma.html" },
-    { "source": "/checklist/manipuladora_telescopica", "destination": "/manipuladora_telescopica.html" },
-    { "source": "/checklist/maquina_perforadora", "destination": "/maquina_perforadora.html" },
-    { "source": "/checklist/mini_rodillo_compactador", "destination": "/mini_rodillo_compactador.html" },
-    { "source": "/checklist/miniexcavadora_mini_carregadora", "destination": "/miniexcavadora_mini_carregadora.html" },
-    { "source": "/checklist/motor_generador", "destination": "/motor_generador.html" },
-    { "source": "/checklist/plataforma_altura", "destination": "/plataforma_altura.html" },
-    { "source": "/checklist/remolque_tanque", "destination": "/remolque_tanque.html" },
-    { "source": "/checklist/retroexcavadora", "destination": "/retroexcavadora.html" },
-    { "source": "/checklist/rodillo_compactador", "destination": "/rodillo_compactador.html" },
-    { "source": "/checklist/taladro_roca", "destination": "/taladro_roca.html" },
-    { "source": "/checklist/tractor_neumaticos", "destination": "/tractor_neumaticos.html" },
-    { "source": "/checklist/tractor_orugas_motoniveladora", "destination": "/tractor_orugas_motoniveladora.html" },
-    { "source": "/checklist/transporte_colectivo", "destination": "/transporte_colectivo.html" },
-    { "source": "/checklist/vehiculos_ligeros", "destination": "/vehiculos_ligeros.html" }
+  "headers": [
+    {
+      "source": "/service-worker.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    }
   ]
 }

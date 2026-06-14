@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InspeX - Seleção de Equipamento</title>
     
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/static/inspex.jpg">
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="InspeX">
+    <meta name="apple-mobile-web-app-title" content="InspeX">
+    <meta name="theme-color" content="#004B87">
+    <meta name="msapplication-navbutton-color" content="#004B87">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #f4f6f9; color: #333; padding: 20px; }
@@ -31,7 +42,6 @@
         }
         .badge-pronto { background: #2ecc71; color: white; font-size: 11px; padding: 3px 8px; border-radius: 12px; }
         
-        /* ALERTA VISUAL DE ATUALIZAÇÃO SUCESSO */
         #update-banner {
             display: none; background: #2980b9; color: white; padding: 12px; border-radius: 6px;
             margin-bottom: 20px; text-align: center; font-weight: bold; font-size: 14px;
@@ -47,7 +57,7 @@
         <img src="/static/inspex.jpg" alt="Logo InspeX" class="logo-inspex">
     </header>
 
-    <div id="update-banner">🔄 O aplicativo foi atualizado com as últimas melhorias!</div>
+    <div id="update-banner">🔄 Sincronizando novas vistorias atualizadas do servidor...</div>
 
     <input type="text" id="busca" class="search-box" placeholder="🔎 Buscar equipamento..." onkeyup="filtrarEquipamentos()">
 
@@ -55,6 +65,7 @@
 </div>
 
 <script>
+    // LISTA TOTALMENTE SINCRONIZADA COM A SUA PASTA FISICA DO GITHUB
     const equipamentos = [
         { nome: "AMBULANCIA", arquivo: "ambulancia.html" },
         { nome: "CAMIÓN ALJIBE", arquivo: "camion_aljibe.html" },
@@ -100,30 +111,27 @@
         }
     }
 
-    // --- ENGENHARIA DE ATUALIZAÇÃO AUTOMÁTICA DENTRO DO APK ---
+    // --- REGISTRO DO SERVICE WORKER E AUTO-REFRESH DO APK ---
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/service-worker.js')
+            navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
                 .then(reg => {
-                    console.log('Monitor de sincronização ativo.');
-                    
-                    // Verifica se o servidor da Vercel tem arquivos novos
+                    console.log('Fila de cache operacional no APK.');
                     reg.update();
 
-                    // Se detectar um novo código vindo da Vercel, força o APK a recarregar e aplicar na hora
                     reg.onupdatefound = () => {
-                        const instalandoWorker = reg.installing;
-                        instalandoWorker.onstatechange = () => {
-                            if (instalandoWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        const temporaryWorker = reg.installing;
+                        temporaryWorker.onstatechange = () => {
+                            if (temporaryWorker.state === 'installed' && navigator.serviceWorker.controller) {
                                 document.getElementById('update-banner').style.display = 'block';
                                 setTimeout(() => {
-                                    window.location.reload(); // Recarrega o app atualizado sozinho
-                                }, 2500);
+                                    window.location.reload();
+                                }, 2000);
                             }
                         };
                     };
                 })
-                .catch(err => console.error(err));
+                .catch(err => console.error('Bloqueio interno de SW:', err));
         });
     }
 

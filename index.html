@@ -1,153 +1,321 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InspeX - Seleção de Equipamento</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>InspeX - Panel de Inspecciones Elecnor</title>
+<style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { background:#e5e5e5; padding:15px; color: #000; }
     
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/static/inspex.jpg">
+    .container { width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="InspeX">
-    <meta name="apple-mobile-web-app-title" content="InspeX">
-    <meta name="theme-color" content="#004B87">
-    <meta name="msapplication-navbutton-color" content="#004B87">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #f4f6f9; color: #333; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; }
-        
-        header { 
-            text-align: center; margin-bottom: 30px; background: #ffffff; padding: 45px 20px 25px 20px;
-            border-radius: 8px; border: 2px solid #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.04); position: relative;
-        }
-        .logo-elecnor { position: absolute; top: 15px; left: 15px; max-width: 85px; height: auto; }
-        .logo-inspex { max-width: 280px; width: 100%; height: auto; display: block; margin: 10px auto 0 auto; }
-        
-        .status-badge { position: absolute; top: 15px; right: 15px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; color: white; }
-        .online { background: #2ecc71; }
-        .offline { background: #e74c3c; }
+    /* CABEÇALHO CORPORATIVO */
+    .header-panel { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
+    .logo-area img { max-height: 55px; object-fit: contain; }
+    .title-area { text-align: right; }
+    .title-area h1 { font-size: 20px; font-weight: bold; color: #003366; }
+    .title-area p { font-size: 11px; color: #555; margin-top: 3px; font-weight: bold; }
 
-        .search-box { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 20px; font-size: 16px; outline: none; }
-        .grid-lista { display: flex; flex-direction: column; gap: 10px; }
-        
-        .card-equipamento { 
-            background: white; padding: 15px; border-radius: 6px; border-left: 5px solid #004B87;
-            text-decoration: none; color: #2c3e50; font-weight: bold; font-size: 16px;
-            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .badge-pronto { background: #2ecc71; color: white; font-size: 11px; padding: 3px 8px; border-radius: 12px; }
-        
-        #update-banner {
-            display: none; background: #2980b9; color: white; padding: 12px; border-radius: 6px;
-            margin-bottom: 20px; text-align: center; font-weight: bold; font-size: 14px;
-        }
-    </style>
+    /* BARRA DE SINCRONIZAÇÃO OFFLINE */
+    .sync-banner { background-color: #f2f2f2; border: 1px solid #000; padding: 12px 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+    .sync-status { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: bold; }
+    .badge-ponto { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .online { background-color: #2ecc71; animation: pulsar 2s infinite; }
+    .offline { background-color: #e74c3c; }
+    .counter-box { font-size: 12px; font-weight: bold; background-color: #4472c4; color: white; padding: 4px 10px; border-radius: 3px; border: 1px solid #000; }
+    .counter-box.pending { background-color: #f39c12; animation: piscar 1.5s infinite; }
+
+    /* GRID DE CATEGORIAS */
+    .section-title { background-color: #4472c4; color: white; font-size: 13px; font-weight: bold; padding: 8px 12px; border: 1px solid #000; margin-top: 15px; letter-spacing: 0.5px; }
+    .grid-links { display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px; margin-top: 10px; margin-bottom: 20px; }
+    @media (min-width: 600px) { .grid-links { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 900px) { .grid-links { grid-template-columns: repeat(3, 1fr); } }
+
+    /* CARD DE LINK */
+    .card-link { display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: #000; border: 1px solid #000; padding: 15px; background: #fff; transition: background 0.2s; font-size: 12px; font-weight: bold; }
+    .card-link:hover { background: #f9f9f9; border-left: 5px solid #003366; padding-left: 11px; }
+    .card-link .code { font-size: 10px; color: #666; display: block; margin-top: 2px; }
+    .icon-arrow { font-size: 14px; color: #4472c4; }
+
+    /* FOOTER */
+    .footer-panel { text-align: center; font-size: 10px; color: #7f8c8d; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 10px; font-weight: bold; }
+
+    @keyframes pulsar {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.6; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes piscar {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+</style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <img src="/static/logo-elecnor.png" alt="Logo Elecnor" class="logo-elecnor">
-        <div id="network-status" class="status-badge online">Online</div>
-        <img src="/static/inspex.jpg" alt="Logo InspeX" class="logo-inspex">
-    </header>
 
-    <div id="update-banner">🔄 Sincronizando novas vistorias atualizadas do servidor...</div>
+    <div class="header-panel">
+        <div class="logo-area">
+            <img src="/static/logo-elecnor.png" alt="Logo Elecnor" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/b/b9/Logo_Elecnor.svg'">
+        </div>
+        <div class="title-area">
+            <h1>InspeX</h1>
+            <p>SISTEMA DE GESTIÓN MÓVIL SST & OPERACIONES</p>
+        </div>
+    </div>
 
-    <input type="text" id="busca" class="search-box" placeholder="🔎 Buscar equipamento..." onkeyup="filtrarEquipamentos()">
+    <div class="sync-banner">
+        <div class="sync-status">
+            <span id="network-indicator" class="badge-ponto online"></span>
+            <span id="network-text">CONEXIÓN TRANSMITIENDO EN LÍNEA</span>
+        </div>
+        <div id="offline-counter" class="counter-box">0 SINCRO PENDIENTES</div>
+    </div>
 
-    <div class="grid-lista" id="lista"></div>
+    <div class="section-title">TRANSPORTE LOGÍSTICO Y PASAJEROS</div>
+    <div class="grid-links">
+        <a href="/transporte_colectivo_furgonetas.html" class="card-link">
+            <div>
+                <span>Transporte Colectivo / Furgonetas</span>
+                <span class="code">Cod: 20.0009-SST-FL-0035</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/ambulancia.html" class="card-link">
+            <div>
+                <span>Ambulancia de Emergencia</span>
+                <span class="code">Cod: 20.0009-SST-FL-0036</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/camion_cama_baja.html" class="card-link">
+            <div>
+                <span>Camión Cama Baja</span>
+                <span class="code">Cod: 20.0009-SST-FL-0038</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/camiones_3_4.html" class="card-link">
+            <div>
+                <span>Camiones 3/4</span>
+                <span class="code">Cod: 20.0009-SST-FL-0043</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/vehiculos_ligeros_camionetas.html" class="card-link">
+            <div>
+                <span>Vehículos Ligeros / Camionetas</span>
+                <span class="code">Cod: 20.0009-SST-FL-0041</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+    </div>
+
+    <div class="section-title">LOGÍSTICA DE COMBUSTIBLES Y FLUIDOS</div>
+    <div class="grid-links">
+        <a href="/camion_de_petroleo.html" class="card-link">
+            <div>
+                <span>Camión de Petróleo</span>
+                <span class="code">Cod: 20.0009-SST-FL-0039</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/remolque_tanque_de_petroleo.html" class="card-link">
+            <div>
+                <span>Remolque Tanque de Petróleo</span>
+                <span class="code">Cod: 20.0009-SST-FL-0053</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/camion_motoniveladora.html" class="card-link">
+            <div>
+                <span>Camión Aljibe</span>
+                <span class="code">Cod: 20.0009-SST-FL-0037</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+    </div>
+
+    <div class="section-title">MAQUINARIA PESADA Y OBRAS CIVILES</div>
+    <div class="grid-links">
+        <a href="/camion_betonera.html" class="card-link">
+            <div>
+                <span>Camión Betonera</span>
+                <span class="code">Cod: 20.0009-SST-FL-0044</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/camion_tolva.html" class="card-link">
+            <div>
+                <span>Camión Tolva</span>
+                <span class="code">Cod: 20.0009-SST-FL-0040</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/excavadora_hidraulica.html" class="card-link">
+            <div>
+                <span>Excavadora Hidráulica</span>
+                <span class="code">Cod: 20.0009-SST-FL-0045</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/retroexcavadora.html" class="card-link">
+            <div>
+                <span>Retroexcavadora</span>
+                <span class="code">Cod: 20.0009-SST-FL-0054</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/rodillo_compactador.html" class="card-link">
+            <div>
+                <span>Rodillo Compactador Heavy</span>
+                <span class="code">Cod: 20.0009-SST-FL-0055</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/mini_rodillo_compactador.html" class="card-link">
+            <div>
+                <span>Mini Rodillo Compactador</span>
+                <span class="code">Cod: 20.0009-SST-FL-0049</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/miniexcavadora_mini_carregadora.html" class="card-link">
+            <div>
+                <span>Miniexcavadora / Mini Carregadora</span>
+                <span class="code">Cod: 20.0009-SST-FL-0050</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+    </div>
+
+    <div class="section-title">PERFORACIÓN, ALTURA E ENERGÍA</div>
+    <div class="grid-links">
+        <a href="/maquina_perforadora.html" class="card-link">
+            <div>
+                <span>Máquina Perforadora Dir.</span>
+                <span class="code">Cod: 20.0009-SST-FL-0048</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/taladro_de_roca.html" class="card-link">
+            <div>
+                <span>Taladro de Roca (Rock Drill)</span>
+                <span class="code">Cod: 20.0009-SST-FL-0056</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/manipuladora_telescopica.html" class="card-link">
+            <div>
+                <span>Manipuladora Telescópica</span>
+                <span class="code">Cod: 20.0009-SST-FL-0047</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/plataforma_pta.html" class="card-link">
+            <div>
+                <span>Plataforma de Trabajo (PTA)</span>
+                <span class="code">Cod: 20.0009-SST-FL-0052</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/motor_generador.html" class="card-link">
+            <div>
+                <span>Motor Generador</span>
+                <span class="code">Cod: 20.0009-SST-FL-0051</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/grua_y_pluma.html" class="card-link">
+            <div>
+                <span>Grúa y Pluma</span>
+                <span class="code">Cod: 20.0009-SST-FL-0046</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+        <a href="/eslingas_y_grilletes.html" class="card-link">
+            <div>
+                <span>Eslingas y Grilletes</span>
+                <span class="code">Cod: 20.0009-SST-FL-0045</span>
+            </div>
+            <span class="icon-arrow">➔</span>
+        </a>
+    </div>
+
+    <div class="footer-panel">
+        © 2026 Elecnor SST - InspeX v4.9 - Todos los derechos reservados.
+    </div>
+
 </div>
 
 <script>
-    // LISTA TOTALMENTE SINCRONIZADA COM A SUA PASTA FISICA DO GITHUB
-    const equipamentos = [
-        { nome: "AMBULANCIA", arquivo: "ambulancia.html" },
-        { nome: "CAMIÓN ALJIBE", arquivo: "camion_aljibe.html" },
-        { nome: "CAMION BETONERA", arquivo: "camion_betonera.html" },
-        { nome: "CAMIÓN CAMA BAJA", arquivo: "camion_cama_baja.html" },
-        { nome: "CAMIÓN DE PETROLEO", arquivo: "camion_de_petroleo.html" },
-        { nome: "CAMIÓN TOLVA", arquivo: "camion_tolva.html" },
-        { nome: "CAMIONES 3/4", arquivo: "camiones_3_4.html" },
-        { nome: "ESLINGAS Y GRILLETES", arquivo: "eslingas_y_grilletes.html" },
-        { nome: "EXCAVADORA HIDRÁULICA", arquivo: "excavadora_hidraulica.html" },
-        { nome: "GRÚA Y PLUMA", arquivo: "grua_y_pluma.html" },
-        { nome: "MANIPULADORA TELESCÓPICA", arquivo: "manipuladora_telescopica.html" },
-        { nome: "MÁQUINA PERFORADORA", arquivo: "maquina_perforadora.html" },
-        { nome: "MINI RODILLO COMPACTADOR", arquivo: "mini_rodillo_compactador.html" },
-        { nome: "MINIEXCAVADORA / MINI CARREGADORA", arquivo: "miniexcavadora_mini_carregadora.html" },
-        { nome: "MOTOR GENERADOR", arquivo: "motor_generador.html" },
-        { nome: "PLATAFORMA DE TRABAJO EN ALTURA (PTA)", arquivo: "plataforma_pta.html" },
-        { nome: "REMOLQUE TANQUE DE PETROLEO", arquivo: "remolque_tanque_de_petroleo.html" },
-        { nome: "RETROEXCAVADORA", arquivo: "retroexcavadora.html" },
-        { nome: "RODILLO COMPACTADOR", arquivo: "rodillo_compactador.html" },
-        { nome: "TALADRO DE ROCA (ROCK DRILL)", arquivo: "taladro_de_roca.html" },
-        { nome: "TRACTOR DE NEUMÁTICOS", arquivo: "tractor_de_neumaticos.html" },
-        { nome: "TRACTOR DE ORUGAS / MOTONIVELADORA", arquivo: "tractor_orugas_motoniveladora.html" },
-        { nome: "TRANSPORTE COLECTIVO / FURGONETAS", arquivo: "transporte_colectivo_furgonetas.html" },
-        { nome: "VEHÍCULOS LIGEROS / CAMIONETAS", arquivo: "vehiculos_ligeros_camionetas.html" }
-    ];
-
-    const listaDiv = document.getElementById('lista');
-    equipamentos.forEach(eq => {
-        listaDiv.innerHTML += `
-            <a href="/checklist/${eq.arquivo}" class="card-equipamento">
-                <span>${eq.nome}</span> <span class="badge-pronto">Disponível</span>
-            </a>
-        `;
-    });
-
-    function filtrarEquipamentos() {
-        let input = document.getElementById('busca').value.toLowerCase();
-        let cards = document.getElementsByClassName('card-equipamento');
-        for (let i = 0; i < cards.length; i++) {
-            let nome = cards[i].getElementsByTagName('span')[0].innerText.toLowerCase();
-            cards[i].style.display = nome.includes(input) ? "flex" : "none";
-        }
-    }
-
-    // --- REGISTRO DO SERVICE WORKER E AUTO-REFRESH DO APK ---
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
-                .then(reg => {
-                    console.log('Fila de cache operacional no APK.');
-                    reg.update();
-
-                    reg.onupdatefound = () => {
-                        const temporaryWorker = reg.installing;
-                        temporaryWorker.onstatechange = () => {
-                            if (temporaryWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                document.getElementById('update-banner').style.display = 'block';
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 2000);
-                            }
-                        };
-                    };
-                })
-                .catch(err => console.error('Bloqueio interno de SW:', err));
-        });
-    }
-
-    function atualizarStatusRede() {
-        const badge = document.getElementById('network-status');
+    function updateNetworkStatus() {
+        const ind = document.getElementById('network-indicator');
+        const txt = document.getElementById('network-text');
+        
         if (navigator.onLine) {
-            badge.innerText = "Online";
-            badge.className = "status-badge online";
+            ind.className = "badge-ponto online";
+            txt.innerText = "CONEXIÓN TRANSMITIENDO EN LÍNEA";
+            verificarESincronizarFila();
         } else {
-            badge.innerText = "Offline";
-            badge.className = "status-badge offline";
+            ind.className = "badge-ponto offline";
+            txt.innerText = "MODO OFFLINE ACTIVADO EN CAMPO";
         }
     }
-    window.addEventListener('online', atualizarStatusRede);
-    window.addEventListener('offline', atualizarStatusRede);
-    atualizarStatusRede();
+
+    function atualizarContadorFila() {
+        const filaOffline = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
+        const box = document.getElementById('offline-counter');
+        
+        if (filaOffline.length > 0) {
+            box.innerText = `${filaOffline.length} SINCRO PENDIENTES`;
+            box.className = "counter-box pending";
+        } else {
+            box.innerText = "0 SINCRO PENDIENTES";
+            box.className = "counter-box";
+        }
+    }
+
+    async function verificarESincronizarFila() {
+        atualizarContadorFila();
+        if (!navigator.onLine) return;
+
+        let filaOffline = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
+        if (filaOffline.length === 0) return;
+
+        const urlGoogleScript = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
+        let itensRestantes = [...filaOffline];
+
+        for (let i = 0; i < filaOffline.length; i++) {
+            const inspecao = filaOffline[i];
+            
+            try {
+                await fetch(urlGoogleScript, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(inspecao)
+                });
+
+                itensRestantes = itensRestantes.filter(item => item.id_interno !== inspecao.id_interno);
+                localStorage.setItem('inspecoes_offline', JSON.stringify(itensRestantes));
+                atualizarContadorFila();
+            } catch (error) {
+                console.error("Fila de sincronização suspensa.", error);
+                break;
+            }
+        }
+    }
+
+    window.addEventListener('online', updateNetworkStatus);
+    window.addEventListener('offline', updateNetworkStatus);
+    window.addEventListener('DOMContentLoaded', () => {
+        updateNetworkStatus();
+        atualizarContadorFila();
+        setInterval(verificarESincronizarFila, 20000);
+    });
 </script>
 </body>
 </html>

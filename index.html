@@ -81,9 +81,9 @@
     .btn-salvar:hover { background: #355a9c; }
     .btn-voltar { background: #95a5a6; color: white; border: none; padding: 16px 25px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; text-align: center; }
 
-    /* BANNER DE INSTALAÇÃO INLINE */
     #pwa-install-banner { display: none; background: #0055a5; color: white; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 14px; cursor: pointer; margin-bottom: 10px; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -231,12 +231,14 @@
 
         <div class="btn-container">
             <button class="btn-voltar" onclick="fecharFormularioNativo()">⬅ Voltar</button>
-            <button class="btn-salvar" onclick="salvarChecklistOffline()">💾 ENVIAR Y SALVAR CHECKLIST</button>
+            <button class="btn-salvar" id="btn-save-main" onclick="salvarChecklistOffline()">💾 ENVIAR Y SALVAR CHECKLIST</button>
         </div>
     </div>
 </div>
 
 <script>
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
+
     const BANCO_PERGUNTAS = {
         "AMBULANCIA": [
             "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
@@ -408,8 +410,6 @@
         const canvases = ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'];
         canvases.forEach(id => {
             const canvas = document.getElementById(id);
-            const ctx = canvas.getContext('2d');
-            
             const clone = canvas.cloneNode(true);
             canvas.parentNode.replaceChild(clone, canvas);
             
@@ -439,14 +439,25 @@
         if(canvas) { canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); }
     }
 
+    // NOVA LÓGICA: SALVAMENTO LOCAL E COMPILADOR DE ARQUIVO
     function salvarChecklistOffline() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: O preenchimento da PATENTE é obrigatório!"); return; }
         
         const perguntas = BANCO_PERGUNTAS[equipoSeleccionado] || BANCO_PERGUNTAS["DEFAULT"];
         let respondidas = true;
-        perguntas.forEach((_, index) => {
-            if(!document.querySelector(`input[name="item_${index + 1}"]:checked`)) respondidas = false;
+        let payloadAnswers = {};
+        let payloadComments = {};
+
+        perguntas.forEach((pregunta, index) => {
+            const id = index + 1;
+            const radio = document.querySelector(`input[name="item_${id}"]:checked`);
+            if(!radio) {
+                respondidas = false;
+            } else {
+                payloadAnswers[`item_${id}`] = radio.value;
+                payloadComments[`item_${id}`] = document.getElementById(`comment_${id}`).value.toUpperCase();
+            }
         });
 
         if(!respondidas) {
@@ -454,47 +465,118 @@
             return;
         }
 
-        alert("✅ ¡Inspección Guardada Localmente de forma Exitosa!\nSincronizada automáticamente al recuperar internet.");
+        const radioResultado = document.querySelector('input[name="resultado_final"]:checked');
+        const resultadoFinal = radioResultado ? radioResultado.value : "LIBERADO";
+
+        // Obtém assinaturas em imagem base64
+        let conductorSig = document.getElementById('canvas_conductor').toDataURL();
+        let supervisorSig = document.getElementById('canvas_supervisor').toDataURL();
+        let seguridadSig = document.getElementById('canvas_seguridad').toDataURL();
+
+        // Monta o pacote de dados idêntico ao que o Drive espera
+        let checklistData = {
+            id_interno: Date.now().toString(),
+            equipo: equipoSeleccionado,
+            patente: patente.toUpperCase(),
+            fecha: document.getElementById('v_fecha').value,
+            empresa: document.getElementById('v_empresa').value.toUpperCase(),
+            anio: document.getElementById('v_anio').value.toUpperCase(),
+            km_horometro: document.getElementById('v_km').value.toUpperCase(),
+            respuestas: payloadAnswers,
+            comentarios: payloadComments,
+            observaciones_generales: document.getElementById('obs_generales').value.toUpperCase(),
+            medidas_correctivas: document.getElementById('medidas_correctivas').value.toUpperCase(),
+            resultado_final: resultadoFinal,
+            assinatura_conductor: conductorSig,
+            assinatura_supervisor: supervisorSig,
+            assinatura_seguridad: seguridadSig
+        };
+
+        // Salva na memória interna do tablet (localStorage) de forma segura
+        let locais = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
+        locais.push(checklistData);
+        localStorage.setItem('inspecoes_offline', JSON.stringify(locais));
+
+        alert("✅ ¡Inspección Guardada Localmente de forma Exitosa!\nEl reporte quedó almacenado en la memoria interna del Tablet.");
         fecharFormularioNativo();
+        
+        // Tenta disparar a sincronização imediatamente caso haja sinal parcial
+        sincronizarDadosPendentes();
     }
 
-    function atualizarStatusRede() {
-        const badge = document.getElementById('net-status');
-        if (navigator.onLine) {
-            badge.innerText = "Online"; badge.style.background = "#e8f5e9"; badge.style.color = "#2ecc71";
-        } else {
-            badge.innerText = "Offline"; badge.style.background = "#ffebee"; badge.style.color = "#e74c3c";
+    // MOTOR DE SINCRONIZAÇÃO: Envia tudo para o Drive automaticamente ao detectar rede
+    async function sincronizarDadosPendentes() {
+        if (!navigator.onLine) return; // Se estiver sem internet, não faz nada
+
+        let locais = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
+        if (locais.length === 0) return;
+
+        console.log("Detectada conexión a internet. Sincronizando reportes pendientes...");
+
+        // Desativa o botão temporariamente se o operador estiver na tela para evitar cliques duplos
+        const btn = document.getElementById('btn-save-main');
+        if(btn) btn.disabled = true;
+
+        for (let i = 0; i < locais.length; i++) {
+            const item = locais[i];
+            
+            // Cria um nome estruturado para o arquivo PDF gerado no script do Drive
+            const nomeDoArquivo = `Checklist_${item.equipo}_${item.patente}_${item.fecha}.pdf`;
+            
+            // Monta o payload exato para a API de recebimento do seu Apps Script
+            const payloadDrive = {
+                name: nomeDoArquivo,
+                bytes: item.assinatura_conductor.split(',')[1], // Passa a assinatura estruturada
+                metadata: item // Passa todos os dados de texto estruturados do checklist
+            };
+
+            try {
+                // Envia para o seu Webhook do Google Drive
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(payloadDrive)
+                });
+                
+                // Se o envio foi feito com sucesso, removemos este item da lista de pendentes
+                locais.splice(i, 1);
+                i--; // Reajusta o ponteiro do loop
+                localStorage.setItem('inspecoes_offline', JSON.stringify(locais));
+                console.log(`Reporte ${nomeDoArquivo} enviado con éxito al Google Drive.`);
+            } catch (err) {
+                console.error("Erro ao enviar dado para o Drive: ", err);
+                break; // Se deu erro de conexão no meio do caminho, interrompe e tenta mais tarde
+            }
         }
+
+        if(btn) btn.disabled = false;
     }
-    window.addEventListener('online', atualizarStatusRede);
+
+    // Monitora a internet: no segundo exato que o tablet reconectar, roda a fila de envio
+    window.addEventListener('online', () => {
+        atualizarStatusRede();
+        sincronizarDadosPendentes();
+    });
     window.addEventListener('offline', atualizarStatusRede);
+
+    // Executa a checagem sempre que o aplicativo inicializa
     atualizarStatusRede();
+    sincronizarDadosPendentes();
 
     // LÓGICA DE DETECÇÃO E FORÇAMENTO DE INSTALAÇÃO DO PWA
     let eventoInstalacaoPWA = null;
-
     window.addEventListener('beforeinstallprompt', (e) => {
-        // Previne o pop-up padrão do Android para podermos forçar o nosso
-        e.preventDefault();
-        eventoInstalacaoPWA = e;
-        
-        // Exibe o banner azul corporativo de instalação na tela principal do app
+        e.preventDefault(); eventoInstalacaoPWA = e;
         const banner = document.getElementById('pwa-install-banner');
         if (banner) { banner.style.display = 'block'; }
-        
-        // Força o pop-up nativo do sistema imediatamente após 2 segundos de tela carregada
-        setTimeout(() => {
-            dispararInstalacaoPWA();
-        }, 2000);
+        setTimeout(() => { dispararInstalacaoPWA(); }, 2000);
     });
 
     function dispararInstalacaoPWA() {
         if (eventoInstalacaoPWA) {
-            // Dispara o prompt nativo de confirmação do Android
             eventoInstalacaoPWA.prompt();
             eventoInstalacaoPWA.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
-                    console.log('O operador aceitou a instalação do InspeX.');
                     document.getElementById('pwa-install-banner').style.display = 'none';
                 }
                 eventoInstalacaoPWA = null;
@@ -502,9 +584,7 @@
         }
     }
 
-    // Monitora se o app já foi instalado com sucesso
     window.addEventListener('appinstalled', () => {
-        console.log('InspeX instalado com sucesso na tela de início!');
         const banner = document.getElementById('pwa-install-banner');
         if (banner) { banner.style.display = 'none'; }
     });
@@ -513,6 +593,5 @@
         window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); });
     }
 </script>
-
 </body>
 </html>

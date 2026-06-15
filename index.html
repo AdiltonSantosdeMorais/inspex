@@ -80,6 +80,9 @@
     .btn-salvar { background: #4472c4; color: white; border: none; padding: 16px 45px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     .btn-salvar:hover { background: #355a9c; }
     .btn-voltar { background: #95a5a6; color: white; border: none; padding: 16px 25px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; text-align: center; }
+
+    /* BANNER DE INSTALAÇÃO INLINE */
+    #pwa-install-banner { display: none; background: #0055a5; color: white; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 14px; cursor: pointer; margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -95,6 +98,8 @@
             <img class="logo-inspex" src="/static/inspex.png" alt="InspeX">
         </div>
 
+        <div id="pwa-install-banner" onclick="dispararInstalacaoPWA()">📲 CLIQUE AQUI PARA INSTALAR O INSPEX NO TABLET</div>
+
         <div class="search-box">
             <input type="text" id="search-input" placeholder="Buscar equipamento..." oninput="filtrarEquipamentos()">
         </div>
@@ -107,7 +112,7 @@
             <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN DE PETROLEO')" data-name="CAMIÓN DE PETROLEO"><span class="equip-name">CAMIÓN DE PETROLEO</span><span class="disponivel-badge">Disponible</span></div>
             <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN TOLVA')" data-name="CAMIÓN TOLVA"><span class="equip-name">CAMIÓN TOLVA</span><span class="disponivel-badge">Disponible</span></div>
             <div class="equip-card" onclick="abrirFormularioNativo('CAMIONES 3/4')" data-name="CAMIONES 3/4"><span class="equip-name">CAMIONES 3/4</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('ESSLINGAS Y GRILLETES')" data-name="ESLINGAS Y GRILLETES"><span class="equip-name">ESLINGAS Y GRILLETES</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('ESLINGAS Y GRILLETES')" data-name="ESLINGAS Y GRILLETES"><span class="equip-name">ESLINGAS Y GRILLETES</span><span class="disponivel-badge">Disponible</span></div>
             <div class="equip-card" onclick="abrirFormularioNativo('EXCAVADORA HIDRAULICA')" data-name="EXCAVADORA HIDRAULICA"><span class="equip-name">EXCAVADORA HIDRAULICA</span><span class="disponivel-badge">Disponible</span></div>
             <div class="equip-card" onclick="abrirFormularioNativo('GRUA Y PLUMA')" data-name="GRUA Y PLUMA"><span class="equip-name">GRUA Y PLUMA</span><span class="disponivel-badge">Disponible</span></div>
             <div class="equip-card" onclick="abrirFormularioNativo('MANIPULADORA TELESCOPICA')" data-name="MANIPULADORA TELESCOPICA"><span class="equip-name">MANIPULADORA TELESCOPICA</span><span class="disponivel-badge">Disponible</span></div>
@@ -285,21 +290,18 @@
         });
     }
 
-    // CORREÇÃO: Inicializa o formulário totalmente limpo e desmarcado
     function abrirFormularioNativo(equip) {
         equipoSeleccionado = equip;
         document.getElementById('v_equipo').value = equip;
         document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + equip;
         document.getElementById('v_fecha').valueAsDate = new Date();
         
-        // Limpar inputs de texto superiores e comentários
         document.getElementById('v_patente').value = "";
         document.getElementById('v_anio').value = "";
         document.getElementById('v_km').value = "";
         document.getElementById('obs_generales').value = "";
         document.getElementById('medidas_correctivas').value = "";
 
-        // Reset completo da tabela de resultados inferiores
         document.getElementById('res_liberado').checked = false;
         document.getElementById('res_obs').checked = false;
         document.getElementById('res_no_liberado').checked = false;
@@ -318,7 +320,6 @@
         
         perguntas.forEach((pregunta, index) => {
             const id = index + 1;
-            // CORREÇÃO ESSENCIAL: Retirado o atributo 'checked' para que comecem desmarcados
             const row = `
                 <tr>
                     <td><strong>${id}.</strong> ${pregunta}</td>
@@ -349,7 +350,6 @@
         window.scrollTo(0,0);
     }
 
-    // REAVALIAÇÃO DA LÓGICA ORIGINAL AUTOMÁTICA
     function verificarReglasResultados() {
         let bloqueioImpeditivo = false;
         let falhaComumDetectada = false;
@@ -382,41 +382,34 @@
             document.getElementById('cell_no_liberado'), document.getElementById('check_no_liberado')
         ];
 
-        // Reset visual das opções
         itensLayout.forEach(el => el.classList.remove('disabled-option'));
         btnLiberado.disabled = false; btnObs.disabled = false; btnNoLiberado.disabled = false;
 
-        // Se houver uma falha impeditiva (- IMP) marcada, bloqueia imediatamente o veículo como NO LIBERADO
         if (bloqueioImpeditivo) {
             btnNoLiberado.checked = true;
             itensLayout.slice(0, 4).forEach(el => el.classList.add('disabled-option'));
             btnLiberado.disabled = true; btnObs.disabled = true;
         } 
-        // Se houver uma inconformidade comum, define como LIBERADO COM OBSERVAÇÕES
         else if (falhaComumDetectada) {
             btnObs.checked = true;
             itensLayout.slice(0, 2).concat(itensLayout.slice(4, 6)).forEach(el => el.classList.add('disabled-option'));
             btnLiberado.disabled = true; btnNoLiberado.disabled = true;
         } 
-        // Se tudo estiver respondido e sem erros, marca como LIBERADO automaticamente
         else if (todasRespondidas) {
             btnLiberado.checked = true;
         } else {
-            // Caso existam itens sem responder, deixa os botões finais limpos aguardando término
             btnLiberado.checked = false;
             btnObs.checked = false;
             btnNoLiberado.checked = false;
         }
     }
 
-    // ASSINATURAS EM CANVAS
     function inicializarCanvases() {
         const canvases = ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'];
         canvases.forEach(id => {
             const canvas = document.getElementById(id);
             const ctx = canvas.getContext('2d');
             
-            // Remover listeners antigos para evitar duplicações de memória ao reabrir
             const clone = canvas.cloneNode(true);
             canvas.parentNode.replaceChild(clone, canvas);
             
@@ -443,16 +436,13 @@
 
     function limparCanvas(id) {
         const canvas = document.getElementById(id);
-        if(canvas) {
-            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-        }
+        if(canvas) { canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); }
     }
 
     function salvarChecklistOffline() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: O preenchimento da PATENTE é obrigatório!"); return; }
         
-        // Validação de segurança complementar
         const perguntas = BANCO_PERGUNTAS[equipoSeleccionado] || BANCO_PERGUNTAS["DEFAULT"];
         let respondidas = true;
         perguntas.forEach((_, index) => {
@@ -479,6 +469,45 @@
     window.addEventListener('online', atualizarStatusRede);
     window.addEventListener('offline', atualizarStatusRede);
     atualizarStatusRede();
+
+    // LÓGICA DE DETECÇÃO E FORÇAMENTO DE INSTALAÇÃO DO PWA
+    let eventoInstalacaoPWA = null;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Previne o pop-up padrão do Android para podermos forçar o nosso
+        e.preventDefault();
+        eventoInstalacaoPWA = e;
+        
+        // Exibe o banner azul corporativo de instalação na tela principal do app
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) { banner.style.display = 'block'; }
+        
+        // Força o pop-up nativo do sistema imediatamente após 2 segundos de tela carregada
+        setTimeout(() => {
+            dispararInstalacaoPWA();
+        }, 2000);
+    });
+
+    function dispararInstalacaoPWA() {
+        if (eventoInstalacaoPWA) {
+            // Dispara o prompt nativo de confirmação do Android
+            eventoInstalacaoPWA.prompt();
+            eventoInstalacaoPWA.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('O operador aceitou a instalação do InspeX.');
+                    document.getElementById('pwa-install-banner').style.display = 'none';
+                }
+                eventoInstalacaoPWA = null;
+            });
+        }
+    }
+
+    // Monitora se o app já foi instalado com sucesso
+    window.addEventListener('appinstalled', () => {
+        console.log('InspeX instalado com sucesso na tela de início!');
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) { banner.style.display = 'none'; }
+    });
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); });

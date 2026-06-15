@@ -261,7 +261,6 @@
 </div>
 
 <script>
-    // URL ATUALIZADA COMPLETA E VALIDADA DO SEU APPS SCRIPT DO GOOGLE DRIVE
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
 
     let equipoSeleccionado = "";
@@ -442,10 +441,6 @@
         }
     }
 
-    function initializeCanvases() {
-        // Inicialização mantida idêntica para o funcionamento dos canvases do tablet
-    }
-
     function inicializarCanvases() {
         ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'].forEach(id => {
             const canvas = document.getElementById(id);
@@ -490,7 +485,6 @@
 
         for (let i = 0; i < queue.length; i++) {
             try {
-                // Sincronizador ativo repassando as strings stringificadas
                 await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(queue[i]) });
                 queue.splice(i, 1);
                 i--;
@@ -501,7 +495,6 @@
 
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
 
-    // CONVERSOR INTERNO DINÂMICO DA IMAGEM DA LOGO DA TELA PARA O jspdf
     function extrairLogoDaTela() {
         let logoCanvas = document.createElement('canvas');
         let logoImgElement = document.getElementById('imagem-logo-tela');
@@ -514,7 +507,50 @@
         return null;
     }
 
-    // CONSTRUTOR NATIVO DE 3 PÁGINAS CORRIGIDO PARA REALIZAR O ENVIO DIRETO EM LOTE AO WEBHOOK DO DRIVE
+    // FUNÇÃO QUE DESENHA A TABELA DE METADADOS PERFEITA NO CANTO SUPERIOR DIREITO
+    function desenharTabelaMetadadosSST(doc, paginaAtual, totalPaginas) {
+        const startX = 150;
+        const startY = 10;
+        const totalWidth = 50;
+        const rowHeight = 4.166; // 25mm totais divididos por 6 linhas exatas
+
+        // Retângulo externo delimitador da tabela direita
+        doc.setDrawColor(0);
+        doc.setLineWidth(0.4);
+        doc.rect(startX, startY, totalWidth, 25);
+
+        // Divisão vertical interna exata: Títulos (20mm) | Valores (30mm)
+        const colSplitX = startX + 20; 
+        doc.line(colSplitX, startY, colSplitX, startY + 25);
+
+        const dadosMetadados = [
+            { label: "Código:", value: "20.0009-SST-FL-0036" },
+            { label: "Fecha Ref:", value: "15/06/2026" },
+            { label: "Página:", value: `${paginaAtual} de ${totalPaginas}` },
+            { label: "Revisión:", value: "00" },
+            { label: "Categoria:", value: "General" },
+            { label: "Sector:", value: "Seguridad" }
+        ];
+
+        dadosMetadados.forEach((item, index) => {
+            const currentLineY = startY + (index * rowHeight);
+            
+            // Ignora a linha divisória inferior apenas no último item para fechar perfeitamente com o retângulo
+            if (index > 0) {
+                doc.line(startX, currentLineY, startX + totalWidth, currentLineY);
+            }
+
+            // Renderização do Texto Alinhado e Perfeitamente Simétrico
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(6.5);
+            doc.text(item.label, startX + 2, currentLineY + 3);
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(6.5);
+            doc.text(item.value, colSplitX + 2, currentLineY + 3);
+        });
+    }
+
     async function salvarEMontarPDF_Original_SST() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
@@ -537,13 +573,18 @@
         // ==========================================
         // FOLHA 1: CABEÇALHO COMPLETO, VEÍCULO E ITENS
         // ==========================================
-        doc.setLineWidth(0.4); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
+        doc.setLineWidth(0.4); 
+        doc.rect(10, 10, 140, 25); // Retângulo do título e logo ocupando os 140mm restantes
+        doc.line(50, 10, 50, 35); 
+        
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
 
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
         doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
-        doc.setFontSize(7); doc.text("CÓDIGO: 20.0009-SST-FL-0036", 152, 16); doc.text("REVISIÓN: 00", 152, 22); doc.text("SECTOR: SEGURIDAD", 152, 28); doc.text("PÁGINA: 1 DE 3", 152, 33);
+
+        // Chamada da tabela corrigida no canto superior direito
+        desenharTabelaMetadadosSST(doc, 1, 3);
 
         doc.rect(10, 35, 190, 20); doc.line(73, 35, 73, 55); doc.line(140, 35, 140, 55);
         doc.setFontSize(8); doc.text("EQUIPO / MODELO: " + equipoSeleccionado, 12, 42); doc.text("PATENTE / IDENT.: " + patente.toUpperCase(), 75, 42); doc.text("FECHA INSP.: " + document.getElementById('v_fecha').value, 142, 42);
@@ -585,12 +626,14 @@
         // FOLHA 2: COMENTÁRIOS, MEDIDAS, RESULTADO E 3 FIRMAS
         // ==========================================
         doc.addPage();
-        doc.setLineWidth(0.4); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
+        doc.setLineWidth(0.4); doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35);
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
         
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
-        doc.text("RESULTADOS Y FIRMAS DE CONFORMIDAD", 100, 20, { align: 'center' });
-        doc.setFontSize(7); doc.text("CÓDIGO: 20.0009-SST-FL-0036", 152, 16); doc.text("PÁGINA: 2 DE 3", 152, 31);
+        doc.text("RESULTADOS Y FIRMAS DE CONFORMIDAD", 100, 22, { align: 'center' });
+
+        // Chamada da tabela corrigida na folha 2
+        desenharTabelaMetadadosSST(doc, 2, 3);
 
         let yFolha2 = 40;
         doc.rect(10, yFolha2, 190, 25);
@@ -633,12 +676,14 @@
         // FOLHA 3: GRID COMPLETO DAS 08 FOTOS
         // ==========================================
         doc.addPage();
-        doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
+        doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35);
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
         
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
-        doc.text("REGISTRO FOTOGRÁFICO DE EVIDENCIAS", 100, 20, { align: 'center' });
-        doc.setFontSize(7); doc.text("CÓDIGO: 20.0009-SST-FL-0036", 152, 16); doc.text("PÁGINA: 3 DE 3", 152, 31);
+        doc.text("REGISTRO FOTOGRÁFICO DE EVIDENCIAS", 100, 22, { align: 'center' });
+
+        // Chamada da tabela corrigida na folha 3
+        desenharTabelaMetadadosSST(doc, 3, 3);
 
         doc.rect(10, 38, 190, 240);
         doc.setFontSize(9.5); doc.text("EVIDENCIAS REGISTRADAS (MÁXIMO 8 FOTOS):", 14, 46);
@@ -660,7 +705,6 @@
             if(contadorGrid === 4) { imgX = 15; imgY += 45; } 
         }
 
-        // Extração limpa e direta dos bytes stringificados para injeção no Drive
         const pdfBase64 = doc.output('datauristring').split(',')[1];
         const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
         
@@ -669,12 +713,10 @@
         saveToQueue(payload);
         doc.save(nomeDoFicheiroPDF);
 
-        // DISPARADOR MANUAL DE REDE DIRETAMENTE ACIONADO PELO CLIQUE
         if (navigator.onLine) {
             try {
                 status.innerText = "🚀 ENVIANDO ARQUIVO AO GOOGLE DRIVE...";
                 
-                // Força o envio explícito via fetch ignorando travas internas de requisição assíncrona
                 await fetch(GOOGLE_SCRIPT_URL, { 
                     method: 'POST', 
                     mode: 'no-cors',

@@ -9,9 +9,9 @@
   "description": "Sistema de Gestión de Inspecciones Mensuales SST Elecnor",
   "icons": [
     {
-      "src": "static/logo-elecnor.png",
+      "src": "static/inspex.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     },
     {

@@ -11,29 +11,24 @@
     
     .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; transition: max-width 0.2s; }
     
-    /* Cabeçalho Superior Branco Original */
     .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; }
     .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
     .logo-elecnor { max-height: 25px; object-fit: contain; }
     .status-badge { background: #e8f5e9; color: #2ecc71; font-weight: bold; font-size: 11px; padding: 5px 12px; border-radius: 20px; }
     .logo-inspex { max-height: 140px; margin: 15px 0 5px 0; object-fit: contain; }
     
-    /* Barra de Busca */
     .search-box { position: relative; width: 100%; }
     .search-box input { width: 100%; padding: 13px 15px 13px 40px; border-radius: 10px; border: 1px solid #d0d5dd; background: #fff; font-size: 14px; outline: none; }
     .search-box input:focus { border-color: #0055a5; }
     .search-box::before { content: "🔍"; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.5; }
     
-    /* Lista de Equipamentos */
     .equip-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-    
-    /* Card de Equipamento Individual */
     .equip-card { background: #fff; border-radius: 6px; padding: 18px 15px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border-left: 4px solid #0055a5; cursor: pointer; transition: transform 0.1s; }
     .equip-card:active { transform: scale(0.99); }
     .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
     .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
 
-    /* ESTILOS DO SEU FORMULÁRIO ORIGINAL INTACTO */
+    /* ESTILOS DO FORMULÁRIO */
     .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -60,7 +55,6 @@
     .comment-col { width: 25%; }
     .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #eee; text-transform: uppercase; }
     
-    /* ÁREA DE FOTOS */
     .photos-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
     .photos-table td { border: 1px solid #000; padding: 12px; font-size: 11px; font-weight: bold; background: #fafafa; }
     .photos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 8px; }
@@ -95,7 +89,6 @@
     #statusMsg { font-size: 14px; text-align: center; padding: 12px; display: none; font-weight: bold; background: #fff; border-radius: 6px; border: 1px solid #ccc; margin-top: 10px; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -145,7 +138,7 @@
     </div>
 
     <div id="section-formulario" style="display: none; width: 100%;">
-        <div class="page-sheet" id="area-folha-pdf">
+        <div class="page-sheet">
             <table class="header-table">
                 <tr>
                     <td class="logo-box"><img src="/static/logo-elecnor.png" alt="Logo Elecnor"></td>
@@ -261,7 +254,7 @@
         <div id="statusMsg"></div>
         <div class="btn-container">
             <button class="btn-voltar" onclick="fecharFormularioNativo()">⬅ Voltar</button>
-            <button class="btn-salvar" id="btn-save-main" onclick="gerarCopiaFielPDF_SST()">💾 ENVIAR Y SALVAR CHECKLIST</button>
+            <button class="btn-salvar" id="btn-save-main" onclick="salvarEMontarPDF_Original_SST()">💾 ENVIAR Y SALVAR CHECKLIST</button>
         </div>
     </div>
 </div>
@@ -312,7 +305,7 @@
     };
 
     let equipoSeleccionado = "";
-    let bancoImagensFotos = []; 
+    let bancoImagensFotos = {}; 
 
     function filtrarEquipamentos() {
         const filtro = document.getElementById('search-input').value.toUpperCase();
@@ -337,17 +330,16 @@
 
         const reader = new FileReader();
         reader.onload = function(e) {
-            const base64Data = e.target.result;
-            bancoImagensFotos.push(base64Data);
+            bancoImagensFotos[`foto_${id}`] = e.target.result;
             const preview = document.getElementById(`prev_foto_${id}`);
-            if(preview) { preview.src = base64Data; preview.style.display = "block"; }
+            if(preview) { preview.src = e.target.result; preview.style.display = "block"; }
         };
         reader.readAsDataURL(input.files[0]);
     }
 
     function abrirFormularioNativo(equip) {
         equipoSeleccionado = equip;
-        bancoImagensFotos = []; 
+        bancoImagensFotos = {}; 
         
         document.getElementById('v_equipo').value = equip;
         document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + equip;
@@ -397,6 +389,7 @@
         window.scrollTo(0,0);
     }
 
+    // LÓGICA DE BLOQUEIO ABSOLUTA BASEADA NAS REGRAS DE SST SOLICITADAS
     function verificarReglasResultados() {
         let bloqueioImpeditivo = false;
         let falhaComumDetectada = false;
@@ -406,10 +399,14 @@
         perguntas.forEach((pregunta, index) => {
             const id = index + 1;
             const marcado = document.querySelector(`input[name="item_${id}"]:checked`);
-            if (!marcado) todasRespondidas = false;
-            else if (marcado.value === "NC") {
-                if (pregunta.toUpperCase().includes("IMP")) bloqueioImpeditivo = true;
-                else falhaComumDetectada = true;
+            if (!marcado) {
+                todasRespondidas = false;
+            } else if (marcado.value === "NC") {
+                if (pregunta.toUpperCase().includes("IMP")) {
+                    bloqueioImpeditivo = true; // Achou item IMP com falha
+                } else {
+                    falhaComumDetectada = true; // Achou item comum com falha
+                }
             }
         });
 
@@ -417,9 +414,32 @@
         const btnObs = document.getElementById('res_obs');
         const btnNoLiberado = document.getElementById('res_no_liberado');
 
-        if (bloqueioImpeditivo) { if(btnNoLiberado) btnNoLiberado.checked = true; } 
-        else if (falhaComumDetectada) { if(btnObs) btnObs.checked = true; } 
-        else if (todasRespondidas) { if(btnLiberado) btnLiberado.checked = true; }
+        const elLib = document.getElementById('cell_liberado');
+        const chLib = document.getElementById('check_liberado');
+        const elObs = document.getElementById('cell_obs');
+        const chObs = document.getElementById('check_obs');
+        const elNoLib = document.getElementById('cell_no_liberado');
+        const chNoLib = document.getElementById('check_no_liberado');
+
+        // Desbloqueia tudo por padrão antes de recalcular
+        [elLib, chLib, elObs, chObs, elNoLib, chNoLib].forEach(el => el.classList.remove('disabled-option'));
+        btnLiberado.disabled = false; btnObs.disabled = false; btnNoLiberado.disabled = false;
+
+        if (bloqueioImpeditivo) {
+            // SE FOR IMP NC -> Bloqueia LIBERADO e LIBERADO COM OBS
+            btnNoLiberado.checked = true;
+            [elLib, chLib, elObs, chObs].forEach(el => el.classList.add('disabled-option'));
+            btnLiberado.disabled = true; btnObs.disabled = true;
+        } 
+        else if (falhaComumDetectada) {
+            // SE FOR COMUM NC -> Bloqueia LIBERADO e NO LIBERADO
+            btnObs.checked = true;
+            [elLib, chLib, elNoLib, chNoLib].forEach(el => el.classList.add('disabled-option'));
+            btnLiberado.disabled = true; btnNoLiberado.disabled = true;
+        } 
+        else if (todasRespondidas) {
+            btnLiberado.checked = true;
+        }
     }
 
     function inicializarCanvases() {
@@ -476,8 +496,8 @@
 
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
 
-    // RETORNO AO MOTOR VETORIAL FIEL DO ALERTAFLOTA (FOTOS + 3 CANVASES AJUSTADOS)
-    async function gerarCopiaFielPDF_SST() {
+    // MOTOR DE DESENHO ORIGINAL INTEGRADO E DIVIDIDO EM 3 FOLHAS A4 FIXAS
+    async function salvarEMontarPDF_Original_SST() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
 
@@ -488,94 +508,181 @@
         const btn = document.getElementById('btn-save-main');
         
         btn.disabled = true;
-        status.style.display = "block"; status.style.color = "orange"; status.innerText = "⏳ GENERANDO REPORTE DIGITAL...";
+        status.style.display = "block"; status.style.color = "orange"; status.innerText = "⏳ PROCESANDO REPORTE EM 3 PÁGINAS...";
 
-        const folha = document.getElementById('area-folha-pdf');
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        const corDeFundo = [240, 240, 240];
+
+        // ==========================================
+        // FOLHA 1: CABEÇALHO, VEÍCULO E CHECKLIST
+        // ==========================================
+        doc.setLineWidth(0.4); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
+        doc.setFontSize(11); doc.setFont("helvetica", "bold");
+        doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
+        doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
+        doc.setFontSize(7); doc.text("CÓDIGO: 20.0009-SST-FL-0036", 152, 16); doc.text("REVISIÓN: 00", 152, 22); doc.text("SECTOR: SEGURIDAD", 152, 28); doc.text("PÁGINA: 1 DE 3", 152, 33);
+
+        doc.rect(10, 35, 190, 20); doc.line(73, 35, 73, 55); doc.line(140, 35, 140, 55);
+        doc.setFontSize(8); doc.text("EQUIPO / MODELO: " + equipoSeleccionado, 12, 42); doc.text("PATENTE / IDENT.: " + patente.toUpperCase(), 75, 42); doc.text("FECHA INSP.: " + document.getElementById('v_fecha').value, 142, 42);
+        doc.text("EMPRESA: ELECNOR", 12, 52); doc.text("AÑO: " + document.getElementById('v_anio').value.toUpperCase(), 75, 52); doc.text("KM / HORÓMETRO: " + document.getElementById('v_km').value.toUpperCase(), 142, 52);
+
+        doc.setFillColor(68, 114, 196); doc.rect(10, 55, 190, 7, 'F');
+        doc.setTextColor(255); doc.setFontSize(8); doc.text("C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO", 100, 59.5, { align: 'center' });
+        doc.setTextColor(0);
+
+        let currentY = 62;
+        doc.setFillColor(...corDeFundo); doc.rect(10, currentY, 190, 6, 'F'); doc.rect(10, currentY, 190, 6);
+        doc.setFont("helvetica", "bold"); doc.text("ELEMENTOS VERIFICADOS", 12, currentY + 4.2);
+        doc.text("C", 137, currentY + 4.2); doc.text("NC", 146, currentY + 4.2); doc.text("NA", 156, currentY + 4.2); doc.text("COMENTARIOS", 166, currentY + 4.2);
+
+        currentY += 6;
+        const perguntas = BANCO_PERGUNTAS[equipoSeleccionado] || BANCO_PERGUNTAS["DEFAULT"];
         
-        // Fixa a largura estrita de engenharia no documento principal durante a foto do canvas
-        const originalWidth = folha.style.width;
-        const originalMaxWidth = document.getElementById('main-container').style.maxWidth;
-        document.getElementById('main-container').style.maxWidth = "1024px";
-        folha.style.width = "1024px";
+        perguntas.forEach((p, idx) => {
+            doc.setFont("helvetica", "normal"); doc.setFontSize(7.5);
+            doc.rect(10, currentY, 190, 8); doc.line(135, currentY, 135, currentY + 8); doc.line(145, currentY, 145, currentY + 8); doc.line(155, currentY, 155, currentY + 8); doc.line(165, currentY, 165, currentY + 8);
+            
+            doc.text(`${idx+1}. ${p.substring(0, 72)}`, 12, currentY + 5);
+            
+            const checkedRadio = document.querySelector(`input[name="item_${idx+1}"]:checked`);
+            const val = checkedRadio ? checkedRadio.value : "";
+            const comment = document.getElementById(`comment_${idx+1}`).value.toUpperCase();
+
+            doc.setFont("helvetica", "bold");
+            if(val === "C") doc.text("X", 138, currentY + 5);
+            if(val === "NC") doc.text("X", 148, currentY + 5);
+            if(val === "NA") doc.text("X", 158, currentY + 5);
+            
+            doc.setFont("helvetica", "normal"); doc.setFontSize(6.5);
+            doc.text(comment.substring(0, 16), 166, currentY + 5);
+            currentY += 8;
+        });
+
+        // ==========================================
+        // FOLHA 2: COMENTÁRIOS, MEDIDAS, RESULTADO E FIRMAS
+        // ==========================================
+        doc.addPage();
+        doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
+        doc.setFontSize(11); doc.setFont("helvetica", "bold");
+        doc.text("RESULTADOS Y FIRMAS DE CONFORMIDAD", 100, 20, { align: 'center' });
+        doc.setFontSize(7); doc.text("CÓDIGO: 20.0009-SST-FL-0036", 152, 16); doc.text("PÁGINA: 2 DE 3", 152, 31);
+
+        let yFolha2 = 40;
+        doc.rect(10, yFolha2, 190, 25);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.text("COMENTARIOS Y OBSERVACIONES GENERALES:", 12, yFolha2 + 5);
+        doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(document.getElementById('obs_generales').value.toUpperCase(), 180), 12, yFolha2 + 11);
+        yFolha2 += 28;
+
+        doc.rect(10, yFolha2, 190, 25);
+        doc.setFont("helvetica", "bold"); doc.text("MEDIDAS CORRECTIVAS ADOPTADAS:", 12, yFolha2 + 5);
+        doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(document.getElementById('medidas_correctivas').value.toUpperCase(), 180), 12, yFolha2 + 11);
+        yFolha2 += 28;
+
+        // Bloco de Resultado
+        doc.rect(10, yFolha2, 190, 12); doc.line(50, yFolha2, 50, yFolha2 + 12); doc.line(100, yFolha2, 100, yFolha2 + 12); doc.line(150, yFolha2, 150, yFolha2 + 12);
+        doc.setFont("helvetica", "bold"); doc.text("RESULTADO:", 12, yFolha2 + 7);
+        const finalRes = document.querySelector('input[name="resultado_final"]:checked')?.value || "";
+        doc.text(finalRes === "LIBERADO" ? "[ X ] LIBERADO" : "[   ] LIBERADO", 55, yFolha2 + 7);
+        doc.text(finalRes === "LIBERADO_OBS" ? "[ X ] LIBERADO C/ OBS." : "[   ] LIBERADO C/ OBS.", 103, yFolha2 + 7);
+        doc.text(finalRes === "NO_LIBERADO" ? "[ X ] NO LIBERADO" : "[   ] NO LIBERADO", 155, yFolha2 + 7);
+        yFolha2 += 18;
+
+        // Renderização das 3 assinaturas canvas perfeitamente separadas
+        doc.setFont("helvetica", "bold"); doc.text("FIRMAS RESPONSABLES:", 12, yFolha2 + 4);
+        yFolha2 += 6;
+        
+        doc.rect(10, yFolha2, 190, 55); doc.line(73, yFolha2, 73, yFolha2 + 55); doc.line(136, yFolha2, 136, yFolha2 + 55);
+        
+        const condBytes = document.getElementById('canvas_conductor').toDataURL();
+        const supBytes = document.getElementById('canvas_supervisor').toDataURL();
+        const segBytes = document.getElementById('canvas_seguridad').toDataURL();
+        
+        doc.addImage(condBytes, 'PNG', 12, yFolha2 + 2, 58, 30);
+        doc.addImage(supBytes, 'PNG', 75, yFolha2 + 2, 58, 30);
+        doc.addImage(segBytes, 'PNG', 138, yFolha2 + 2, 58, 30);
+
+        doc.setFontSize(7.5);
+        doc.text("OPERADOR / CONDUCTOR", 41, yFolha2 + 45, {align:'center'});
+        doc.text("SUPERVISOR / ENCARGADO", 104, yFolha2 + 45, {align:'center'});
+        doc.text("SEGURIDAD DO TRABAJO", 168, yFolha2 + 45, {align:'center'});
+
+        // ==========================================
+        // FOLHA 3: REGISTRO FOTOGRÁFICO DAS 08 FOTOS
+        // ==========================================
+        doc.addPage();
+        doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
+        doc.setFontSize(11); doc.setFont("helvetica", "bold");
+        doc.text("REGISTRO FOTOGRÁFICO DE EVIDENCIAS", 100, 20, { align: 'center' });
+        doc.setFontSize(7); doc.text("CÓDIGO: 20.0009-SST-FL-0036", 152, 16); doc.text("PÁGINA: 3 DE 3", 152, 31);
+
+        doc.rect(10, 38, 190, 240);
+        doc.setFontSize(9.5); doc.text("EVIDENCIAS REGISTRADAS (MÁXIMO 8 FOTOS):", 14, 46);
+
+        let imgX = 15, imgY = 52, contadorGrid = 0;
+        
+        // Loop que monta o grid fixo para as 8 fotos sem estourar margem
+        for (let keyIdx = 1; keyIdx <= 8; keyIdx++) {
+            const dataBase64Imagem = bancoImagensFotos[`foto_${keyIdx}`];
+            if (dataBase64Imagem) {
+                doc.addImage(dataBase64Imagem, 'JPEG', imgX, imgY, 42, 32);
+                doc.setFontSize(7); doc.text(`FOTO ANEXO ${keyIdx}`, imgX + 21, imgY + 36, {align:'center'});
+            } else {
+                // Desenha o slot vazio se o técnico não tirou a foto
+                doc.setDrawColor(200); doc.rect(imgX, imgY, 42, 32);
+                doc.setFontSize(7); doc.text(`[ SIN FOTO ${keyIdx} ]`, imgX + 21, imgY + 18, {align:'center'});
+                doc.setDrawColor(0);
+            }
+            contadorGrid++;
+            imgX += 46;
+            if(contadorGrid === 4) { imgX = 15; imgY += 45; } // Quebra de linha do grid de fotos
+        }
+
+        // 6. COMPILAÇÃO E ENVIO DO PAYLOAD ORIGINAL EM BYTES JSON (ESTILO ALERTAFLOTA)
+        const pdfBase64 = doc.output('datauristring').split(',')[1];
+        const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
+        
+        const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
+
+        // Adiciona na fila local de sincronização como backup offline obrigatório
+        saveToQueue(payload);
+
+        // Baixa a cópia local física direto no dispositivo
+        doc.save(nomeDoFicheiroPDF);
+
+        if (navigator.onLine) {
+            try {
+                status.innerText = "🚀 SUBINDO ARQUIVO AL GOOGLE DRIVE...";
+                await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
+            } catch (err) {
+                status.innerText = "⚠️ REPORTE GUARDADO LOCALMENTE (SYNC PENDENTE)."; status.style.color = "orange";
+            }
+        } else {
+            status.innerText = "☁️ MODO OFFLINE: REPORTE SALVO NO DISPOSITIVO."; status.style.color = "blue";
+        }
 
         setTimeout(() => {
-            html2canvas(folha, {
-                scale: 2, // Garante nitidez cristalina nas bordas dos elementos radiomarcados
-                useCORS: true,
-                backgroundColor: '#ffffff'
-            }).then(async (canvas) => {
-                // Restaura o layout responsivo do tablet na hora
-                document.getElementById('main-container').style.maxWidth = originalMaxWidth;
-                folha.style.width = originalWidth;
+            status.style.display = 'none';
+            fecharFormularioNativo();
+            if (navigator.onLine) { syncQueue(); }
+        }, 2500);
+    }
 
-                const imgData = canvas.toDataURL('image/jpeg', 0.98);
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('p', 'mm', 'a4');
-                
-                const pdfWidth = doc.internal.pageSize.getWidth();
-                const pdfHeight = doc.internal.pageSize.getHeight();
-                
-                const imgWidthMm = pdfWidth - 20; 
-                const imgHeightMm = (canvas.height * imgWidthMm) / canvas.width;
+    let eventoInstalacaoPWA = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault(); eventoInstalacaoPWA = e;
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) banner.style.display = 'block';
+    });
 
-                let alturaRestante = imgHeightMm;
-                let posicaoY = 10;
-                let numPagina = 1;
-
-                // Fatiamento inteligente em páginas A4 verticais sem quebras borradas
-                doc.addImage(imgData, 'JPEG', 10, posicaoY, imgWidthMm, imgHeightMm);
-                alturaRestante -= (pdfHeight - 20);
-
-                while (alturaRestante > 0) {
-                    doc.addPage();
-                    numPagina++;
-                    posicaoY = 10 - (numPagina - 1) * (pdfHeight - 20);
-                    doc.addImage(imgData, 'JPEG', 10, posicaoY, imgWidthMm, imgHeightMm);
-                    alturaRestante -= (pdfHeight - 20);
-                }
-
-                // Compactação binária exata do AlertaFlota
-                const pdfBase64 = doc.output('datauristring').split(',')[1];
-                const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
-                
-                const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
-
-                // Salva na fila para backup
-                saveToQueue(payload);
-
-                if (navigator.onLine) {
-                    try {
-                        status.innerText = "🚀 SUBINDO ARQUIVO AL GOOGLE DRIVE...";
-                        await fetch(GOOGLE_SCRIPT_URL, { 
-                            method: 'POST', 
-                            mode: 'no-cors', 
-                            body: JSON.stringify(payload) 
-                        });
-                        status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
-                    } catch (err) {
-                        status.innerText = "⚠️ REPORTE SALVO LOCALMENTE (SYNC PENDENTE)."; status.style.color = "orange";
-                    }
-                } else {
-                    status.innerText = "☁️ MODO OFFLINE: REPORTE GUARDADO NO DISPOSITIVO."; status.style.color = "blue";
-                }
-
-                doc.save(nomeDoFicheiroPDF);
-                btn.disabled = false;
-                
-                setTimeout(() => { 
-                    status.style.display = 'none'; 
-                    fecharFormularioNativo(); 
-                    if (navigator.onLine) { syncQueue(); }
-                }, 3000);
-                
-            }).catch((err) => {
-                console.error(err);
-                document.getElementById('main-container').style.maxWidth = originalMaxWidth;
-                folha.style.width = originalWidth;
-                btn.disabled = false;
-                status.style.display = 'none';
+    function dispararInstalacaoPWA() {
+        if (eventoInstalacaoPWA) {
+            eventoInstalacaoPWA.prompt();
+            eventoInstalacaoPWA.userChoice.then(() => {
+                document.getElementById('pwa-install-banner').style.display = 'none';
             });
-        }, 200);
+        }
     }
 
     if ('serviceWorker' in navigator) {

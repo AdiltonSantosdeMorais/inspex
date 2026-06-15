@@ -8,14 +8,16 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/static/logo-elecnor.png",
+      "src": "/inspex.png",
       "sizes": "192x192",
-      "type": "image/jpeg"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/static/logo-elecnor.png",
+      "src": "/inspex.png",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

@@ -9,7 +9,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
     body { background: #f5f7fa; padding: 20px; color: #333; display: flex; justify-content: center; }
     
-    .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; }
+    .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; transition: max-width 0.2s; }
     
     /* Cabeçalho Superior Branco Original */
     .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; }
@@ -58,7 +58,7 @@
     .comment-col { width: 25%; }
     .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #eee; text-transform: uppercase; }
     
-    /* ÁREA DE FOTOS MANTIDA */
+    /* ÁREA DE FOTOS */
     .photos-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
     .photos-table td { border: 1px solid #000; padding: 12px; font-size: 11px; font-weight: bold; background: #fafafa; }
     .photos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 8px; }
@@ -311,6 +311,7 @@
     let equipoSeleccionado = "";
     let bancoImagensFotos = {}; 
 
+    // BUSCA CORRIGIDA: Removida a variável errada que travava o script
     function filtrarEquipamentos() {
         const filtro = document.getElementById('search-input').value.toUpperCase();
         const cards = document.querySelectorAll('.equip-card');
@@ -394,7 +395,6 @@
         window.scrollTo(0,0);
     }
 
-    // LÓGICA DE BLOQUEIO DE ACORDO COM REGRAS DE SST SOLICITADAS
     function verificarReglasResultados() {
         let bloqueioImpeditivo = false;
         let falhaComumDetectada = false;
@@ -490,7 +490,6 @@
 
         for (let i = 0; i < queue.length; i++) {
             try {
-                // Envia em formato de string JSON idêntico ao AlertaFlota para gravação direta
                 await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(queue[i]) });
                 queue.splice(i, 1);
                 i--;
@@ -501,7 +500,7 @@
 
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
 
-    // NOVO CONSTRUTOR FIXO DE 3 FOLHAS A4 (MANTÉM DESIGN DA COPIAPÓ SOLAR E DA LOGO DA ELECNOR)
+    // CONSTRUTOR DIGITAL NATIVO DE 3 PÁGINAS COM MARCAÇÃO INDEPENDENTE DE C, NC E NA
     async function salvarEMontarPDF_Original_SST() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
@@ -520,7 +519,7 @@
         const corDeFundo = [240, 240, 240];
 
         // ==========================================
-        // FOLHA 1: HEADER E GRADE COMPLETA DO CHECKLIST
+        // FOLHA 1: CABEÇALHO COMPLETO, VEÍCULO E ITENS
         // ==========================================
         doc.setLineWidth(0.4); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
@@ -555,7 +554,6 @@
             const comment = document.getElementById(`comment_${idx+1}`).value.toUpperCase();
 
             doc.setFont("helvetica", "bold");
-            // RENDERIZAÇÃO ORIGINAL EM C, NC E NA SEM MISTURAR LETRA COMPACTADA
             if(val === "C") doc.text("C", 138, currentY + 5.2);
             if(val === "NC") doc.text("NC", 147, currentY + 5.2);
             if(val === "NA") doc.text("NA", 157, currentY + 5.2);
@@ -566,10 +564,10 @@
         });
 
         // ==========================================
-        // FOLHA 2: COMENTÁRIOS, MEDIDAS, RESULTADO E 3 FIRMAS
+        // FOLHA 2: OBSERVAÇÕES, RESULTADO E AS 3 ASSINATURAS
         // ==========================================
         doc.addPage();
-        doc.setLineWidth(0.4); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
+        doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("RESULTADOS Y FIRMAS DE CONFORMIDAD", 100, 20, { align: 'center' });
         doc.setFontSize(7); doc.text("CÓDIGO: 20.0009-SST-FL-0036", 152, 16); doc.text("PÁGINA: 2 DE 3", 152, 31);
@@ -589,8 +587,8 @@
         doc.setFont("helvetica", "bold"); doc.text("RESULTADO:", 12, yFolha2 + 7);
         const finalRes = document.querySelector('input[name="resultado_final"]:checked')?.value || "";
         doc.text(finalRes === "LIBERADO" ? "[ X ] LIBERADO" : "[   ] LIBERADO", 55, yFolha2 + 7);
-        doc.text(finalRes === "LIBERADO_OBS" ? "[ X ] LIBERADO C/ OBS.", 103, yFolha2 + 7);
-        doc.text(finalRes === "NO_LIBERADO" ? "[ X ] NO LIBERADO", 155, yFolha2 + 7);
+        doc.text(finalRes === "LIBERADO_OBS" ? "[ X ] LIBERADO C/ OBS." : "[   ] LIBERADO C/ OBS.", 103, yFolha2 + 7);
+        doc.text(finalRes === "NO_LIBERADO" ? "[ X ] NO LIBERADO" : "[   ] NO LIBERADO", 155, yFolha2 + 7);
         yFolha2 += 18;
 
         doc.setFont("helvetica", "bold"); doc.text("FIRMAS RESPONSABLES:", 12, yFolha2 + 4);
@@ -612,7 +610,7 @@
         doc.text("SEGURIDAD DO TRABAJO", 168, yFolha2 + 45, {align:'center'});
 
         // ==========================================
-        // FOLHA 3: GRID TOTALMENTE ATUALIZADO DE 08 FOTOS
+        // FOLHA 3: GRID COMPLETO DAS 08 FOTOS
         // ==========================================
         doc.addPage();
         doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
@@ -640,7 +638,7 @@
             if(contadorGrid === 4) { imgX = 15; imgY += 45; } 
         }
 
-        // 7. COMPILAÇÃO DO CONTEÚDO BINÁRIO EM STRING PAYLOAD (MÉTODO ALERTAFLOTA DE SUCESSO)
+        // 6. COMPILAÇÃO DO CONTEÚDO BINÁRIO EM STRING PAYLOAD (ESTILO ALERTAFLOTA DE SUCESSO)
         const pdfBase64 = doc.output('datauristring').split(',')[1];
         const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
         
@@ -652,7 +650,6 @@
         if (navigator.onLine) {
             try {
                 status.innerText = "🚀 SUBINDO ARQUIVO AL GOOGLE DRIVE...";
-                // Dispara o fetch stringificado via modo clássico no-cors travado na sua URL correta
                 await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
                 status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
             } catch (err) {

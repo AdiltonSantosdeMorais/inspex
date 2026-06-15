@@ -11,7 +11,6 @@
     body { background: #f5f7fa; padding: 20px; color: #333; display: flex; justify-content: center; }
     
     .container { width: 100%; max-width: 1050px; display: flex; flex-direction: column; gap: 15px; }
-    .max-width-lista { max-width: 450px !important; margin: 0 auto; }
     
     .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; }
     .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
@@ -83,11 +82,10 @@
 
     #pwa-install-banner { display: none; background: #0055a5; color: white; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 14px; cursor: pointer; margin-bottom: 10px; }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-<div class="container" id="main-container">
+<div class="container" id="main-container" style="max-width: 450px; margin: 0 auto;">
     
     <div id="section-lista" style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
         <div class="header-card">
@@ -292,6 +290,20 @@
         });
     }
 
+    function atualizarStatusRede() {
+        const badge = document.getElementById('net-status');
+        if (!badge) return;
+        if (navigator.onLine) {
+            badge.innerText = "Online";
+            badge.style.background = "#e8f5e9";
+            badge.style.color = "#2ecc71";
+        } else {
+            badge.innerText = "Offline";
+            badge.style.background = "#ffebee";
+            badge.style.color = "#e74c3c";
+        }
+    }
+
     function abrirFormularioNativo(equip) {
         equipoSeleccionado = equip;
         document.getElementById('v_equipo').value = equip;
@@ -439,7 +451,6 @@
         if(canvas) { canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); }
     }
 
-    // NOVA LÓGICA: SALVAMENTO LOCAL E COMPILADOR DE ARQUIVO
     function salvarChecklistOffline() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: O preenchimento da PATENTE é obrigatório!"); return; }
@@ -468,12 +479,10 @@
         const radioResultado = document.querySelector('input[name="resultado_final"]:checked');
         const resultadoFinal = radioResultado ? radioResultado.value : "LIBERADO";
 
-        // Obtém assinaturas em imagem base64
         let conductorSig = document.getElementById('canvas_conductor').toDataURL();
         let supervisorSig = document.getElementById('canvas_supervisor').toDataURL();
         let seguridadSig = document.getElementById('canvas_seguridad').toDataURL();
 
-        // Monta o pacote de dados idêntico ao que o Drive espera
         let checklistData = {
             id_interno: Date.now().toString(),
             equipo: equipoSeleccionado,
@@ -492,84 +501,71 @@
             assinatura_seguridad: seguridadSig
         };
 
-        // Salva na memória interna do tablet (localStorage) de forma segura
         let locais = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
         locais.push(checklistData);
         localStorage.setItem('inspecoes_offline', JSON.stringify(locais));
 
-        alert("✅ ¡Inspección Guardada Localmente de forma Exitosa!\nEl reporte quedó almacenado en la memoria interna del Tablet.");
+        alert("✅ ¡Inspección Guardada de forma Exitosa!");
         fecharFormularioNativo();
         
-        // Tenta disparar a sincronização imediatamente caso haja sinal parcial
         sincronizarDadosPendentes();
     }
 
-    // MOTOR DE SINCRONIZAÇÃO: Envia tudo para o Drive automaticamente ao detectar rede
+    // NOVO MOTOR DE ENVIO: CORRIGIDO COM FORMDATA PARA EVITAR BLOQUEIO CORS DO GOOGLE
     async function sincronizarDadosPendentes() {
-        if (!navigator.onLine) return; // Se estiver sem internet, não faz nada
+        if (!navigator.onLine) return;
 
         let locais = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
         if (locais.length === 0) return;
 
-        console.log("Detectada conexión a internet. Sincronizando reportes pendientes...");
+        console.log("Conexão detectada. Sincronizando relatórios pendentes...");
 
-        // Desativa o botão temporariamente se o operador estiver na tela para evitar cliques duplos
         const btn = document.getElementById('btn-save-main');
         if(btn) btn.disabled = true;
 
         for (let i = 0; i < locais.length; i++) {
             const item = locais[i];
-            
-            // Cria um nome estruturado para o arquivo PDF gerado no script do Drive
             const nomeDoArquivo = `Checklist_${item.equipo}_${item.patente}_${item.fecha}.pdf`;
             
-            // Monta o payload exato para a API de recebimento do seu Apps Script
-            const payloadDrive = {
-                name: nomeDoArquivo,
-                bytes: item.assinatura_conductor.split(',')[1], // Passa a assinatura estruturada
-                metadata: item // Passa todos os dados de texto estruturados do checklist
-            };
+            // Criamos o formulário estruturado clássico que o Google Apps Script aceita de primeira
+            const formData = new FormData();
+            formData.append("name", nomeDoArquivo);
+            formData.append("metadata", JSON.stringify(item));
 
             try {
-                // Envia para o seu Webhook do Google Drive
+                // Enviando sem o modo 'no-cors' para garantir a entrega correta do formulário
                 await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify(payloadDrive)
+                    body: formData
                 });
                 
-                // Se o envio foi feito com sucesso, removemos este item da lista de pendentes
                 locais.splice(i, 1);
-                i--; // Reajusta o ponteiro do loop
+                i--;
                 localStorage.setItem('inspecoes_offline', JSON.stringify(locais));
-                console.log(`Reporte ${nomeDoArquivo} enviado con éxito al Google Drive.`);
+                console.log(`Relatório ${nomeDoArquivo} enviado com sucesso ao Google Drive.`);
             } catch (err) {
-                console.error("Erro ao enviar dado para o Drive: ", err);
-                break; // Se deu erro de conexão no meio do caminho, interrompe e tenta mais tarde
+                console.error("Erro crítico ao enviar dados para o Drive: ", err);
+                break;
             }
         }
 
         if(btn) btn.disabled = false;
     }
 
-    // Monitora a internet: no segundo exato que o tablet reconectar, roda a fila de envio
     window.addEventListener('online', () => {
         atualizarStatusRede();
         sincronizarDadosPendentes();
     });
     window.addEventListener('offline', atualizarStatusRede);
 
-    // Executa a checagem sempre que o aplicativo inicializa
     atualizarStatusRede();
     sincronizarDadosPendentes();
 
-    // LÓGICA DE DETECÇÃO E FORÇAMENTO DE INSTALAÇÃO DO PWA
     let eventoInstalacaoPWA = null;
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault(); eventoInstalacaoPWA = e;
         const banner = document.getElementById('pwa-install-banner');
         if (banner) { banner.style.display = 'block'; }
-        setTimeout(() => { dispararInstalacaoPWA(); }, 2000);
     });
 
     function dispararInstalacaoPWA() {
@@ -583,11 +579,6 @@
             });
         }
     }
-
-    window.addEventListener('appinstalled', () => {
-        const banner = document.getElementById('pwa-install-banner');
-        if (banner) { banner.style.display = 'none'; }
-    });
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); });

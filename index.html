@@ -6,7 +6,7 @@
 <title>InspeX - Elecnor</title>
 <link rel="manifest" href="/manifest.json">
 <style>
-    /* SEUS ESTILOS ORIGINAIS DA TELA DE LISTA */
+    /* ESTILOS ORIGINAIS DA TELA DE LISTA */
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
     body { background: #f5f7fa; padding: 20px; color: #333; display: flex; justify-content: center; }
     
@@ -19,7 +19,7 @@
     .status-badge { background: #e8f5e9; color: #2ecc71; font-weight: bold; font-size: 11px; padding: 5px 12px; border-radius: 20px; }
     .logo-inspex { max-height: 140px; margin: 15px 0 5px 0; object-fit: contain; }
     
-    .search-box { relative; width: 100%; }
+    .search-box { position: relative; width: 100%; }
     .search-box input { width: 100%; padding: 13px 15px 13px 40px; border-radius: 10px; border: 1px solid #d0d5dd; background: #fff; font-size: 14px; outline: none; }
     .search-box input:focus { border-color: #0055a5; }
     .search-box::before { content: "🔍"; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.5; }
@@ -31,7 +31,7 @@
     .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
     .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
 
-    /* ESTILOS ORIGINAIS DO SEU FORMULÁRIO SST DA AMBULÂNCIA */
+    /* ESTILOS DO FORMULÁRIO SST DA AMBULÂNCIA */
     .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -84,7 +84,7 @@
 </head>
 <body>
 
-<div class="container" id="main-container" class="max-width-lista">
+<div class="container" id="main-container">
     
     <div id="section-lista" style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
         <div class="header-card">
@@ -107,7 +107,7 @@
             <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN DE PETROLEO')" data-name="CAMIÓN DE PETROLEO"><span class="equip-name">CAMIÓN DE PETROLEO</span><span class="disponivel-badge">Disponible</span></div>
             <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN TOLVA')" data-name="CAMIÓN TOLVA"><span class="equip-name">CAMIÓN TOLVA</span><span class="disponivel-badge">Disponible</span></div>
             <div class="equip-card" onclick="abrirFormularioNativo('CAMIONES 3/4')" data-name="CAMIONES 3/4"><span class="equip-name">CAMIONES 3/4</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('ESLINGAS Y GRILLETES')" data-name="ESLINGAS Y GRILLETES"><span class="equip-name">ESLINGAS Y GRILLETES</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('ESSLINGAS Y GRILLETES')" data-name="ESLINGAS Y GRILLETES"><span class="equip-name">ESLINGAS Y GRILLETES</span><span class="disponivel-badge">Disponible</span></div>
             <div class="equip-card" onclick="abrirFormularioNativo('EXCAVADORA HIDRAULICA')" data-name="EXCAVADORA HIDRAULICA"><span class="equip-name">EXCAVADORA HIDRAULICA</span><span class="disponivel-badge">Disponible</span></div>
             <div class="equip-card" onclick="abrirFormularioNativo('GRUA Y PLUMA')" data-name="GRUA Y PLUMA"><span class="equip-name">GRUA Y PLUMA</span><span class="disponivel-badge">Disponible</span></div>
             <div class="equip-card" onclick="abrirFormularioNativo('MANIPULADORA TELESCOPICA')" data-name="MANIPULADORA TELESCOPICA"><span class="equip-name">MANIPULADORA TELESCOPICA</span><span class="disponivel-badge">Disponible</span></div>
@@ -232,7 +232,6 @@
 </div>
 
 <script>
-    // BANCO DE PERGUNTAS COMPLETO DOS SEUS EQUIPAMENTOS
     const BANCO_PERGUNTAS = {
         "AMBULANCIA": [
             "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
@@ -265,12 +264,12 @@
             "SISTEMA ELÉCTRICO, LUCES DELANTERAS Y TRASERAS",
             "ALARMA DE MARCHA ATRÁS Y BOCINA OPERATIVAS - IMP",
             "ESPEJOS RETROVISORES E INSTRUMENTOS DE CABINA - IMP",
-            "CINTURÓN DE SEGURIDAD EN TODOS LOS ASIENTOS - IMP",
+            "CINTURÓN DE SEGURIDAD IN TODOS LOS ASIENTOS - IMP",
             "NEUMÁTICOS / ORUGAS EN BUEN ESTADO DE USO - IMP",
             "NIVEL DE ACEITE, AGUA Y FLUIDOS EN GENERAL",
             "EXTINTOR DE INCENDIO VIGENTE E INSPECCIONADO",
             "SISTEMA HIDRÁULICO E MANGUERAS SEM FILTRAÇÕES",
-            "ESTADO DE VIDRIOS, PARABRISAS Y LIMPIAPARABRISAS",
+            "ESTADO DE VIDRIOS, PARABRASAS Y LIMPIAPARABRISAS",
             "DOCUMENTACIÓN DEL EQUIPO AL DÍA"
         ]
     };
@@ -286,12 +285,31 @@
         });
     }
 
-    // GATILHO OFFLINE: Monta o formulário estruturado original sem recarregar a página
+    // CORREÇÃO: Inicializa o formulário totalmente limpo e desmarcado
     function abrirFormularioNativo(equip) {
         equipoSeleccionado = equip;
         document.getElementById('v_equipo').value = equip;
         document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + equip;
         document.getElementById('v_fecha').valueAsDate = new Date();
+        
+        // Limpar inputs de texto superiores e comentários
+        document.getElementById('v_patente').value = "";
+        document.getElementById('v_anio').value = "";
+        document.getElementById('v_km').value = "";
+        document.getElementById('obs_generales').value = "";
+        document.getElementById('medidas_correctivas').value = "";
+
+        // Reset completo da tabela de resultados inferiores
+        document.getElementById('res_liberado').checked = false;
+        document.getElementById('res_obs').checked = false;
+        document.getElementById('res_no_liberado').checked = false;
+        
+        const itensLayout = [
+            document.getElementById('cell_liberado'), document.getElementById('check_liberado'),
+            document.getElementById('cell_obs'), document.getElementById('check_obs'),
+            document.getElementById('cell_no_liberado'), document.getElementById('check_no_liberado')
+        ];
+        itensLayout.forEach(el => el.classList.remove('disabled-option'));
 
         const tbody = document.getElementById('checklist-dinamico-rows');
         tbody.innerHTML = "";
@@ -300,24 +318,28 @@
         
         perguntas.forEach((pregunta, index) => {
             const id = index + 1;
+            // CORREÇÃO ESSENCIAL: Retirado o atributo 'checked' para que comecem desmarcados
             const row = `
                 <tr>
                     <td><strong>${id}.</strong> ${pregunta}</td>
-                    <td class="center"><input type="radio" name="item_${id}" value="C" checked onchange="verificarReglasResultados(perguntas)"></td>
-                    <td class="center"><input type="radio" name="item_${id}" value="NC" onchange="verificarReglasResultados(perguntas)"></td>
-                    <td class="center"><input type="radio" name="item_${id}" value="NA" onchange="verificarReglasResultados(perguntas)"></td>
+                    <td class="center"><input type="radio" name="item_${id}" value="C" onchange="verificarReglasResultados()"></td>
+                    <td class="center"><input type="radio" name="item_${id}" value="NC" onchange="verificarReglasResultados()"></td>
+                    <td class="center"><input type="radio" name="item_${id}" value="NA" onchange="verificarReglasResultados()"></td>
                     <td class="comment-col"><input type="text" id="comment_${id}" placeholder="Nota..."></td>
                 </tr>
             `;
             tbody.innerHTML += row;
         });
 
-        // Altera a largura do container para caber o formato de folha técnica
         document.getElementById('main-container').style.maxWidth = "1050px";
         document.getElementById('section-lista').style.display = "none";
         document.getElementById('section-formulario').style.display = "block";
         window.scrollTo(0,0);
+        
         inicializarCanvases();
+        limparCanvas('canvas_conductor');
+        limparCanvas('canvas_supervisor');
+        limparCanvas('canvas_seguridad');
     }
 
     function fecharFormularioNativo() {
@@ -327,16 +349,21 @@
         window.scrollTo(0,0);
     }
 
-    // Regras de negócio originais do seu HTML para bloqueios críticos (IMP)
+    // REAVALIAÇÃO DA LÓGICA ORIGINAL AUTOMÁTICA
     function verificarReglasResultados() {
         let bloqueioImpeditivo = false;
         let falhaComumDetectada = false;
+        let todasRespondidas = true;
+        
         const perguntas = BANCO_PERGUNTAS[equipoSeleccionado] || BANCO_PERGUNTAS["DEFAULT"];
 
         perguntas.forEach((pregunta, index) => {
             const id = index + 1;
-            const radioNC = document.querySelector(`input[name="item_${id}"][value="NC"]:checked`);
-            if (radioNC) {
+            const marcado = document.querySelector(`input[name="item_${id}"]:checked`);
+            
+            if (!marcado) {
+                todasRespondidas = false;
+            } else if (marcado.value === "NC") {
                 if (pregunta.toUpperCase().includes("IMP")) {
                     bloqueioImpeditivo = true;
                 } else {
@@ -348,66 +375,99 @@
         const btnLiberado = document.getElementById('res_liberado');
         const btnObs = document.getElementById('res_obs');
         const btnNoLiberado = document.getElementById('res_no_liberado');
+        
         const itensLayout = [
             document.getElementById('cell_liberado'), document.getElementById('check_liberado'),
             document.getElementById('cell_obs'), document.getElementById('check_obs'),
             document.getElementById('cell_no_liberado'), document.getElementById('check_no_liberado')
         ];
 
+        // Reset visual das opções
         itensLayout.forEach(el => el.classList.remove('disabled-option'));
         btnLiberado.disabled = false; btnObs.disabled = false; btnNoLiberado.disabled = false;
 
+        // Se houver uma falha impeditiva (- IMP) marcada, bloqueia imediatamente o veículo como NO LIBERADO
         if (bloqueioImpeditivo) {
             btnNoLiberado.checked = true;
             itensLayout.slice(0, 4).forEach(el => el.classList.add('disabled-option'));
             btnLiberado.disabled = true; btnObs.disabled = true;
-        } else if (falhaComumDetectada) {
+        } 
+        // Se houver uma inconformidade comum, define como LIBERADO COM OBSERVAÇÕES
+        else if (falhaComumDetectada) {
             btnObs.checked = true;
             itensLayout.slice(0, 2).concat(itensLayout.slice(4, 6)).forEach(el => el.classList.add('disabled-option'));
             btnLiberado.disabled = true; btnNoLiberado.disabled = true;
-        } else {
+        } 
+        // Se tudo estiver respondido e sem erros, marca como LIBERADO automaticamente
+        else if (todasRespondidas) {
             btnLiberado.checked = true;
+        } else {
+            // Caso existam itens sem responder, deixa os botões finais limpos aguardando término
+            btnLiberado.checked = false;
+            btnObs.checked = false;
+            btnNoLiberado.checked = false;
         }
     }
 
-    // Controle dos Canvas de Assinatura
+    // ASSINATURAS EM CANVAS
     function inicializarCanvases() {
         const canvases = ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'];
         canvases.forEach(id => {
             const canvas = document.getElementById(id);
             const ctx = canvas.getContext('2d');
-            ctx.lineWidth = 2; ctx.strokeStyle = "#004B87";
+            
+            // Remover listeners antigos para evitar duplicações de memória ao reabrir
+            const clone = canvas.cloneNode(true);
+            canvas.parentNode.replaceChild(clone, canvas);
+            
+            const novoCanvas = document.getElementById(id);
+            const novoCtx = novoCanvas.getContext('2d');
+            novoCtx.lineWidth = 2; novoCtx.strokeStyle = "#004B87";
             let desenhando = false;
             
             function obterPosicao(e) {
-                const rect = canvas.getBoundingClientRect();
+                const rect = novoCanvas.getBoundingClientRect();
                 const clienteX = e.touches ? e.touches[0].clientX : e.clientX;
                 const clienteY = e.touches ? e.touches[0].clientY : e.clientY;
                 return { x: clienteX - rect.left, y: clienteY - rect.top };
             }
-            canvas.onmousedown = function(e) { desenhando = true; ctx.beginPath(); const p = obterPosicao(e); ctx.moveTo(p.x, p.y); };
-            canvas.onmousemove = function(e) { if (!desenhando) return; const pos = obterPosicao(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); };
-            window.onmouseup = function() { desenhando = false; };
+            novoCanvas.onmousedown = function(e) { desenhando = true; novoCtx.beginPath(); const p = obterPosicao(e); novoCtx.moveTo(p.x, p.y); };
+            novoCanvas.onmousemove = function(e) { if (!desenhando) return; const pos = obterPosicao(e); novoCtx.lineTo(pos.x, pos.y); novoCtx.stroke(); };
+            window.addEventListener('mouseup', () => { desenhando = false; });
             
-            canvas.ontouchstart = function(e) { desenhando = true; ctx.beginPath(); const p = obterPosicao(e); ctx.moveTo(p.x, p.y); };
-            canvas.ontouchmove = function(e) { if (!desenhando) return; e.preventDefault(); const pos = obterPosicao(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); };
-            window.ontouchend = function() { desenhando = false; };
+            novoCanvas.ontouchstart = function(e) { desenhando = true; novoCtx.beginPath(); const p = obterPosicao(e); novoCtx.moveTo(p.x, p.y); };
+            novoCanvas.ontouchmove = function(e) { if (!desenhando) return; e.preventDefault(); const pos = obterPosicao(e); novoCtx.lineTo(pos.x, pos.y); novoCtx.stroke(); };
+            window.addEventListener('touchend', () => { desenhando = false; });
         });
     }
 
     function limparCanvas(id) {
         const canvas = document.getElementById(id);
-        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+        if(canvas) {
+            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+        }
     }
 
     function salvarChecklistOffline() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: O preenchimento da PATENTE é obrigatório!"); return; }
+        
+        // Validação de segurança complementar
+        const perguntas = BANCO_PERGUNTAS[equipoSeleccionado] || BANCO_PERGUNTAS["DEFAULT"];
+        let respondidas = true;
+        perguntas.forEach((_, index) => {
+            if(!document.querySelector(`input[name="item_${index + 1}"]:checked`)) respondidas = false;
+        });
+
+        if(!respondidas) {
+            alert("❌ Error: Todos los elementos de la lista deben ser verificados antes de guardar.");
+            return;
+        }
+
         alert("✅ ¡Inspección Guardada Localmente de forma Exitosa!\nSincronizada automáticamente al recuperar internet.");
         fecharFormularioNativo();
     }
 
-    // Gerenciador de Status Online/Offline
     function atualizarStatusRede() {
         const badge = document.getElementById('net-status');
         if (navigator.onLine) {

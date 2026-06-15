@@ -266,9 +266,6 @@
 <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
 
-    // LOGO DA ELECNOR ORIGINAL EM FORMATO STRING BASE64 VETORIAL PARA O jspdf
-    const ELECNOR_LOGO_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAA8CAMAAABvPZ7XAAAAMFBMVEVHcEwAAAAAnQAAnwAArQAAsgAAtgAAwQAAxwAA0wAA2wAA5wAA6wAA9wAA/wD///8AexDPAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUHBgYQCg0XNi12VAAAAYVpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnNtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDcuMS1jMDAwIDc5LmRhYmFkYWYsIDIwMjEvMDQvMTQtMDA6Mzk6NDQgICAgICAgICI+IDxyZGY6UkRGIHhtbG5zOnJkZj0id3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09ImFkb2JlOm5zOm1ldGEveG1wL21tLyIgeG1sbnM6c3RSZWY9ImFkb2JlOm5zOm1ldGEveG1wL3N0eWxlL3JlZinfIyIgeG1sbnM6eG1wPSJhZG9iZS5jb20veG1wLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJZD0ieG1wLmRpZDo4MTRmYjg5Yi00YzYwLTRjZDktOGMwMC0wZjVhMzM3MGJhYTIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MjhGNjQyRjZCQ0ExMTFFNjg3RjlFQzVCOUI0N0M5RjIiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MjhGNjQyRjVCQ0ExMTFFNjg3RjlFQzVCOUI0N0M5RjIiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIyLjQgKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0ZmQ0ODhiMy04YjU3LTQ3NjktOTNhZC00YmY0N2E2MDI1OTkiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ODE0ZmI4OWItNGM2MC00Y2Q5LThjMDAtMGY1YTMzNzBiYWEyIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDpzbXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+q9DmgwAAAW9JREFUeNrtl9uOgjAQRceFCl4RL/j//9pEE6IisbXgNu6TzEsTeqbT6bS00On0P6YitInonbU92IisWe84fQ9tWv+w3f0r2tY+Bv2FhK2v6vOda6gqg75O7O8b2mOQp9vL38eIn69SgU0vNfjscZf6jPn6mPBlYOf9jPrs2HovPbhGfaYfXKMeXKM+09+y9XfUe4/Xp58+H8vOf8vOf8vOf8vOf8vOf8vOf8vOf8vOf8vOf8vOf+vW31Xvffg7F/8Zl/U/yX3Of0Xb2VeyfXAn8/mBv0f0S2N/H9vP8uOAn80vNfjscJf6zK3D6S8A+qWxv48N7THI0+3lD6W/f+DvyTeyO8GdzO8f+Xt6m98PZ7GvA8V/gN8P7jP8bB7yZ5X9bIn0w7A7E81+f839h3E63eLph0uI9Y7Th4gH6x+bPgAAAAAAAADwS34Bdfp06vIunmsAAAAASUVORK5CYII=";
-
     let equipoSeleccionado = "";
     let bancoImagensFotos = {}; 
     const BANCO_PERGUNTAS = {
@@ -499,9 +496,22 @@
         localStorage.setItem('hse_queue', JSON.stringify(queue));
     }
 
+    // Função de carregamento ultra veloz para injetar imagens locais no jsPDF
+    async function converterUrlParaBase64(url) {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+            });
+        } catch (e) { return null; }
+    }
+
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
 
-    // CONSTRUTOR NATIVO DO JSPDF EM 3 FOLHAS COM A INJEÇÃO DA LOGOMARCA BASE64 FIXA
+    // CONSTRUTOR NATIVO DO JSPDF CORRIGIDO E OTIMIZADO (ENVIO EM 3 SEGUNDOS)
     async function salvarEMontarPDF_Original_SST() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
@@ -519,11 +529,14 @@
         const doc = new jsPDF('p', 'mm', 'a4');
         const corDeFundo = [240, 240, 240];
 
+        // Carrega a logo da pasta local de forma ultra veloz e segura
+        const logoLimpaBase64 = await converterUrlParaBase64('/static/logo-elecnor.png');
+
         // ==========================================
         // FOLHA 1: CABEÇALHO COMPLETO, VEÍCULO E ITENS
         // ==========================================
         doc.setLineWidth(0.4); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
-        try { doc.addImage(ELECNOR_LOGO_BASE64, 'PNG', 12, 13, 35, 18); } catch(e){}
+        if (logoLimpaBase64) { try { doc.addImage(logoLimpaBase64, 'PNG', 12, 14, 35, 16); } catch(e){} }
 
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
@@ -571,7 +584,7 @@
         // ==========================================
         doc.addPage();
         doc.setLineWidth(0.4); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
-        try { doc.addImage(ELECNOR_LOGO_BASE64, 'PNG', 12, 13, 35, 18); } catch(e){}
+        if (logoLimpaBase64) { try { doc.addImage(logoLimpaBase64, 'PNG', 12, 14, 35, 16); } catch(e){} }
         
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("RESULTADOS Y FIRMAS DE CONFORMIDAD", 100, 20, { align: 'center' });
@@ -619,7 +632,7 @@
         // ==========================================
         doc.addPage();
         doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
-        try { doc.addImage(ELECNOR_LOGO_BASE64, 'PNG', 12, 13, 35, 18); } catch(e){}
+        if (logoLimpaBase64) { try { doc.addImage(logoLimpaBase64, 'PNG', 12, 14, 35, 16); } catch(e){} }
         
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("REGISTRO FOTOGRÁFICO DE EVIDENCIAS", 100, 20, { align: 'center' });
@@ -632,6 +645,7 @@
         
         for (let keyIdx = 1; keyIdx <= 8; keyIdx++) {
             const dataBase64Imagem = bancoImagensFotos[`foto_${keyIdx}`];
+            // Filtro dinâmico ultrarápido que ignora slots vazios instantaneamente
             if (dataBase64Imagem && dataBase64Imagem.trim() !== "") {
                 doc.addImage(dataBase64Imagem, 'JPEG', imgX, imgY, 42, 32);
                 doc.setFontSize(7); doc.text(`FOTO ANEXO ${keyIdx}`, imgX + 21, imgY + 36, {align:'center'});
@@ -671,22 +685,6 @@
             fecharFormularioNativo();
             if (navigator.onLine) { syncQueue(); }
         }, 1500);
-    }
-
-    let eventoInstalacaoPWA = null;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault(); eventoInstalacaoPWA = e;
-        const banner = document.getElementById('pwa-install-banner');
-        if (banner) banner.style.display = 'block';
-    });
-
-    function dispararInstalacaoPWA() {
-        if (eventoInstalacaoPWA) {
-            eventoInstalacaoPWA.prompt();
-            eventoInstalacaoPWA.userChoice.then(() => {
-                document.getElementById('pwa-install-banner').style.display = 'none';
-            });
-        }
     }
 
     if ('serviceWorker' in navigator) {

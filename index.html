@@ -11,7 +11,7 @@
     
     .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; }
     
-    /* Cabeçalho Superior Branco */
+    /* Cabeçalho Superior Branco (Idêntico ao seu design) */
     .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; }
     .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
     .logo-elecnor { max-height: 25px; object-fit: contain; }
@@ -27,7 +27,7 @@
     /* Lista de Equipamentos */
     .equip-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     
-    /* Card de Equipamento Individual (Estilo exato da imagem) */
+    /* Card de Equipamento Individual */
     .equip-card { background: #fff; border-radius: 6px; padding: 18px 15px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border-left: 4px solid #0055a5; cursor: pointer; transition: transform 0.1s; }
     .equip-card:active { transform: scale(0.99); }
     .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
@@ -42,7 +42,8 @@
             <img class="logo-elecnor" src="/static/logo-elecnor.png" alt="Elecnor">
             <span class="status-badge" id="net-status">Online</span>
         </div>
-        <img class="logo-inspex" src="/static/logo-elecnor.png" alt="InspeduX"> </div>
+        <img class="logo-inspex" src="/static/inspex.png" alt="InspeX">
+    </div>
 
     <div class="search-box">
         <input type="text" id="search-input" placeholder="Buscar equipamento..." oninput="filtrarEquipamentos()">
@@ -125,7 +126,7 @@
 </div>
 
 <script>
-    // Função do Buscador em tempo real
+    // Buscador en tiempo real
     function filtrarEquipamentos() {
         const filtro = document.getElementById('search-input').value.toUpperCase();
         const cards = document.querySelectorAll('.equip-card');
@@ -140,7 +141,7 @@
         });
     }
 
-    // Monitorador de rede visual para o cabeçalho
+    // Monitoreo visual de red
     function atualizarStatusRede() {
         const badge = document.getElementById('net-status');
         if (navigator.onLine) {
@@ -157,12 +158,12 @@
     window.addEventListener('offline', atualizarStatusRede);
     atualizarStatusRede();
 
-    // REGISTRO DO SERVICE WORKER (A mágica que ativa o suporte Offline do PWA)
+    // Activador del Service Worker para el soporte Offline PWA
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/sw.js')
-                .then(reg => console.log('PWA Offline ativo com sucesso!', reg))
-                .catch(err => console.error('Falha ao ativar o modo offline:', err));
+                .then(reg => console.log('¡Modo Offline de InspeX activado con éxito!', reg))
+                .catch(err => console.error('Error al registrar el modo offline:', err));
         });
     }
 </script>

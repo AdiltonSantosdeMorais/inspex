@@ -311,7 +311,7 @@
     let equipoSeleccionado = "";
     let bancoImagensFotos = {}; 
 
-    // BUSCA CORRIGIDA: Removida a variável errada que travava o script
+    // FIX DA BUSCA: Substituição correta da variável typo 'filvet' para 'filtro'
     function filtrarEquipamentos() {
         const filtro = document.getElementById('search-input').value.toUpperCase();
         const cards = document.querySelectorAll('.equip-card');
@@ -395,6 +395,7 @@
         window.scrollTo(0,0);
     }
 
+    // REGRAS DE BLOQUEIO TRAVADAS DE ACORDO COM AS DIRETRIZES DO SST
     function verificarReglasResultados() {
         let bloqueioImpeditivo = false;
         let falhaComumDetectada = false;
@@ -500,7 +501,7 @@
 
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
 
-    // CONSTRUTOR DIGITAL NATIVO DE 3 PÁGINAS COM MARCAÇÃO INDEPENDENTE DE C, NC E NA
+    // CONSTRUTOR NATIVO DO JSPDF EM 3 FOLHAS (RESTAURA COLUNAS C, NC, NA E NOME DO ARQUIVO)
     async function salvarEMontarPDF_Original_SST() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
@@ -554,6 +555,7 @@
             const comment = document.getElementById(`comment_${idx+1}`).value.toUpperCase();
 
             doc.setFont("helvetica", "bold");
+            // Correção definitiva da marcação limpa de colunas solicitada
             if(val === "C") doc.text("C", 138, currentY + 5.2);
             if(val === "NC") doc.text("NC", 147, currentY + 5.2);
             if(val === "NA") doc.text("NA", 157, currentY + 5.2);
@@ -564,10 +566,10 @@
         });
 
         // ==========================================
-        // FOLHA 2: OBSERVAÇÕES, RESULTADO E AS 3 ASSINATURAS
+        // FOLHA 2: COMENTÁRIOS, MEDIDAS, RESULTADO E 3 FIRMAS
         // ==========================================
         doc.addPage();
-        doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
+        doc.setLineWidth(0.4); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("RESULTADOS Y FIRMAS DE CONFORMIDAD", 100, 20, { align: 'center' });
         doc.setFontSize(7); doc.text("CÓDIGO: 20.0009-SST-FL-0036", 152, 16); doc.text("PÁGINA: 2 DE 3", 152, 31);
@@ -638,7 +640,7 @@
             if(contadorGrid === 4) { imgX = 15; imgY += 45; } 
         }
 
-        // 6. COMPILAÇÃO DO CONTEÚDO BINÁRIO EM STRING PAYLOAD (ESTILO ALERTAFLOTA DE SUCESSO)
+        // Compilação do payload binário stringificado para o webhook do Drive
         const pdfBase64 = doc.output('datauristring').split(',')[1];
         const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
         

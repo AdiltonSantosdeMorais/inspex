@@ -84,7 +84,6 @@
     .sig-canvas { border: 1px dashed #999; background: #fff; display: block; cursor: crosshair; }
     .btn-clear { background: #e74c3c; color: white; border: none; padding: 2px 6px; font-size: 9px; border-radius: 2px; cursor: pointer; margin-top: 4px; display: inline-block; }
 
-    #pwa-install-banner { display: none; background: #0055a5; color: white; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 14px; cursor: pointer; margin-bottom: 10px; }
     #statusMsg { font-size: 14px; text-align: center; padding: 12px; display: none; font-weight: bold; background: #fff; border-radius: 6px; border: 1px solid #ccc; margin-top: 10px; }
     .btn-container { display: flex; justify-content: center; gap: 15px; margin: 20px auto; width: 100%; padding: 0 10px; }
     .btn-salvar { background: #4472c4; color: white; border: none; padding: 16px 45px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
@@ -265,47 +264,49 @@
 
     let equipoSeleccionado = "";
     let bancoImagensFotos = {}; 
-    const BANCO_PERGUNTAS = {
-        "AMBULANCIA": [
-            "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
-            "FRENO DE LAS RUEDAS FUNCIONANDO CORRECTAMENTE - IMP",
-            "FRENO DE ESTACIONAMIENTO",
-            "AGUA DEL RADIADOR CON NIVEL ADECUADO",
-            "LIMPIAPARABRISAS FUNCIONANDO CORRECTAMENTE",
-            "KIT DE HERRAMIENTAS (LLAVE DE RUEDAS, CRIQUE, GATO, TRIANGULO)",
-            "TUERCA DE FIJACIÓN DE LAS RUEDAS",
-            "SISTEMA ELÉCTRICO FUNCIONANDO CORRECTAMENTE",
-            "FAROS Y LUCES FUNCIONANDO CORRECTAMENTE",
-            "CLAXON/CAMARA DE MARCHA ATRÁS Y ALARMA SONORA DE MARCHA ATRÁS - IMP",
-            "RUEDAS SIN JUEGO EN EL VOLANTE",
-            "VELOCÍMETRO/TACOGRAFO",
-            "PUERTAS Y VENTANAS FUNCIONANDO CORRECTAMENTE",
-            "ASIENTOS EN BUEN ESTADO",
-            "ESPEJOS RETROVISORES - IMP",
-            "CINTURONES DE SEGURIDAD CONSERVADOS EN TODOS OS ASIENTOS - IMP",
-            "EXTINTOR DE INCENDIO VALIDO Y ADECUADO",
-            "VENTILACIÓN NATURAL OR ARTIFICIAL",
-            "NEUMATICOS CALIBRADOS Y EN BUEN ESTADO DE USO - IMP",
-            "ALARMA Y SIRENA DE EMERGENCIA FUNCIONANDO - IMP",
-            "CUÑA PARA RUEDAS",
-            "CONSERVACIÓN DEL INTERIOR DEL VEHÍCULO",
-            "IDENTIFICACIÓN DEL VEHÍCULO DE EMBARQUE - IMP"
-        ],
-        "DEFAULT": [
-            "ESTADO GENERAL DEL EQUIPO / CARROCERÍA",
-            "SISTEMA DE FRENOS (DE SERVICIO Y DE ESTACIONAMIENTO) - IMP",
-            "SISTEMA ELÉCTRICO, LUCES DELANTERAS Y TRASERAS",
-            "ALARMA DE MARCHA ATRÁS Y BOCINA OPERATIVAS - IMP",
-            "ESPEJOS RETROVISORES E INSTRUMENTOS DE CABINA - IMP",
-            "CINTURÓN DE SEGURIDAD IN TODOS LOS ASIENTOS - IMP",
-            "NEUMÁTICOS / ORUGAS EN BUEN ESTADO DE USO - IMP",
-            "NIVEL DE ACEITE, AGUA Y FLUIDOS EN GENERAL",
-            "EXTINTOR DE INCENDIO VIGENTE E INSPECCIONADO",
-            "SISTEMA HIDRÁULICO E MANGUERAS SEM FILTRAÇÕES",
-            "ESTADO DE VIDRIOS, PARABRASAS Y LIMPIAPARABRISAS",
-            "DOCUMENTACIÓN DEL EQUIPO AL DÍA"
-        ]
-    };
+    let perguntasAtuais = []; // Array dinâmico que armazenará as perguntas lidas da pasta
+
+    // Backup de contingência para o modo Offline rigoroso
+    const BACKUP_OFFLINE_AMBULANCIA = [
+        "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
+        "FRENO DE LAS RUEDAS FUNCIONANDO CORRECTAMENTE - IMP",
+        "FRENO DE ESTACIONAMIENTO",
+        "AGUA DEL RADIADOR CON NIVEL ADECUADO",
+        "LIMPIAPARABRISAS FUNCIONANDO CORRECTAMENTE",
+        "KIT DE HERRAMIENTAS (LLAVE DE RUEDAS, CRIQUE, GATO, TRIANGULO)",
+        "TUERCA DE FIJACIÓN DE LAS RUEDAS",
+        "SISTEMA ELÉCTRICO FUNCIONANDO CORRECTAMENTE",
+        "FAROS Y LUCES FUNCIONANDO CORRECTAMENTE",
+        "CLAXON/CAMARA DE MARCHA ATRÁS Y ALARMA SONORA DE MARCHA ATRÁS - IMP",
+        "RUEDAS SIN JUEGO EN EL VOLANTE",
+        "VELOCÍMETRO/TACOGRAFO",
+        "PUERTAS Y VENTANAS FUNCIONANDO CORRECTAMENTE",
+        "ASIENTOS EN BUEN ESTADO",
+        "ESPEJOS RETROVISORES - IMP",
+        "CINTURONES DE SEGURIDAD CONSERVADOS EN TODOS OS ASIENTOS - IMP",
+        "EXTINTOR DE INCENDIO VALIDO Y ADECUADO",
+        "VENTILACIÓN NATURAL OR ARTIFICIAL",
+        "NEUMATICOS CALIBRADOS Y EN BUEN ESTADO DE USO - IMP",
+        "ALARMA Y SIRENA DE EMERGENCIA FUNCIONANDO - IMP",
+        "CUÑA PARA RUEDAS",
+        "CONSERVACIÓN DEL INTERIOR DEL VEHÍCULO",
+        "IDENTIFICACIÓN DEL VEHÍCULO DE EMBARQUE - IMP"
+    ];
+
+    const BACKUP_OFFLINE_DEFAULT = [
+        "ESTADO GENERAL DEL EQUIPO / CARROCERÍA",
+        "SISTEMA DE FRENOS (DE SERVICIO Y DE ESTACIONAMIENTO) - IMP",
+        "SISTEMA ELÉCTRICO, LUCES DELANTERAS Y TRASERAS",
+        "ALARMA DE MARCHA ATRÁS Y BOCINA OPERATIVAS - IMP",
+        "ESPEJOS RETROVISORES E INSTRUMENTOS DE CABINA - IMP",
+        "CINTURÓN DE SEGURIDAD IN TODOS LOS ASIENTOS - IMP",
+        "NEUMÁTICOS / ORUGAS EN BUEN ESTADO DE USO - IMP",
+        "NIVEL DE ACEITE, AGUA Y FLUIDOS EN GENERAL",
+        "EXTINTOR DE INCENDIO VIGENTE E INSPECCIONADO",
+        "SISTEMA HIDRÁULICO E MANGUERAS SEM FILTRAÇÕES",
+        "ESTADO DE VIDRIOS, PARABRASAS Y LIMPIAPARABRISAS",
+        "DOCUMENTACIÓN DEL EQUIPO AL DÍA"
+    ];
 
     function filtrarEquipamentos() {
         const filtro = document.getElementById('search-input').value.toUpperCase();
@@ -337,7 +338,24 @@
         reader.readAsDataURL(input.files[0]);
     }
 
-    function abrirFormularioNativo(equip) {
+    // NOVA FUNÇÃO: Carrega as perguntas dinamicamente da pasta "checklist/"
+    async function carregarPerguntasDaPasta(equip) {
+        try {
+            // Monta o caminho relativo apontando para a pasta física do projeto
+            const resposta = await fetch(`/checklist/${equip}.json`);
+            if (resposta.ok) {
+                const dadosJson = await resposta.json();
+                if (Array.isArray(dadosJson)) return dadosJson;
+                if (dadosJson.perguntas && Array.isArray(dadosJson.perguntas)) return dadosJson.perguntas;
+            }
+        } catch (e) {
+            console.warn("Buscando backup local offline para:", equip);
+        }
+        // Retorna o backup se o arquivo JSON não for encontrado ou estiver offline
+        return equip === "AMBULANCIA" ? BACKUP_OFFLINE_AMBULANCIA : BACKUP_OFFLINE_DEFAULT;
+    }
+
+    async function abrirFormularioNativo(equip) {
         equipoSeleccionado = equip;
         bancoImagensFotos = {}; 
         
@@ -357,11 +375,13 @@
             if(preview) { preview.style.display = "none"; preview.src = ""; }
         }
 
+        // Aguarda a leitura dinâmica da sua pasta de arquivos
+        perguntasAtuais = await carregarPerguntasDaPasta(equip);
+
         const tbody = document.getElementById('checklist-dinamico-rows');
         tbody.innerHTML = "";
         
-        const perguntas = BANCO_PERGUNTAS[equip] || BANCO_PERGUNTAS["DEFAULT"];
-        perguntas.forEach((pregunta, index) => {
+        perguntasAtuais.forEach((pregunta, index) => {
             const id = index + 1;
             tbody.innerHTML += `
                 <tr>
@@ -394,9 +414,8 @@
         let bloqueioImpeditivo = false;
         let falhaComumDetectada = false;
         let todasRespondidas = true;
-        const perguntas = BANCO_PERGUNTAS[equipoSeleccionado] || BANCO_PERGUNTAS["DEFAULT"];
 
-        perguntas.forEach((pregunta, index) => {
+        perguntasAtuais.forEach((pregunta, index) => {
             const id = index + 1;
             const marcado = document.querySelector(`input[name="item_${id}"]:checked`);
             if (!marcado) {
@@ -493,6 +512,8 @@
         localStorage.setItem('hse_queue', JSON.stringify(queue));
     }
 
+    window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
+
     function extrairLogoDaTela() {
         let logoCanvas = document.createElement('canvas');
         let logoImgElement = document.getElementById('imagem-logo-tela');
@@ -505,7 +526,6 @@
         return null;
     }
 
-    // DESENHA A GRADE DE METADADOS DIREITOS SIMÉTRICA EM TODOS OS TOPO
     function desenharTabelaMetadadosSST(doc, paginaAtual, totalPaginas) {
         const startX = 150;
         const startY = 10;
@@ -577,15 +597,11 @@
 
         desenharTabelaMetadadosSST(doc, 1, 3);
 
-        // TABELA VEÍCULO: Retângulo total e linhas verticais divisórias
         doc.rect(10, 35, 190, 20); 
         doc.line(73, 35, 73, 55); 
         doc.line(140, 35, 140, 55);
-        
-        // ADICIONADA: Linha horizontal simétrica exata que divide a linha superior da linha inferior conforme imagem
         doc.line(10, 45, 200, 45);
 
-        // Preenchimento de textos respeitando os espaços das linhas horizontais e verticais
         doc.setFontSize(7.5);
         doc.setFont("helvetica", "bold"); doc.text("EQUIPO / MODELO: ", 12, 39);
         doc.setFont("helvetica", "normal"); doc.text(equipoSeleccionado, 38, 39);
@@ -596,7 +612,6 @@
         doc.setFont("helvetica", "bold"); doc.text("FECHA INSP.: ", 142, 39);
         doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_fecha').value, 162, 39);
 
-        // Dados da linha inferior da tabela do veículo
         doc.setFont("helvetica", "bold"); doc.text("EMPRESA: ", 12, 49);
         doc.setFont("helvetica", "normal"); doc.text("ELECNOR", 28, 49);
         
@@ -616,9 +631,9 @@
         doc.text("C", 137, currentY + 4.2); doc.text("NC", 146, currentY + 4.2); doc.text("NA", 156, currentY + 4.2); doc.text("COMENTARIOS", 166, currentY + 4.2);
 
         currentY += 6;
-        const perguntas = BANCO_PERGUNTAS[equipoSeleccionado] || BANCO_PERGUNTAS["DEFAULT"];
         
-        perguntas.forEach((p, idx) => {
+        // Renderiza rigorosamente a lista dinâmica que foi carregada da pasta física
+        perguntasAtuais.forEach((p, idx) => {
             doc.setFont("helvetica", "normal"); doc.setFontSize(7.5);
             doc.rect(10, currentY, 190, 8); doc.line(135, currentY, 135, currentY + 8); doc.line(145, currentY, 145, currentY + 8); doc.line(155, currentY, 155, currentY + 8); doc.line(165, currentY, 165, currentY + 8);
             
@@ -645,7 +660,6 @@
         doc.setLineWidth(0.4); doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35);
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
         
-        // Título de engenharia unificado em duas linhas na folha 2
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
         doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
@@ -696,7 +710,6 @@
         doc.setLineWidth(0.4); doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35);
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
         
-        // Título de engenharia unificado em duas linhas na folha 3
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
         doc.text(equipoSeleccionado, 100, 27, { align: 'center' });

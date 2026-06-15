@@ -95,6 +95,7 @@
     #statusMsg { font-size: 14px; text-align: center; padding: 12px; display: none; font-weight: bold; background: #fff; border-radius: 6px; border: 1px solid #ccc; margin-top: 10px; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -156,7 +157,7 @@
                             <tr><td><strong>Página:</strong> 1/1</td></tr>
                             <tr><td><strong>Revisión:</strong> 00</td></tr>
                             <tr><td><strong>Categoria:</strong> General</td></tr>
-                            <tr><td><strong>Sector:</strong> Security</td></tr>
+                            <tr><td><strong>Sector:</strong> Seguridad</td></tr>
                         </table>
                     </td>
                 </tr>
@@ -260,7 +261,7 @@
         <div id="statusMsg"></div>
         <div class="btn-container">
             <button class="btn-voltar" onclick="fecharFormularioNativo()">⬅ Voltar</button>
-            <button class="btn-salvar" id="btn-save-main" onclick="salvarEMontarPDF_Original_SST()">💾 ENVIAR Y SALVAR CHECKLIST</button>
+            <button class="btn-salvar" id="btn-save-main" onclick="gerarCopiaFielPDF_SST()">💾 ENVIAR Y SALVAR CHECKLIST</button>
         </div>
     </div>
 </div>
@@ -336,9 +337,10 @@
 
         const reader = new FileReader();
         reader.onload = function(e) {
-            bancoImagensFotos.push(e.target.result);
+            const base64Data = e.target.result;
+            bancoImagensFotos.push(base64Data);
             const preview = document.getElementById(`prev_foto_${id}`);
-            if(preview) { preview.src = e.target.result; preview.style.display = "block"; }
+            if(preview) { preview.src = base64Data; preview.style.display = "block"; }
         };
         reader.readAsDataURL(input.files[0]);
     }
@@ -464,7 +466,6 @@
 
         for (let i = 0; i < queue.length; i++) {
             try {
-                // Envio idêntico ao AlertaFlota que você enviou
                 await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(queue[i]) });
                 queue.splice(i, 1);
                 i--;
@@ -475,8 +476,8 @@
 
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
 
-    // RESTAURAÇÃO COMPLETA: MOTOR ORIGINAL MATEMÁTICO DO ALERTAFLOTA (SEM CORTES)
-    async function salvarEMontarPDF_Original_SST() {
+    // RETORNO AO MOTOR VETORIAL FIEL DO ALERTAFLOTA (FOTOS + 3 CANVASES AJUSTADOS)
+    async function gerarCopiaFielPDF_SST() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
 
@@ -487,168 +488,101 @@
         const btn = document.getElementById('btn-save-main');
         
         btn.disabled = true;
-        status.style.display = "block"; status.style.color = "orange"; status.innerText = "⏳ PROCESANDO REPORTE...";
+        status.style.display = "block"; status.style.color = "orange"; status.innerText = "⏳ GENERANDO REPORTE DIGITAL...";
 
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        const corDeFundo = [203, 213, 224];
-        const corDoRotulo = [0, 51, 102];
-
-        // 1. DESENHO DO CABEÇALHO TÉCNICO ORIGINAL (PÁGINA 1)
-        doc.setLineWidth(0.5); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
-        doc.setFontSize(11); doc.setFont("helvetica", "bold");
-        doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
-        doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
-        doc.setFontSize(7); doc.text("CÓDIGO: 20.0009-SST-FL-0036", 152, 16); doc.text("REVISIÓN: 00", 152, 22); doc.text("SECTOR: SEGURIDAD", 152, 28); doc.text("PÁGINA: 1 DE 2", 152, 33);
-
-        // 2. DESENHO DA GRADE DE DADOS DO VEÍCULO ORIGINAL
-        doc.rect(10, 35, 190, 20); doc.line(73, 35, 73, 55); doc.line(140, 35, 140, 55);
-        doc.setFontSize(8); doc.text("EQUIPO / MODELO: " + equipoSeleccionado, 12, 42); doc.text("PATENTE / IDENT.: " + patente.toUpperCase(), 75, 42); doc.text("FECHA INSP.: " + document.getElementById('v_fecha').value, 142, 42);
-        doc.text("EMPRESA: ELECNOR", 12, 52); doc.text("AÑO: " + document.getElementById('v_anio').value.toUpperCase(), 75, 52); doc.text("KM / HORÓMETRO: " + document.getElementById('v_km').value.toUpperCase(), 142, 52);
-
-        // Barra Azul da Legenda
-        doc.setFillColor(68, 114, 196); doc.rect(10, 55, 190, 7, 'F');
-        doc.setTextColor(255); doc.setFontSize(8); doc.text("C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO", 100, 60, { align: 'center' });
-        doc.setTextColor(0);
-
-        // 3. TABELA MATEMÁTICA DE ELEMENTOS VERIFICADOS (Ajuste perfeito de linhas)
-        let currentY = 62;
-        doc.setFillColor(...corDeFundo); doc.rect(10, currentY, 190, 6, 'F'); doc.rect(10, currentY, 190, 6);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.text("ELEMENTOS VERIFICADOS", 12, currentY + 4);
-        doc.text("C", 147, currentY + 4); doc.text("NC", 157, currentY + 4); doc.text("NA", 168, currentY + 4); doc.text("COMENTARIOS", 175, currentY + 4);
-
-        currentY += 6;
-        const perguntas = BANCO_PERGUNTAS[equipoSeleccionado] || BANCO_PERGUNTAS["DEFAULT"];
+        const folha = document.getElementById('area-folha-pdf');
         
-        perguntas.forEach((p, idx) => {
-            doc.setFont("helvetica", "normal"); doc.setFontSize(7.5);
-            doc.rect(10, currentY, 190, 6); doc.line(145, currentY, 145, currentY + 6); doc.line(155, currentY, 155, currentY + 6); doc.line(165, currentY, 165, currentY + 6); doc.line(174, currentY, 174, currentY + 6);
-            
-            doc.text(`${idx+1}. ${p.substring(0, 75)}`, 12, currentY + 4.5);
-            
-            // Verifica o rádio botão checado fisicamente no tablet
-            const checkedRadio = document.querySelector(`input[name="item_${idx+1}"]:checked`);
-            const val = checkedRadio ? checkedRadio.value : "";
-            const comment = document.getElementById(`comment_${idx+1}`).value.toUpperCase();
-
-            doc.setFont("helvetica", "bold");
-            if(val === "C") doc.text("X", 148, currentY + 4.5);
-            if(val === "NC") doc.text("X", 158, currentY + 4.5);
-            if(val === "NA") doc.text("X", 169, currentY + 4.5);
-            
-            doc.setFont("helvetica", "normal"); doc.setFontSize(6.5);
-            doc.text(comment.substring(0, 10), 176, currentY + 4.5);
-            
-            currentY += 6;
-        });
-
-        // 4. OBSERVAÇÕES E RESULTADOS NA BASE DA PÁGINA 1
-        doc.rect(10, currentY, 190, 15);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(7); doc.text("COMENTARIOS Y OBSERVACIONES GENERALES:", 12, currentY + 4);
-        doc.setFont("helvetica", "normal"); doc.text(document.getElementById('obs_generales').value.toUpperCase().substring(0, 120), 12, currentY + 9);
-        currentY += 15;
-
-        doc.rect(10, currentY, 190, 15);
-        doc.setFont("helvetica", "bold"); doc.text("MEDIDAS CORRECTIVAS ADOPTADAS:", 12, currentY + 4);
-        doc.setFont("helvetica", "normal"); doc.text(document.getElementById('medidas_correctivas').value.toUpperCase().substring(0, 120), 12, currentY + 9);
-        currentY += 15;
-
-        // Grade de Resultado
-        doc.rect(10, currentY, 190, 8); doc.line(50, currentY, 50, currentY + 8); doc.line(100, currentY, 100, currentY + 8); doc.line(150, currentY, 150, currentY + 8);
-        doc.setFont("helvetica", "bold"); doc.text("RESULTADO FINAL:", 12, currentY + 5);
-        
-        const finalRes = document.querySelector('input[name="resultado_final"]:checked')?.value || "";
-        doc.text(finalRes === "LIBERADO" ? "[ X ] LIBERADO" : "[  ] LIBERADO", 55, currentY + 5);
-        doc.text(finalRes === "LIBERADO_OBS" ? "[ X ] LIBERADO COM OBS." : "[  ] LIBERADO COM OBS.", 105, currentY + 5);
-        doc.text(finalRes === "NO_LIBERADO" ? "[ X ] NO LIBERADO" : "[  ] NO LIBERADO", 155, currentY + 5);
-
-        // 5. NOVA PÁGINA FIXA (PÁGINA 2): EVITAR QUEBRA DESCONFIGURADA E ADICIONAR EVIDÊNCIAS E FIRMAS
-        doc.addPage();
-        doc.setLineWidth(0.5); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
-        doc.setFontSize(11); doc.setFont("helvetica", "bold");
-        doc.text("REGISTRO FOTOGRÁFICO Y FIRMAS", 100, 22, { align: 'center' });
-        doc.setFontSize(7); doc.text("CÓDIGO: 20.0009-SST-FL-0036", 152, 18); doc.text("PÁGINA: 2 DE 2", 152, 28);
-
-        // Renderização das Fotos em Grade Fixa Limpa
-        doc.rect(10, 38, 190, 110);
-        doc.setFontSize(9); doc.text("EVIDENCIAS FOTOGRÁFICAS ADJUNTAS:", 12, 44);
-        
-        let cX = 15, cY = 48, colCount = 0;
-        bancoImagensFotos.forEach((imgBase64) => {
-            if(cY + 35 < 145) {
-                doc.addImage(imgBase64, 'JPEG', cX, cY, 40, 28);
-                colCount++; cX += 45;
-                if(colCount >= 4) { colCount = 0; cX = 15; cY += 32; }
-            }
-        });
-
-        // Quadro Fiel de Firmas na base da Página 2
-        let sigY = 160;
-        doc.rect(10, sigY, 190, 45); doc.line(73, sigY, 73, sigY + 45); doc.line(136, sigY, 136, sigY + 45);
-        
-        const condBytes = document.getElementById('canvas_conductor').toDataURL();
-        const supBytes = document.getElementById('canvas_supervisor').toDataURL();
-        const segBytes = document.getElementById('canvas_seguridad').toDataURL();
-        
-        doc.addImage(condBytes, 'PNG', 12, sigY + 2, 58, 25);
-        doc.addImage(supBytes, 'PNG', 75, sigY + 2, 58, 25);
-        doc.addImage(segBytes, 'PNG', 138, sigY + 2, 58, 25);
-
-        doc.setFontSize(8);
-        doc.text("OPERADOR / CONDUCTOR", 41, sigY + 38, {align:'center'});
-        doc.text("SUPERVISOR / ENCARGADO", 104, sigY + 38, {align:'center'});
-        doc.text("SEGURIDAD DO TRABAJO", 168, sigY + 38, {align:'center'});
-
-        // 6. EXECUÇÃO DO PAYLOAD ORIGINAL DA FILA DO ALERTAFLOTA
-        const pdfBase64 = doc.output('datauristring').split(',')[1];
-        const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
-        
-        const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
-
-        // Grava na fila local de segurança
-        saveToQueue(payload);
-
-        // Executa o download físico imediato no computador/tablet
-        doc.save(nomeDoFicheiroPDF);
-
-        if (navigator.onLine) {
-            try {
-                status.innerText = "🚀 SUBINDO ARQUIVO AL GOOGLE DRIVE...";
-                await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
-            } catch (err) {
-                status.innerText = "⚠️ REPORTE GUARDADO LOCALMENTE (SYNC AUTOMÁTICO)."; status.style.color = "orange";
-            }
-        } else {
-            status.innerText = "☁️ MODO OFFLINE: REPORTE SALVO NO DISPOSITIVO."; status.style.color = "blue";
-        }
+        // Fixa a largura estrita de engenharia no documento principal durante a foto do canvas
+        const originalWidth = folha.style.width;
+        const originalMaxWidth = document.getElementById('main-container').style.maxWidth;
+        document.getElementById('main-container').style.maxWidth = "1024px";
+        folha.style.width = "1024px";
 
         setTimeout(() => {
-            status.style.display = 'none';
-            fecharFormularioNativo();
-            if (navigator.onLine) { syncQueue(); }
-        }, 2500);
-    }
+            html2canvas(folha, {
+                scale: 2, // Garante nitidez cristalina nas bordas dos elementos radiomarcados
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            }).then(async (canvas) => {
+                // Restaura o layout responsivo do tablet na hora
+                document.getElementById('main-container').style.maxWidth = originalMaxWidth;
+                folha.style.width = originalWidth;
 
-    let eventoInstalacaoPWA = null;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault(); eventoInstalacaoPWA = e;
-        const banner = document.getElementById('pwa-install-banner');
-        if (banner) banner.style.display = 'block';
-    });
+                const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                const pdfWidth = doc.internal.pageSize.getWidth();
+                const pdfHeight = doc.internal.pageSize.getHeight();
+                
+                const imgWidthMm = pdfWidth - 20; 
+                const imgHeightMm = (canvas.height * imgWidthMm) / canvas.width;
 
-    function dispararInstalacaoPWA() {
-        if (eventoInstalacaoPWA) {
-            eventoInstalacaoPWA.prompt();
-            eventoInstalacaoPWA.userChoice.then(() => {
-                document.getElementById('pwa-install-banner').style.display = 'none';
+                let alturaRestante = imgHeightMm;
+                let posicaoY = 10;
+                let numPagina = 1;
+
+                // Fatiamento inteligente em páginas A4 verticais sem quebras borradas
+                doc.addImage(imgData, 'JPEG', 10, posicaoY, imgWidthMm, imgHeightMm);
+                alturaRestante -= (pdfHeight - 20);
+
+                while (alturaRestante > 0) {
+                    doc.addPage();
+                    numPagina++;
+                    posicaoY = 10 - (numPagina - 1) * (pdfHeight - 20);
+                    doc.addImage(imgData, 'JPEG', 10, posicaoY, imgWidthMm, imgHeightMm);
+                    alturaRestante -= (pdfHeight - 20);
+                }
+
+                // Compactação binária exata do AlertaFlota
+                const pdfBase64 = doc.output('datauristring').split(',')[1];
+                const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
+                
+                const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
+
+                // Salva na fila para backup
+                saveToQueue(payload);
+
+                if (navigator.onLine) {
+                    try {
+                        status.innerText = "🚀 SUBINDO ARQUIVO AL GOOGLE DRIVE...";
+                        await fetch(GOOGLE_SCRIPT_URL, { 
+                            method: 'POST', 
+                            mode: 'no-cors', 
+                            body: JSON.stringify(payload) 
+                        });
+                        status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
+                    } catch (err) {
+                        status.innerText = "⚠️ REPORTE SALVO LOCALMENTE (SYNC PENDENTE)."; status.style.color = "orange";
+                    }
+                } else {
+                    status.innerText = "☁️ MODO OFFLINE: REPORTE GUARDADO NO DISPOSITIVO."; status.style.color = "blue";
+                }
+
+                doc.save(nomeDoFicheiroPDF);
+                btn.disabled = false;
+                
+                setTimeout(() => { 
+                    status.style.display = 'none'; 
+                    fecharFormularioNativo(); 
+                    if (navigator.onLine) { syncQueue(); }
+                }, 3000);
+                
+            }).catch((err) => {
+                console.error(err);
+                document.getElementById('main-container').style.maxWidth = originalMaxWidth;
+                folha.style.width = originalWidth;
+                btn.disabled = false;
+                status.style.display = 'none';
             });
-        }
+        }, 200);
     }
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); });
     }
+    
+    atualizarStatusRede();
 </script>
 </body>
 </html>

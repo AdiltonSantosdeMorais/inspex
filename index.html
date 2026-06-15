@@ -23,7 +23,8 @@
     .sync-counter { font-size:10px; font-weight:bold; color:#7f8c8d; margin-top:5px; display:none; }
     .sync-counter.pending { display:block; color:#e67e22; }
 
-    .logo-inspex { max-height:140px; margin-top:40px; margin-bottom:15px; object-fit:contain; width:100%; max-width:280px; }
+    /* LOGO CENTRAL AJUSTADO PARA O ARQUIVO LOCAL */
+    .logo-inspex { max-height:160px; margin-top:35px; margin-bottom:10px; object-fit:contain; width:100%; max-width:240px; }
     
     /* BARRA DE PESQUISA */
     .search-container { background:#fff; border-radius:8px; border:1px solid #dcdde1; padding:12px 15px; display:flex; align-items:center; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.02); }
@@ -47,7 +48,7 @@
         <img class="logo-elecnor" src="static/logo-elecnor.png" alt="Elecnor" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/b/b9/Logo_Elecnor.svg'">
         <div id="network-indicator" class="network-badge online">Online</div>
         
-        <img class="logo-inspex" src="https://i.postimg.cc/mD4X7fW2/inspex-logo.png" alt="InspeX">
+        <img class="logo-inspex" src="static/inspex.jpg" alt="InspeX" onerror="this.src='static/inspex.png'">
         
         <div id="offline-counter" class="sync-counter">0 SINCRO PENDIENTES</div>
     </div>
@@ -58,35 +59,36 @@
     </div>
 
     <div class="checklist-list" id="checklist-list">
-        <a href="checklist/ambulancia.html" class="card-item"><span>AMBULANCIA</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/camion_aljibe.html" class="card-item"><span>CAMIÓN ALJIBE</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/camion_betonera.html" class="card-item"><span>CAMION BETONERA</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/camion_cama_baja.html" class="card-item"><span>CAMIÓN CAMA BAJA</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/camion_de_petroleo.html" class="card-item"><span>CAMIÓN DE PETROLEO</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/camion_tolva.html" class="card-item"><span>CAMIÓN TOLVA</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/camiones_3_4.html" class="card-item"><span>CAMIONES 3/4</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/eslingas_y_grilletes.html" class="card-item"><span>ESLINGAS Y GRILLETES</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/excavadora_hidraulica.html" class="card-item"><span>EXCAVADORA HIDRAULICA</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/grua_y_pluma.html" class="card-item"><span>GRUA Y PLUMA</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/manipuladora_telescopica.html" class="card-item"><span>MANIPULADORA TELESCOPICA</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/maquina_perforadora.html" class="card-item"><span>MAQUINA PERFORADORA</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/mini_rodillo_compactador.html" class="card-item"><span>MINI RODILLO COMPACTADOR</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/miniexcavadora_mini_carregadora.html" class="card-item"><span>MINIEXCAVADORA MINI CARREGADORA</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/motor_generador.html" class="card-item"><span>MOTOR GENERADOR</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/plataforma_pta.html" class="card-item"><span>PLATAFORMA PTA</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/remolque_tanque_de_petroleo.html" class="card-item"><span>REMOLQUE TANQUE DE PETROLEO</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/retroexcavadora.html" class="card-item"><span>RETROEXCAVADORA</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/rodillo_compactador.html" class="card-item"><span>RODILLO COMPACTADOR</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/taladro_de_roca.html" class="card-item"><span>TALADRO DE ROCA</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/tractor_de_neumaticos.html" class="card-item"><span>TRACTOR DE NEUMATICOS</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/tractor_de_orugas_motoniveladora.html" class="card-item"><span>TRACTOR DE ORUGAS MOTONIVELADORA</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/transporte_colectivo_furgonetas.html" class="card-item"><span>TRANSPORTE COLECTIVO FURGONETAS</span><span class="status-badge">Disponível</span></a>
-        <a href="checklist/vehiculos_ligeros_camionetas.html" class="card-item"><span>VEHICULOS LIGEROS CAMIONETAS</span><span class="status-badge">Disponível</span></a>
+        <a href="checklist/ambulancia.html" class="card-item"><span>AMBULANCIA</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/camion_aljibe.html" class="card-item"><span>CAMIÓN ALJIBE</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/camion_betonera.html" class="card-item"><span>CAMION BETONERA</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/camion_cama_baja.html" class="card-item"><span>CAMIÓN CAMA BAJA</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/camion_de_petroleo.html" class="card-item"><span>CAMIÓN DE PETROLEO</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/camion_tolva.html" class="card-item"><span>CAMIÓN TOLVA</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/camiones_3_4.html" class="card-item"><span>CAMIONES 3/4</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/eslingas_y_grilletes.html" class="card-item"><span>ESLINGAS Y GRILLETES</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/excavadora_hidraulica.html" class="card-item"><span>EXCAVADORA HIDRAULICA</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/grua_y_pluma.html" class="card-item"><span>GRUA Y PLUMA</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/manipuladora_telescopica.html" class="card-item"><span>MANIPULADORA TELESCOPICA</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/maquina_perforadora.html" class="card-item"><span>MAQUINA PERFORADORA</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/mini_rodillo_compactador.html" class="card-item"><span>MINI RODILLO COMPACTADOR</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/miniexcavadora_mini_carregadora.html" class="card-item"><span>MINIEXCAVADORA MINI CARREGADORA</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/motor_generador.html" class="card-item"><span>MOTOR GENERADOR</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/plataforma_pta.html" class="card-item"><span>PLATAFORMA PTA</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/remolque_tanque_de_petroleo.html" class="card-item"><span>REMOLQUE TANQUE DE PETROLEO</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/retroexcavadora.html" class="card-item"><span>RETROEXCAVADORA</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/rodillo_compactador.html" class="card-item"><span>RODILLO COMPACTADOR</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/taladro_de_roca.html" class="card-item"><span>TALADRO DE ROCA</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/tractor_de_neumaticos.html" class="card-item"><span>TRACTOR DE NEUMATICOS</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/tractor_de_orugas_motoniveladora.html" class="card-item"><span>TRACTOR DE ORUGAS MOTONIVELADORA</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/transporte_colectivo_furgonetas.html" class="card-item"><span>TRANSPORTE COLECTIVO FURGONETAS</span><span class="status-badge">Disponible</span></a>
+        <a href="checklist/vehiculos_ligeros_camionetas.html" class="card-item"><span>VEHICULOS LIGEROS CAMIONETAS</span><span class="status-badge">Disponible</span></a>
     </div>
 
 </div>
 
-<script>
+<script {
+    // Caso sua extensão de arquivo seja .png em vez de .jpg, a tag <img> possui um fallback "onerror" automático injetado acima para não quebrar.
     function filtrarEquipamentos() {
         const input = document.getElementById('search-input').value.toUpperCase();
         const items = document.getElementById('checklist-list').getElementsByTagName('a');

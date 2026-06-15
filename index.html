@@ -15,7 +15,7 @@
     .main-card { background:#fff; border-radius:12px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.05); text-align:center; position:relative; margin-bottom:15px; }
     .logo-elecnor { position:absolute; top:15px; left:20px; max-height:30px; }
     
-    /* INDICADOR DE CONEXIÓN ORIGINAL */
+    /* INDICADOR DE CONEXÃO ORIGINAL */
     .network-badge { position:absolute; top:15px; right:20px; font-size:11px; font-weight:bold; color:#fff; padding:4px 12px; border-radius:15px; }
     .online { background:#2ecc71; }
     .offline { background:#e74c3c; }
@@ -24,7 +24,7 @@
     .sync-counter { font-size:10px; font-weight:bold; color:#7f8c8d; margin-top:5px; display:none; }
     .sync-counter.pending { display:block; color:#e67e22; }
 
-    /* LOGO CENTRAL DEL APP */
+    /* LOGO CENTRAL DO APP */
     .logo-inspex { max-height:160px; margin-top:35px; margin-bottom:10px; object-fit:contain; width:100%; max-width:240px; }
     
     /* BARRA DE PESQUISA */
@@ -89,7 +89,7 @@
 </div>
 
 <script>
-    // 1. REGISTRO OFICIAL DE SERVICE WORKER PARA ENTORNO PWA / APK
+    // 1. DISPARO E REGISTRO DO SERVICE WORKER LOCAL
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('service-worker.js')
@@ -113,7 +113,7 @@
         }
     }
 
-    // 3. SISTEMA DE MONITORAMENTO DE REDE (ONLINE / OFFLINE)
+    // 3. MONITORADOR DE CONEXÃO (ONLINE / OFFLINE)
     function updateNetworkStatus() {
         const ind = document.getElementById('network-indicator');
         if (navigator.onLine) {
@@ -137,7 +137,7 @@
         }
     }
 
-    // 4. MOTOR DE BACKGROUND INVISÍVEL PARA SINCRONIZAÇÃO
+    // 4. MOTOR BACKGROUND INVISÍVEL DE SINCRONIZAÇÃO AUTOMÁTICA
     async function verificarESincronizarFila() {
         atualizarContadorFila();
         if (!navigator.onLine) return;
@@ -160,7 +160,7 @@
                 localStorage.setItem('inspecoes_offline', JSON.stringify(itensRestantes));
                 atualizarContadorFila();
             } catch (error) {
-                console.error("Fila suspensa provisoriamente.", error);
+                console.error("Fila em background suspensa provisoriamente.", error);
                 break;
             }
         }

@@ -1,7 +1,7 @@
-// Atualizado para v15 para forçar o tablet a limpar o loop que fazia a tela tremer
-const CACHE_NAME = 'inspex-cache-v15';
+// Atualizado para v16 para forçar o tablet a resetar as permissões de pasta
+const CACHE_NAME = 'inspex-cache-v16';
 const urlsToCache = [
-  '/',                     // Tela principal (index.html)
+  '/',                     // Tela inicial (index.html)
   '/static/logo-elecnor.png',
   '/static/inspex.png',
   '/manifest.json'
@@ -34,23 +34,32 @@ self.addEventListener('activate', event => {
   );
 });
 
-// ESTRATÉGIA CACHE-FIRST IDENTICA AO SEU OUTRO APP:
+// ESTRATÉGIA CACHE-FIRST ADAPTADA PARA SUBPASTAS:
 self.addEventListener('fetch', event => {
   // Ignora requisições de envio do formulário (POST)
-  if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
+  if (event.request.method !== 'GET') {
     return;
+  }
+
+  // CORREÇÃO CRÍTICA: Permite o carregamento da raiz OU de qualquer arquivo dentro da pasta /checklist/
+  const url = event.request.url;
+  const isLocal = url.startsWith(self.location.origin);
+  const isChecklist = url.includes('/checklist/');
+
+  if (!isLocal && !isChecklist) {
+    return; // Bloqueia apenas o que for realmente externo e estranho
   }
 
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       if (cachedResponse) {
-        // Se encontrou no cache (HTML, Ícones, subpáginas), entrega imediatamente sem tremer
+        // Se a página do checklist já estiver na memória, entrega na hora sem tremer!
         return cachedResponse;
       }
 
-      // Se não estiver no cache, busca na rede e salva uma cópia automaticamente na memória
+      // Se não estiver no cache ainda, busca na rede e guarda uma cópia na memória do tablet
       return fetch(event.request).then(networkResponse => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+        if (!networkResponse || networkResponse.status !== 200) {
           return networkResponse;
         }
 
@@ -61,7 +70,7 @@ self.addEventListener('fetch', event => {
 
         return networkResponse;
       }).catch(() => {
-        // Fallback offline se a rede falhar
+        // Se estiver totalmente sem internet e o arquivo não foi aberto antes, volta para a lista
         if (event.request.mode === 'navigate') {
           return caches.match('/');
         }

@@ -2,177 +2,170 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>InspeX - Inspección Mensual</title>
-<link rel="manifest" href="manifest.json">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InspeX - Elecnor</title>
+<link rel="manifest" href="/manifest.json">
 <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
-    body { background:#f4f6f9; padding:15px; color: #003366; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { background: #f5f7fa; padding: 20px; color: #333; display: flex; justify-content: center; }
     
-    .container { width:100%; max-width:600px; margin:auto; }
+    .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; }
     
-    /* CARD PRINCIPAL SUPERIOR */
-    .main-card { background:#fff; border-radius:12px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.05); text-align:center; position:relative; margin-bottom:15px; }
-    .logo-elecnor { position:absolute; top:15px; left:20px; max-height:30px; }
+    /* Cabeçalho Superior Branco */
+    .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; }
+    .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+    .logo-elecnor { max-height: 25px; object-fit: contain; }
+    .status-badge { background: #e8f5e9; color: #2ecc71; font-weight: bold; font-size: 11px; padding: 5px 12px; border-radius: 20px; }
+    .logo-inspex { max-height: 140px; margin: 15px 0 5px 0; object-fit: contain; }
     
-    /* INDICADOR DE CONEXÃO */
-    .network-badge { position:absolute; top:15px; right:20px; font-size:11px; font-weight:bold; color:#fff; padding:4px 12px; border-radius:15px; }
-    .online { background:#2ecc71; }
-    .offline { background:#e74c3c; }
+    /* Barra de Busca */
+    .search-box { position: relative; width: 100%; }
+    .search-box input { width: 100%; padding: 13px 15px 13px 40px; border-radius: 10px; border: 1px solid #d0d5dd; background: #fff; font-size: 14px; outline: none; }
+    .search-box input:focus { border-color: #0055a5; }
+    .search-box::before { content: "🔍"; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.5; }
     
-    /* CONTADOR DE FILA OFFLINE */
-    .sync-counter { font-size:10px; font-weight:bold; color:#7f8c8d; margin-top:5px; display:none; }
-    .sync-counter.pending { display:block; color:#e67e22; }
-
-    /* LOGO CENTRAL DO APP */
-    .logo-inspex { max-height:160px; margin-top:35px; margin-bottom:10px; object-fit:contain; width:100%; max-width:240px; }
+    /* Lista de Equipamentos */
+    .equip-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     
-    /* BARRA DE PESQUISA */
-    .search-container { background:#fff; border-radius:8px; border:1px solid #dcdde1; padding:12px 15px; display:flex; align-items:center; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.02); }
-    .search-icon { font-size:16px; margin-right:10px; color:#7f8c8d; }
-    .search-input { border:none; outline:none; width:100%; font-size:14px; color:#333; }
-    .search-input::placeholder { color:#aaa; }
-
-    /* LISTA DE CHECKLISTS */
-    .checklist-list { display:flex; flex-direction:column; gap:12px; }
-    .card-item { display:flex; justify-content:space-between; align-items:center; background:#fff; border-radius:6px; padding:18px 20px; text-decoration:none; color:#003366; font-weight:bold; font-size:14px; border-left:5px solid #0056b3; box-shadow:0 2px 6px rgba(0,0,0,0.03); transition:transform 0.1s; }
-    .card-item:active { transform:scale(0.99); }
-    
-    .status-badge { background:#2ecc71; color:#fff; font-size:11px; padding:4px 10px; border-radius:12px; font-weight:bold; }
+    /* Card de Equipamento Individual (Estilo exato da imagem) */
+    .equip-card { background: #fff; border-radius: 6px; padding: 18px 15px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border-left: 4px solid #0055a5; cursor: pointer; transition: transform 0.1s; }
+    .equip-card:active { transform: scale(0.99); }
+    .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
+    .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
 </style>
 </head>
 <body>
 
 <div class="container">
+    <div class="header-card">
+        <div class="header-top">
+            <img class="logo-elecnor" src="/static/logo-elecnor.png" alt="Elecnor">
+            <span class="status-badge" id="net-status">Online</span>
+        </div>
+        <img class="logo-inspex" src="/static/logo-elecnor.png" alt="InspeduX"> </div>
 
-    <div class="main-card">
-        <img class="logo-elecnor" src="static/logo-elecnor.png" alt="Elecnor" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/b/b9/Logo_Elecnor.svg'">
-        <div id="network-indicator" class="network-badge online">Online</div>
-        
-        <img class="logo-inspex" src="static/inspex.png" alt="InspeX" onerror="this.src='static/logo-elecnor.png'">
-        
-        <div id="offline-counter" class="sync-counter">0 SINCRO PENDIENTES</div>
+    <div class="search-box">
+        <input type="text" id="search-input" placeholder="Buscar equipamento..." oninput="filtrarEquipamentos()">
     </div>
 
-    <div class="search-container">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" class="search-input" placeholder="Buscar equipamento..." onkeyup="filtrarEquipamentos()">
+    <div class="equip-list" id="lista-container">
+        <a href="/checklist/ambulancia.html" class="equip-card" data-name="AMBULANCIA">
+            <span class="equip-name">AMBULANCIA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/camion_aljibe.html" class="equip-card" data-name="CAMIÓN ALJIBE">
+            <span class="equip-name">CAMIÓN ALJIBE</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/camion_betonera.html" class="equip-card" data-name="CAMION BETONERA">
+            <span class="equip-name">CAMION BETONERA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/camion_cama_baja.html" class="equip-card" data-name="CAMIÓN CAMA BAJA">
+            <span class="equip-name">CAMIÓN CAMA BAJA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/camion_de_petroleo.html" class="equip-card" data-name="CAMIÓN DE PETROLEO">
+            <span class="equip-name">CAMIÓN DE PETROLEO</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/camion_tolva.html" class="equip-card" data-name="CAMIÓN TOLVA">
+            <span class="equip-name">CAMIÓN TOLVA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/camiones_3_4.html" class="equip-card" data-name="CAMIONES 3/4">
+            <span class="equip-name">CAMIONES 3/4</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/eslingas_y_grilletes.html" class="equip-card" data-name="ESLINGAS Y GRILLETES">
+            <span class="equip-name">ESLINGAS Y GRILLETES</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/excavadora_hidraulica.html" class="equip-card" data-name="EXCAVADORA HIDRAULICA">
+            <span class="equip-name">EXCAVADORA HIDRAULICA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/grua_y_pluma.html" class="equip-card" data-name="GRUA Y PLUMA">
+            <span class="equip-name">GRUA Y PLUMA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/manipuladora_telescopica.html" class="equip-card" data-name="MANIPULADORA TELESCOPICA">
+            <span class="equip-name">MANIPULADORA TELESCOPICA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/maquina_perforadora.html" class="equip-card" data-name="MAQUINA PERFORADORA">
+            <span class="equip-name">MAQUINA PERFORADORA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/mini_rodillo_compactador.html" class="equip-card" data-name="MINI RODILLO COMPACTADOR">
+            <span class="equip-name">MINI RODILLO COMPACTADOR</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/miniexcavadora_mini_carregadora.html" class="equip-card" data-name="MINIEXCAVADORA MINI CARREGADORA">
+            <span class="equip-name">MINIEXCAVADORA MINI CARREGADORA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/motor_generador.html" class="equip-card" data-name="MOTOR GENERADOR">
+            <span class="equip-name">MOTOR GENERADOR</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/plataforma_pta.html" class="equip-card" data-name="PLATAFORMA PTA">
+            <span class="equip-name">PLATAFORMA PTA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/remolque_tanque_de_petroleo.html" class="equip-card" data-name="REMOLQUE TANQUE DE PETROLEO">
+            <span class="equip-name">REMOLQUE TANQUE DE PETROLEO</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/retroexcavadora.html" class="equip-card" data-name="RETROEXCAVADORA">
+            <span class="equip-name">RETROEXCAVADORA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/rodillo_compactador.html" class="equip-card" data-name="RODILLO COMPACTADOR">
+            <span class="equip-name">RODILLO COMPACTADOR</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/taladro_de_rocka.html" class="equip-card" data-name="TALADRO DE ROCA">
+            <span class="equip-name">TALADRO DE ROCA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/tractor_de_neumaticos.html" class="equip-card" data-name="TRACTOR DE NEUMATICOS">
+            <span class="equip-name">TRACTOR DE NEUMATICOS</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/tractor_orugas_motoniveladora.html" class="equip-card" data-name="TRACTOR DE ORUGAS MOTONIVELADORA">
+            <span class="equip-name">TRACTOR DE ORUGAS MOTONIVELADORA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/transporte_colectivo_furgonetas.html" class="equip-card" data-name="TRANSPORTE COLECTIVO FURGONETAS">
+            <span class="equip-name">TRANSPORTE COLECTIVO FURGONETAS</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/vehiculos_ligeros_camionetas.html" class="equip-card" data-name="VEHICULOS LIGEROS CAMIONETAS">
+            <span class="equip-name">VEHICULOS LIGEROS CAMIONETAS</span><span class="disponivel-badge">Disponible</span>
+        </a>
     </div>
-
-    <div class="checklist-list" id="checklist-list">
-        <a href="checklist/ambulancia.html" class="card-item"><span>AMBULANCIA</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/camion_aljibe.html" class="card-item"><span>CAMIÓN ALJIBE</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/camion_betonera.html" class="card-item"><span>CAMION BETONERA</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/camion_cama_baja.html" class="card-item"><span>CAMIÓN CAMA BAJA</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/camion_de_petroleo.html" class="card-item"><span>CAMIÓN DE PETROLEO</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/camion_tolva.html" class="card-item"><span>CAMIÓN TOLVA</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/camiones_3_4.html" class="card-item"><span>CAMIONES 3/4</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/eslingas_y_grilletes.html" class="card-item"><span>ESLINGAS Y GRILLETES</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/excavadora_hidraulica.html" class="card-item"><span>EXCAVADORA HIDRAULICA</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/grua_y_pluma.html" class="card-item"><span>GRUA Y PLUMA</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/manipuladora_telescopica.html" class="card-item"><span>MANIPULADORA TELESCOPICA</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/maquina_perforadora.html" class="card-item"><span>MAQUINA PERFORADORA</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/mini_rodillo_compactador.html" class="card-item"><span>MINI RODILLO COMPACTADOR</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/miniexcavadora_mini_carregadora.html" class="card-item"><span>MINIEXCAVADORA MINI CARREGADORA</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/motor_generador.html" class="card-item"><span>MOTOR GENERADOR</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/plataforma_pta.html" class="card-item"><span>PLATAFORMA PTA</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/remolque_tanque_de_petroleo.html" class="card-item"><span>REMOLQUE TANQUE DE PETROLEO</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/retroexcavadora.html" class="card-item"><span>RETROEXCAVADORA</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/rodillo_compactador.html" class="card-item"><span>RODILLO COMPACTADOR</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/taladro_de_roca.html" class="card-item"><span>TALADRO DE ROCA</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/tractor_de_neumaticos.html" class="card-item"><span>TRACTOR DE NEUMATICOS</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/tractor_de_orugas_motoniveladora.html" class="card-item"><span>TRACTOR DE ORUGAS MOTONIVELADORA</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/transporte_colectivo_furgonetas.html" class="card-item"><span>TRANSPORTE COLECTIVO FURGONETAS</span><span class="status-badge">Disponible</span></a>
-        <a href="checklist/vehiculos_ligeros_camionetas.html" class="card-item"><span>VEHICULOS LIGEROS CAMIONETAS</span><span class="status-badge">Disponible</span></a>
-    </div>
-
 </div>
 
 <script>
-    // 1. REGISTRO DO SERVICE WORKER
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('service-worker.js')
-                .then(reg => console.log('Service Worker registrado con éxito', reg))
-                .catch(err => console.warn('Error al registrar el Service Worker', err));
+    // Função do Buscador em tempo real
+    function filtrarEquipamentos() {
+        const filtro = document.getElementById('search-input').value.toUpperCase();
+        const cards = document.querySelectorAll('.equip-card');
+        
+        cards.forEach(card => {
+            const nome = card.getAttribute('data-name');
+            if (nome.includes(filtro)) {
+                card.style.display = "flex";
+            } else {
+                card.style.display = "none";
+            }
         });
     }
 
-    // 2. BUSCADOR EM TEMPO REAL
-    function filtrarEquipamentos() {
-        const input = document.getElementById('search-input').value.toUpperCase();
-        const items = document.getElementById('checklist-list').getElementsByTagName('a');
-        
-        for (let i = 0; i < items.length; i++) {
-            const text = items[i].textContent || items[i].innerText;
-            if (text.toUpperCase().indexOf(input) > -1) {
-                items[i].style.display = "";
-            } else {
-                items[i].style.display = "none";
-            }
-        }
-    }
-
-    // 3. MONITORAMENTO DE REDE
-    function updateNetworkStatus() {
-        const ind = document.getElementById('network-indicator');
+    // Monitorador de rede visual para o cabeçalho
+    function atualizarStatusRede() {
+        const badge = document.getElementById('net-status');
         if (navigator.onLine) {
-            ind.className = "network-badge online";
-            ind.innerText = "Online";
-            verificarESincronizarFila();
+            badge.innerText = "Online";
+            badge.style.background = "#e8f5e9";
+            badge.style.color = "#2ecc71";
         } else {
-            ind.className = "network-badge offline";
-            ind.innerText = "Offline";
+            badge.innerText = "Offline";
+            badge.style.background = "#ffebee";
+            badge.style.color = "#e74c3c";
         }
     }
+    window.addEventListener('online', atualizarStatusRede);
+    window.addEventListener('offline', atualizarStatusRede);
+    atualizarStatusRede();
 
-    function atualizarContadorFila() {
-        const filaOffline = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
-        const box = document.getElementById('offline-counter');
-        if (filaOffline.length > 0) {
-            box.innerText = `⚠️ ${filaOffline.length} SINCRO PENDIENTES`;
-            box.className = "sync-counter pending";
-        } else {
-            box.className = "sync-counter";
-        }
+    // REGISTRO DO SERVICE WORKER (A mágica que ativa o suporte Offline do PWA)
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('PWA Offline ativo com sucesso!', reg))
+                .catch(err => console.error('Falha ao ativar o modo offline:', err));
+        });
     }
-
-    // 4. MOTOR DE SINCRONIZAÇÃO EM SEGUNDO PLANO
-    async function verificarESincronizarFila() {
-        atualizarContadorFila();
-        if (!navigator.onLine) return;
-
-        let filaOffline = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
-        if (filaOffline.length === 0) return;
-
-        const urlGoogleScript = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
-        let itensRestantes = [...filaOffline];
-
-        for (let i = 0; i < filaOffline.length; i++) {
-            const inspecao = filaOffline[i];
-            try {
-                await fetch(urlGoogleScript, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify(inspecao)
-                });
-                itensRestantes = itensRestantes.filter(item => item.id_interno !== inspecao.id_interno);
-                localStorage.setItem('inspecoes_offline', JSON.stringify(itensRestantes));
-                atualizarContadorFila();
-            } catch (error) {
-                console.error("Sincronização offline suspensa.", error);
-                break;
-            }
-        }
-    }
-
-    window.addEventListener('online', updateNetworkStatus);
-    window.addEventListener('offline', updateNetworkStatus);
-    window.addEventListener('DOMContentLoaded', () => {
-        updateNetworkStatus();
-        atualizarContadorFila();
-        setInterval(verificarESincronizarFila, 20000);
-    });
 </script>
+
 </body>
 </html>

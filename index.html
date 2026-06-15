@@ -266,7 +266,6 @@
     let bancoImagensFotos = {}; 
     let perguntasAtuais = []; 
 
-    // Backup em array clássico se a leitura offline falhar
     const BACKUP_OFFLINE_AMBULANCIA = [
         "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
         "FRENO DE LAS RUEDAS FUNCIONANDO CORRECTAMENTE - IMP",
@@ -323,7 +322,7 @@
         reader.readAsDataURL(input.files[0]);
     }
 
-    // 🔒 EXTRATOR INTELIGENTE COM FILTRO DE CORTE RIGOROSO ANTI-BUGS
+    // 🔒 EXTRATOR ATUALIZADO: Descarta cabeçalhos repetidos e rodapés do HTML original
     async function extrairPerguntasDoHtmlFisico(nomeArquivo) {
         try {
             const resposta = await fetch(`/checklist/${nomeArquivo}.html`);
@@ -338,21 +337,36 @@
                 if (celulas.length > 0) {
                     for (let celula of celulas) {
                         let textoLimpo = celula.textContent.trim();
+                        let upper = textoLimpo.toUpperCase();
                         
-                        // 🛑 REGRA DE CORTE EXATA: Interrompe a leitura assim que o rodapé padrão for detectado
-                        if (textoLimpo.toUpperCase().includes("COMENTARIOS") || 
-                            textoLimpo.toUpperCase().includes("MEDIDAS CORRECTIVAS") || 
-                            textoLimpo.toUpperCase().includes("EVIDENCIAS FOTOGRÁFICAS") || 
-                            textoLimpo.toUpperCase().includes("F_COUNT") || 
-                            textoLimpo.toUpperCase().includes("RESULTADO") || 
-                            textoLimpo.toUpperCase().includes("OPERADOR") || 
-                            textoLimpo.toUpperCase().includes("CONDUCTOR")) {
-                            break; // Aborta o laço de leitura para não trazer lixo para a tela
+                        // 🛑 FILTRO DE SEGURANÇA 1: Se encontrar qualquer metadado do cabeçalho original, ignora
+                        if (upper.includes("CÓDIGO:") || 
+                            upper.includes("FECHA REF:") || 
+                            upper.includes("PÁGINA:") || 
+                            upper.includes("REVISIÓN:") || 
+                            upper.includes("CATEGORIA:") || 
+                            upper.includes("SECTOR:") || 
+                            upper.includes("EQUIPO / MODELO:") || 
+                            upper.includes("EMPRESA:") || 
+                            upper.includes("AÑO:") || 
+                            upper.includes("KM / HORÓMETRO:") ||
+                            upper.includes("C = CONFORME")) {
+                            continue; // Pula essa célula de metadado do cabeçalho
                         }
                         
-                        // Salva apenas linhas válidas que não sejam o título superior
-                        if (textoLimpo.length > 3 && !textoLimpo.toUpperCase().includes("ELEMENTOS VERIFICADOS")) {
-                            textoLimpo = textoLimpo.replace(/^\d+[\s.\-_]+/g, ""); // Remove numeração antiga
+                        // 🛑 FILTRO DE SEGURANÇA 2: Se atingir o bloco de observações do rodapé, encerra imediatamente
+                        if (upper.includes("COMENTARIOS Y OBSERVACIONES") || 
+                            upper.includes("MEDIDAS CORRECTIVAS") || 
+                            upper.includes("EVIDENCIAS FOTOGRÁFICAS") || 
+                            upper.includes("F_COUNT") || 
+                            upper.includes("RESULTADO") || 
+                            upper.includes("OPERADOR") || 
+                            upper.includes("CONDUCTOR")) {
+                            break; // Encerra a leitura
+                        }
+                        
+                        if (textoLimpo.length > 3 && !upper.includes("ELEMENTOS VERIFICADOS")) {
+                            textoLimpo = textoLimpo.replace(/^\d+[\s.\-_]+/g, ""); // Limpa numeração
                             linhasPerguntas.push(textoLimpo);
                         }
                     }
@@ -385,7 +399,6 @@
             if(preview) { preview.style.display = "none"; preview.src = ""; }
         }
 
-        // Faz o processamento seguro limpando os metadados do rodapé HTML
         perguntasAtuais = await extrairPerguntasDoHtmlFisico(nomeArquivo);
 
         const tbody = document.getElementById('checklist-dinamico-rows');
@@ -524,8 +537,20 @@
 
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
 
+    function extrairLogoDaTela() {
+        let logoCanvas = document.createElement('canvas');
+        let logoImgElement = document.getElementById('imagem-logo-tela');
+        if (logoImgElement) {
+            logoCanvas.width = logoImgElement.naturalWidth || 200;
+            logoCanvas.height = logoImgElement.naturalHeight || 80;
+            logoCanvas.getContext('2d').drawImage(logoImgElement, 0, 0);
+            return logoCanvas.toDataURL('image/png');
+        }
+        return null;
+    }
+
     function desenharTabelaMetadadosSST(doc, paginaAtual, totalPaginas) {
-        const startX = startX_pos = 150;
+        const startX_pos = 150;
         const startY = 10;
         const totalWidth = 50;
         const rowHeight = 4.166;

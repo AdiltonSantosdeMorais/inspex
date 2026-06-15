@@ -11,7 +11,7 @@
     
     .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; transition: max-width 0.2s; }
     
-    /* Cabeçalho Superior Branco (Idêntico ao seu design original) */
+    /* Cabeçalho Superior Branco */
     .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; }
     .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
     .logo-elecnor { max-height: 25px; object-fit: contain; }
@@ -33,7 +33,7 @@
     .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
     .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
 
-    /* ESTILOS DO FORMULÁRIO ORIGINAL DO SEU MODELO INTACTO */
+    /* ESTILOS DO SEU FORMULÁRIO ORIGINAL INTACTO */
     .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -92,7 +92,9 @@
     .btn-voltar { background: #95a5a6; color: white; border: none; padding: 16px 25px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; text-align: center; }
 
     #pwa-install-banner { display: none; background: #0055a5; color: white; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 14px; cursor: pointer; margin-bottom: 10px; }
+    #statusMsg { font-size: 14px; text-align: center; padding: 10px; display: none; font-weight: bold; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -255,15 +257,16 @@
             </table>
         </div>
 
+        <div id="statusMsg"></div>
         <div class="btn-container">
             <button class="btn-voltar" onclick="fecharFormularioNativo()">⬅ Voltar</button>
-            <button class="btn-salvar" id="btn-save-main" onclick="salvarChecklistOffline()">💾 ENVIAR Y SALVAR CHECKLIST</button>
+            <button class="btn-salvar" id="btn-save-main" onclick="salvarEGerarPDF_SST()">💾 ENVIAR Y SALVAR CHECKLIST</button>
         </div>
     </div>
 </div>
 
 <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzuM3ldBjFInWMtH6xcZVCfmwXX6uknztafkxJjY_S_M32W2ne4Y35cgCgVbMZpBXpAkA/exec";
 
     const BANCO_PERGUNTAS = {
         "AMBULANCIA": [
@@ -308,25 +311,23 @@
     };
 
     let equipoSeleccionado = "";
-    let bancoImagensFotos = {}; 
+    let bancoImagensFotos = []; 
 
     function filtrarEquipamentos() {
         const filtro = document.getElementById('search-input').value.toUpperCase();
         const cards = document.querySelectorAll('.equip-card');
         cards.forEach(card => {
             const nome = card.getAttribute('data-name');
-            card.style.display = nome && nome.includes(filtro) ? "flex" : "none";
+            card.style.display = nome && nome.includes(filvet) || nome.includes(filtro) ? "flex" : "none";
         });
     }
 
     function atualizarStatusRede() {
         const badge = document.getElementById('net-status');
         if (!badge) return;
-        if (navigator.onLine) {
-            badge.innerText = "Online"; badge.style.background = "#e8f5e9"; badge.style.color = "#2ecc71";
-        } else {
-            badge.innerText = "Offline"; badge.style.background = "#ffebee"; badge.style.color = "#e74c3c";
-        }
+        badge.innerText = navigator.onLine ? "Online" : "Offline";
+        badge.style.background = navigator.onLine ? "#e8f5e9" : "#ffebee";
+        badge.style.color = navigator.onLine ? "#2ecc71" : "#e74c3c";
     }
 
     function processarFoto(id) {
@@ -335,27 +336,31 @@
 
         const reader = new FileReader();
         reader.onload = function(e) {
-            bancoImagensFotos[`foto_${id}`] = e.target.result;
-            const preview = document.getElementById(`prev_foto_${id}`);
-            if(preview) {
-                preview.src = e.target.result;
-                preview.style.display = "block";
-            }
+            const base64Data = e.target.result;
+            const tempImg = new Image();
+            tempImg.onload = function() {
+                bancoImagensFotos.push({
+                    base64: base64Data,
+                    width: tempImg.width,
+                    height: tempImg.height
+                });
+                const preview = document.getElementById(`prev_foto_${id}`);
+                if(preview) { preview.src = base64Data; preview.style.display = "block"; }
+            };
+            tempImg.src = base64Data;
         };
         reader.readAsDataURL(input.files[0]);
     }
 
     function abrirFormularioNativo(equip) {
         equipoSeleccionado = equip;
-        bancoImagensFotos = {}; 
+        bancoImagensFotos = []; 
         
         document.getElementById('v_equipo').value = equip;
         document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + equip;
         document.getElementById('v_fecha').valueAsDate = new Date();
-        
         document.getElementById('v_patente').value = "";
         document.getElementById('v_anio').value = "";
-        document.getElementById('v_empresa').value = "ELECNOR";
         document.getElementById('v_km').value = "";
         document.getElementById('obs_generales').value = "";
         document.getElementById('medidas_correctivas').value = "";
@@ -367,29 +372,13 @@
             if(preview) { preview.style.display = "none"; preview.src = ""; }
         }
 
-        const resLiberado = document.getElementById('res_liberado');
-        const resObs = document.getElementById('res_obs');
-        const resNoLiberado = document.getElementById('res_no_liberado');
-        
-        if(resLiberado) resLiberado.checked = false;
-        if(resObs) resObs.checked = false;
-        if(resNoLiberado) resNoLiberado.checked = false;
-        
-        const itensLayout = [
-            document.getElementById('cell_liberado'), document.getElementById('check_liberado'),
-            document.getElementById('cell_obs'), document.getElementById('check_obs'),
-            document.getElementById('cell_no_liberado'), document.getElementById('check_no_liberado')
-        ];
-        itensLayout.forEach(el => { if(el) el.classList.remove('disabled-option'); });
-
         const tbody = document.getElementById('checklist-dinamico-rows');
         tbody.innerHTML = "";
         
         const perguntas = BANCO_PERGUNTAS[equip] || BANCO_PERGUNTAS["DEFAULT"];
-        
         perguntas.forEach((pregunta, index) => {
             const id = index + 1;
-            const row = `
+            tbody.innerHTML += `
                 <tr>
                     <td><strong>${id}.</strong> ${pregunta}</td>
                     <td class="center"><input type="radio" name="item_${id}" value="C" onchange="verificarReglasResultados()"></td>
@@ -398,7 +387,6 @@
                     <td class="comment-col"><input type="text" id="comment_${id}" placeholder="Nota..."></td>
                 </tr>
             `;
-            tbody.innerHTML += row;
         });
 
         document.getElementById('main-container').style.maxWidth = "1050px";
@@ -407,9 +395,6 @@
         window.scrollTo(0,0);
         
         inicializarCanvases();
-        limparCanvas('canvas_conductor');
-        limparCanvas('canvas_supervisor');
-        limparCanvas('canvas_seguridad');
     }
 
     function fecharFormularioNativo() {
@@ -423,259 +408,186 @@
         let bloqueioImpeditivo = false;
         let falhaComumDetectada = false;
         let todasRespondidas = true;
-        
         const perguntas = BANCO_PERGUNTAS[equipoSeleccionado] || BANCO_PERGUNTAS["DEFAULT"];
 
         perguntas.forEach((pregunta, index) => {
             const id = index + 1;
             const marcado = document.querySelector(`input[name="item_${id}"]:checked`);
-            
-            if (!marcado) {
-                todasRespondidas = false;
-            } else if (marcado.value === "NC") {
-                if (pregunta.toUpperCase().includes("IMP")) {
-                    bloqueioImpeditivo = true;
-                } else {
-                    falhaComumDetectada = true;
-                }
+            if (!marcado) todasRespondidas = false;
+            else if (marcado.value === "NC") {
+                if (pregunta.toUpperCase().includes("IMP")) bloqueioImpeditivo = true;
+                else falhaComumDetectada = true;
             }
         });
 
         const btnLiberado = document.getElementById('res_liberado');
         const btnObs = document.getElementById('res_obs');
         const btnNoLiberado = document.getElementById('res_no_liberado');
-        
-        const itensLayout = [
-            document.getElementById('cell_liberado'), document.getElementById('check_liberado'),
-            document.getElementById('cell_obs'), document.getElementById('check_obs'),
-            document.getElementById('cell_no_liberado'), document.getElementById('check_no_liberado')
-        ];
 
-        itensLayout.forEach(el => { if(el) el.classList.remove('disabled-option'); });
-        if(btnLiberado) btnLiberado.disabled = false; 
-        if(btnObs) btnObs.disabled = false; 
-        if(btnNoLiberado) btnNoLiberado.disabled = false;
-
-        if (bloqueioImpeditivo) {
-            if(btnNoLiberado) btnNoLiberado.checked = true;
-            itensLayout.slice(0, 4).forEach(el => { if(el) el.classList.add('disabled-option'); });
-            if(btnLiberado) btnLiberado.disabled = true; 
-            if(btnObs) btnObs.disabled = true;
-        } 
-        else if (falhaComumDetectada) {
-            if(btnObs) btnObs.checked = true;
-            itensLayout.slice(0, 2).concat(itensLayout.slice(4, 6)).forEach(el => { if(el) el.classList.add('disabled-option'); });
-            if(btnLiberado) btnLiberado.disabled = true; 
-            if(btnNoLiberado) btnNoLiberado.disabled = true;
-        } 
-        else if (todasRespondidas) {
-            if(btnLiberado) btnLiberado.checked = true;
-        } else {
-            if(btnLiberado) btnLiberado.checked = false; 
-            if(btnObs) btnObs.checked = false; 
-            if(btnNoLiberado) btnNoLiberado.checked = false;
-        }
+        if (bloqueioImpeditivo) { if(btnNoLiberado) btnNoLiberado.checked = true; } 
+        else if (falhaComumDetectada) { if(btnObs) btnObs.checked = true; } 
+        else if (todasRespondidas) { if(btnLiberado) btnLiberado.checked = true; }
     }
 
     function inicializarCanvases() {
-        const canvases = ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'];
-        canvases.forEach(id => {
+        ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'].forEach(id => {
             const canvas = document.getElementById(id);
             if(!canvas) return;
             const clone = canvas.cloneNode(true);
             canvas.parentNode.replaceChild(clone, canvas);
-            
             const novoCanvas = document.getElementById(id);
-            const novoCtx = novoCanvas.getContext('2d');
-            novoCtx.lineWidth = 2; novoCtx.strokeStyle = "#004B87";
-            let desenhando = false;
-            
-            function obterPosicao(e) {
-                const rect = novoCanvas.getBoundingClientRect();
-                const clienteX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clienteY = e.touches ? e.touches[0].clientY : e.clientY;
-                return { x: clienteX - rect.left, y: clienteY - rect.top };
+            const ctx = novoCanvas.getContext('2d');
+            ctx.lineWidth = 2; ctx.strokeStyle = "#004B87";
+            let drawing = false;
+
+            function pos(e) {
+                const r = novoCanvas.getBoundingClientRect();
+                const x = e.touches ? e.touches[0].clientX : e.clientX;
+                const y = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: x - r.left, y: y - r.top };
             }
-            novoCanvas.onmousedown = function(e) { desenhando = true; novoCtx.beginPath(); const p = obterPosicao(e); novoCtx.moveTo(p.x, p.y); };
-            novoCanvas.onmousemove = function(e) { if (!desenhando) return; const pos = obterPosicao(e); novoCtx.lineTo(pos.x, pos.y); novoCtx.stroke(); };
-            window.addEventListener('mouseup', () => { desenhando = false; });
-            
-            novoCanvas.ontouchstart = function(e) { desenhando = true; novoCtx.beginPath(); const p = obterPosicao(e); novoCtx.moveTo(p.x, p.y); };
-            novoCanvas.ontouchmove = function(e) { if (!desenhando) return; e.preventDefault(); const pos = obterPosicao(e); novoCtx.lineTo(pos.x, pos.y); novoCtx.stroke(); };
-            window.addEventListener('touchend', () => { desenhando = false; });
+            novoCanvas.onmousedown = (e) => { drawing = true; ctx.beginPath(); const p = pos(e); ctx.moveTo(p.x, p.y); };
+            novoCanvas.onmousemove = (e) => { if (drawing) { const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); } };
+            window.addEventListener('mouseup', () => drawing = false);
+            novoCanvas.ontouchstart = (e) => { drawing = true; ctx.beginPath(); const p = pos(e); ctx.moveTo(p.x, p.y); };
+            novoCanvas.ontouchmove = (e) => { if (drawing) { e.preventDefault(); const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); } };
+            window.addEventListener('touchend', () => drawing = false);
         });
     }
 
     function limparCanvas(id) {
         const canvas = document.getElementById(id);
-        if(canvas) { canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); }
+        if(canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    function salvarChecklistOffline() {
-        const patente = document.getElementById('v_patente').value;
-        const empresa = document.getElementById('v_empresa').value;
-        
-        if (!patente) { alert("❌ Error: O preenchimento da PATENTE é obrigatório!"); return; }
+    function saveToQueue(data) {
+        let queue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
+        queue.push(data);
+        localStorage.setItem('hse_queue', JSON.stringify(queue));
+    }
 
-        // CAIXA DE AVISO: Solicita o nome sem alterar o layout original visual da folha
-        const inspector = prompt("Por favor, ingrese o NOME COMPLETO do inspetor:");
-        if (!inspector || inspector.trim() === "") { 
-            alert("❌ Error: O nome do inspetor é obrigatório para registrar o relatório!"); 
-            return; 
+    async function syncQueue() {
+        if (!navigator.onLine) return;
+        let queue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
+        if (queue.length === 0) return;
+
+        for (let i = 0; i < queue.length; i++) {
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(queue[i]) });
+                queue.splice(i, 1);
+                i--;
+            } catch (e) { break; }
         }
-        
-        const perguntas = BANCO_PERGUNTAS[equipoSeleccionado] || BANCO_PERGUNTAS["DEFAULT"];
-        let respondidas = true;
-        let payloadAnswers = {};
-        let payloadComments = {};
+        localStorage.setItem('hse_queue', JSON.stringify(queue));
+    }
 
-        perguntas.forEach((pregunta, index) => {
-            const id = index + 1;
-            const radio = document.querySelector(`input[name="item_${id}"]:checked`);
-            if(!radio) {
-                respondidas = false;
-            } else {
-                payloadAnswers[`item_${id}`] = radio.value;
-                const commentInput = document.getElementById(`comment_${id}`);
-                payloadComments[`item_${id}`] = commentInput ? commentInput.value.toUpperCase() : "";
-            }
+    window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
+
+    // CONVERSOR INTEGRADO DO JSPDF IDÊNTICO AO ALERTAFLOTA
+    async function salvarEGerarPDF_SST() {
+        const patente = document.getElementById('v_patente').value;
+        if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
+
+        const inspectorNome = prompt("Por favor, ingrese o NOME COMPLETO do inspetor:");
+        if (!inspectorNome || inspectorNome.trim() === "") { alert("❌ O nome do inspetor é obrigatório!"); return; }
+
+        const status = document.getElementById('statusMsg');
+        const btn = document.getElementById('btn-save-main');
+        
+        btn.disabled = true;
+        status.style.display = "block"; status.style.color = "orange"; status.innerText = "⏳ GENERANDO DOCUMENTO PDF...";
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+
+        // 1. Desenhando Cabeçalho Técnico no PDF
+        doc.setLineWidth(0.5); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
+        doc.setFontSize(11); doc.setFont("helvetica", "bold");
+        doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
+        doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
+        doc.setFontSize(7); doc.text("CÓDIGO: 20.0009-SST-FL-0036", 152, 16); doc.text("REVISIÓN: 00", 152, 22); doc.text("SECTOR: SEGURIDAD", 152, 28);
+
+        // 2. Dados do Veículo
+        doc.rect(10, 35, 190, 20); doc.line(73, 35, 73, 55); doc.line(140, 35, 140, 55);
+        doc.setFontSize(8); doc.text("EQUIPO: " + equipoSeleccionado, 12, 42); doc.text("PATENTE: " + patente.toUpperCase(), 75, 42); doc.text("FECHA: " + document.getElementById('v_fecha').value, 142, 42);
+        doc.text("EMPRESA: ELECNOR", 12, 50); doc.text("AÑO: " + document.getElementById('v_anio').value, 75, 50); doc.text("KM: " + document.getElementById('v_km').value, 142, 50);
+
+        // 3. Montando tabela de itens inspecionados
+        let currentY = 60;
+        doc.setFillColor(68, 114, 196); doc.rect(10, currentY, 190, 7, 'F');
+        doc.setTextColor(255); doc.setFontSize(9); doc.text("ELEMENTOS VERIFICADOS", 12, currentY + 5);
+        doc.text("RESP", 172, currentY + 5); doc.setTextColor(0);
+        currentY += 7;
+
+        const perguntas = BANCO_PERGUNTAS[equipoSeleccionado] || BANCO_PERGUNTAS["DEFAULT"];
+        perguntas.forEach((p, idx) => {
+            if (currentY > 270) { doc.addPage(); currentY = 15; }
+            doc.setFontSize(8); doc.setFont("helvetica", "normal");
+            doc.text(`${idx+1}. ${p.substring(0, 85)}`, 12, currentY + 4);
+            
+            const radioMarcado = document.querySelector(`input[name="item_${idx+1}"]:checked`);
+            const valVal = radioMarcado ? radioMarcado.value : "-";
+            doc.setFont("helvetica", "bold"); doc.text(valVal, 175, currentY + 4);
+            
+            doc.line(10, currentY + 6, 200, currentY + 6);
+            currentY += 6;
         });
 
-        if(!respondidas) {
-            alert("❌ Error: Todos los elementos de la lista deben ser verificados antes de guardar.");
-            return;
+        // 4. Inserindo as Imagens das Fotos capturadas no Tablet
+        if (bancoImagensFotos.length > 0) {
+            doc.addPage();
+            doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.text("EVIDENCIAS FOTOGRÁFICAS", 15, 15);
+            let cX = 15, cY = 25;
+            bancoImagensFotos.forEach((img, i) => {
+                doc.addImage(img.base64, 'JPEG', cX, cY, 55, 40);
+                cX += 62; if (cX > 150) { cX = 15; cY += 45; }
+            });
         }
 
-        const radioResultado = document.querySelector('input[name="resultado_final"]:checked');
-        const resultadoFinal = radioResultado ? radioResultado.value : "LIBERADO";
+        // 5. Capturando e injetando as Assinaturas Canvas
+        doc.addPage();
+        doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.text("FIRMAS DE CONFORMIDAD", 15, 15);
+        const sigCond = document.getElementById('canvas_conductor').toDataURL();
+        const sigSup = document.getElementById('canvas_supervisor').toDataURL();
+        doc.addImage(sigCond, 'PNG', 15, 25, 60, 25); doc.text("OPERADOR / CONDUCTOR", 15, 55);
+        doc.addImage(sigSup, 'PNG', 110, 25, 60, 25); doc.text("SUPERVISOR / CAPATAZ", 110, 55);
 
-        const canvasCond = document.getElementById('canvas_conductor');
-        const canvasSup = document.getElementById('canvas_supervisor');
-        const canvasSeg = document.getElementById('canvas_seguridad');
+        // Compila o PDF final em Base64 idêntico ao AlertaFlota
+        const pdfBase64 = doc.output('datauristring').split(',')[1];
+        const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
+        const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
 
-        let conductorSig = canvasCond ? canvasCond.toDataURL() : "";
-        let supervisorSig = canvasSup ? canvasSup.toDataURL() : "";
-        let seguridadSig = canvasSeg ? canvasSeg.toDataURL() : "";
-
-        let checklistData = {
-            id_interno: Date.now().toString(),
-            equipo: equipoSeleccionado,
-            patente: patente.toUpperCase(),
-            fecha: document.getElementById('v_fecha').value,
-            inspector: inspector.toUpperCase(), 
-            empresa: empresa.toUpperCase(),
-            anio: document.getElementById('v_anio').value.toUpperCase(),
-            km_horometro: document.getElementById('v_km').value.toUpperCase(),
-            respuestas: payloadAnswers,
-            comentarios: payloadComments,
-            observaciones_generales: document.getElementById('obs_generales').value.toUpperCase(),
-            medidas_correctivas: document.getElementById('medidas_correctivas').value.toUpperCase(),
-            resultado_final: resultadoFinal,
-            fotos: bancoImagensFotos, 
-            assinatura_conductor: conductorSig,
-            assinatura_supervisor: supervisorSig,
-            assinatura_seguridad: seguridadSig
-        };
-
-        let locais = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
-        locais.push(checklistData);
-        localStorage.setItem('inspecoes_offline', JSON.stringify(locais));
-
-        alert("✅ ¡Inspección Guardada de forma Exitosa!");
-        fecharFormularioNativo();
-        
-        sincronizarDadosPendentes();
-    }
-
-    // MOTOR DESCOMPACTADOR CAMPO POR CAMPO PARA TOTAL COMPATIBILIDADE
-    async function sincronizarDadosPendentes() {
-        if (!navigator.onLine) return;
-
-        let locais = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
-        if (locais.length === 0) return;
-
-        console.log("Conexão detectada. Sincronizando relatórios no formato original...");
-
-        const btn = document.getElementById('btn-save-main');
-        if(btn) btn.disabled = true;
-
-        for (let i = 0; i < locais.length; i++) {
-            const item = locais[i];
-            const nomeDoArquivo = `Checklist_${item.equipo}_${item.patente}_RealizadoPor_${item.inspector}_${item.fecha}.pdf`;
-            
-            const formData = new FormData();
-            formData.append("name", nomeDoArquivo);
-            
-            formData.append("v_equipo", item.equipo);
-            formData.append("v_patente", item.patente);
-            formData.append("v_fecha", item.fecha);
-            formData.append("v_empresa", item.empresa);
-            formData.append("v_anio", item.anio);
-            formData.append("v_km", item.km_horometro);
-            formData.append("v_inspector", item.inspector);
-            formData.append("resultado_final", item.resultado_final);
-            formData.append("obs_generales", item.observaciones_generales);
-            formData.append("medidas_correctivas", item.medidas_correctivas);
-
-            for (const key in item.respuestas) {
-                formData.append(key, item.respuestas[key]);
-            }
-
-            for (const key in item.comentarios) {
-                formData.append(key, item.comentarios[key]);
-            }
-
-            formData.append("canvas_conductor", item.assinatura_conductor);
-            formData.append("canvas_supervisor", item.assinatura_supervisor);
-            formData.append("canvas_seguridad", item.assinatura_seguridad);
-
-            for (const key in item.fotos) {
-                formData.append(key, item.fotos[key]);
-            }
-
+        if (navigator.onLine) {
             try {
-                await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                locais.splice(i, 1);
-                i--;
-                localStorage.setItem('inspecoes_offline', JSON.stringify(locais));
-                console.log(`Relatório de ${item.equipo} enviado com sucesso ao Google Drive.`);
+                // Envia os bytes do PDF diretamente ao webhook do Drive
+                await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
             } catch (err) {
-                console.error("Erro ao transmitir dados para o script: ", err);
-                break;
+                saveToQueue(payload);
+                status.innerText = "⚠️ GUARDADO LOCALMENTE PARA SYNC AUTOMÁTICO."; status.style.color = "orange";
             }
+        } else {
+            saveToQueue(payload);
+            status.innerText = "☁️ MODO OFFLINE: GUARDADO EN DISPOSITIVO."; status.style.color = "blue";
         }
 
-        if(btn) btn.disabled = false;
+        doc.save(nomeDoFicheiroPDF);
+        btn.disabled = false;
+        setTimeout(() => { status.style.display = 'none'; fecharFormularioNativo(); }, 3000);
     }
-
-    window.addEventListener('online', () => {
-        atualizarStatusRede();
-        sincronizarDadosPendentes();
-    });
-    window.addEventListener('offline', atualizarStatusRede);
-
-    atualizarStatusRede();
-    sincronizarDadosPendentes();
 
     let eventoInstalacaoPWA = null;
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault(); eventoInstalacaoPWA = e;
         const banner = document.getElementById('pwa-install-banner');
-        if (banner) { banner.style.display = 'block'; }
+        if (banner) banner.style.display = 'block';
     });
 
     function dispararInstalacaoPWA() {
         if (eventoInstalacaoPWA) {
             eventoInstalacaoPWA.prompt();
-            eventoInstalacaoPWA.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    document.getElementById('pwa-install-banner').style.display = 'none';
-                }
-                eventoInstalacaoPWA = null;
+            eventoInstalacaoPWA.userChoice.then(() => {
+                document.getElementById('pwa-install-banner').style.display = 'none';
             });
         }
     }

@@ -57,6 +57,14 @@
     .comment-col { width: 25%; }
     .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #eee; text-transform: uppercase; }
     
+    /* ÁREA DE FOTOS ADICIONADA */
+    .photos-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
+    .photos-table td { border: 1px solid #000; padding: 12px; font-size: 11px; font-weight: bold; background: #fafafa; }
+    .photos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 8px; }
+    .photo-slot { border: 1px dashed #4472c4; background: #fff; padding: 8px; text-align: center; border-radius: 4px; position: relative; }
+    .photo-slot input[type="file"] { width: 100%; font-size: 10px; margin-top: 5px; cursor: pointer; }
+    .photo-preview { max-width: 100%; height: 60px; object-fit: contain; display: none; margin-top: 5px; border-radius: 2px; border: 1px solid #ddd; }
+
     .footer-obs-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
     .footer-obs-table td { border: 1px solid #000; padding: 8px; font-size: 11px; font-weight: bold; vertical-align: top; }
     .footer-obs-table textarea { width: 100%; height: 60px; border: 1px solid #eee; resize: none; font-size: 11px; outline: none; margin-top: 5px; font-family: Arial; padding: 5px; text-transform: uppercase; }
@@ -178,6 +186,23 @@
                 <tbody id="checklist-dinamico-rows"></tbody>
             </table>
 
+            <table class="photos-table">
+                <tr>
+                    <td>REGISTRO FOTOGRÁFICO DE EVIDENCIAS (MÁXIMO 8 FOTOS)
+                        <div class="photos-grid">
+                            <div class="photo-slot"><span>Foto 1</span><input type="file" accept="image/*" id="input_foto_1" onchange="processarFoto(1)"><img id="prev_foto_1" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 2</span><input type="file" accept="image/*" id="input_foto_2" onchange="processarFoto(2)"><img id="prev_foto_2" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 3</span><input type="file" accept="image/*" id="input_foto_3" onchange="processarFoto(3)"><img id="prev_foto_3" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 4</span><input type="file" accept="image/*" id="input_foto_4" onchange="processarFoto(4)"><img id="prev_foto_4" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 5</span><input type="file" accept="image/*" id="input_foto_5" onchange="processarFoto(5)"><img id="prev_foto_5" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 6</span><input type="file" accept="image/*" id="input_foto_6" onchange="processarFoto(6)"><img id="prev_foto_6" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 7</span><input type="file" accept="image/*" id="input_foto_7" onchange="processarFoto(7)"><img id="prev_foto_7" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 8</span><input type="file" accept="image/*" id="input_foto_8" onchange="processarFoto(8)"><img id="prev_foto_8" class="photo-preview"></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
             <table class="footer-obs-table">
                 <tr>
                     <td>COMENTARIOS Y OBSERVACIONES GENERALES
@@ -280,6 +305,7 @@
     };
 
     let equipoSeleccionado = "";
+    let bancoImagensFotos = {}; // Guarda temporariamente os textos Base64 das fotos tiradas
 
     function filtrarEquipamentos() {
         const filtro = document.getElementById('search-input').value.toUpperCase();
@@ -294,18 +320,31 @@
         const badge = document.getElementById('net-status');
         if (!badge) return;
         if (navigator.onLine) {
-            badge.innerText = "Online";
-            badge.style.background = "#e8f5e9";
-            badge.style.color = "#2ecc71";
+            badge.innerText = "Online"; badge.style.background = "#e8f5e9"; badge.style.color = "#2ecc71";
         } else {
-            badge.innerText = "Offline";
-            badge.style.background = "#ffebee";
-            badge.style.color = "#e74c3c";
+            badge.innerText = "Offline"; badge.style.background = "#ffebee"; badge.style.color = "#e74c3c";
         }
+    }
+
+    // Processador que compacta as imagens para o formato offline do tablet
+    function processarFoto(id) {
+        const file = document.getElementById(`input_foto_${id}`).files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            bancoImagensFotos[`foto_${id}`] = e.target.result;
+            const preview = document.getElementById(`prev_foto_${id}`);
+            preview.src = e.target.result;
+            preview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
     }
 
     function abrirFormularioNativo(equip) {
         equipoSeleccionado = equip;
+        bancoImagensFotos = {}; // Limpa as fotos antigas da memória de carregamento
+        
         document.getElementById('v_equipo').value = equip;
         document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + equip;
         document.getElementById('v_fecha').valueAsDate = new Date();
@@ -315,6 +354,13 @@
         document.getElementById('v_km').value = "";
         document.getElementById('obs_generales').value = "";
         document.getElementById('medidas_correctivas').value = "";
+
+        // Limpa os slots e previews de imagens físicas
+        for (let idx = 1; idx <= 8; idx++) {
+            document.getElementById(`input_foto_${idx}`).value = "";
+            document.getElementById(`prev_foto_${idx}`).style.display = "none";
+            document.getElementById(`prev_foto_${idx}`).src = "";
+        }
 
         document.getElementById('res_liberado').checked = false;
         document.getElementById('res_obs').checked = false;
@@ -412,9 +458,7 @@
         else if (todasRespondidas) {
             btnLiberado.checked = true;
         } else {
-            btnLiberado.checked = false;
-            btnObs.checked = false;
-            btnNoLiberado.checked = false;
+            btnLiberado.checked = false; btnObs.checked = false; btnNoLiberado.checked = false;
         }
     }
 
@@ -496,6 +540,7 @@
             observaciones_generales: document.getElementById('obs_generales').value.toUpperCase(),
             medidas_correctivas: document.getElementById('medidas_correctivas').value.toUpperCase(),
             resultado_final: resultadoFinal,
+            fotos: bancoImagensFotos, // INCLUSÃO DAS FOTOS NO PACOTE DE TEXTO OFFLINE
             assinatura_conductor: conductorSig,
             assinatura_supervisor: supervisorSig,
             assinatura_seguridad: seguridadSig
@@ -511,7 +556,6 @@
         sincronizarDadosPendentes();
     }
 
-    // NOVO MOTOR DE ENVIO: CORRIGIDO COM FORMDATA PARA EVITAR BLOQUEIO CORS DO GOOGLE
     async function sincronizarDadosPendentes() {
         if (!navigator.onLine) return;
 
@@ -527,13 +571,11 @@
             const item = locais[i];
             const nomeDoArquivo = `Checklist_${item.equipo}_${item.patente}_${item.fecha}.pdf`;
             
-            // Criamos o formulário estruturado clássico que o Google Apps Script aceita de primeira
             const formData = new FormData();
             formData.append("name", nomeDoArquivo);
             formData.append("metadata", JSON.stringify(item));
 
             try {
-                // Enviando sem o modo 'no-cors' para garantir a entrega correta do formulário
                 await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     body: formData

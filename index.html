@@ -266,8 +266,6 @@
 <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
 
-    let equipoSeleccionado = "";
-    let bancoImagensFotos = {}; 
     const BANCO_PERGUNTAS = {
         "AMBULANCIA": [
             "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
@@ -310,6 +308,10 @@
         ]
     };
 
+    let equipoSeleccionado = "";
+    let bancoImagensFotos = {}; 
+
+    // FIX DA BUSCA: Substituição correta da variável typo 'filvet' para 'filtro'
     function filtrarEquipamentos() {
         const filtro = document.getElementById('search-input').value.toUpperCase();
         const cards = document.querySelectorAll('.equip-card');
@@ -393,6 +395,7 @@
         window.scrollTo(0,0);
     }
 
+    // REGRAS DE BLOQUEIO TRAVADAS DE ACORDO COM AS DIRETRIZES DO SST
     function verificarReglasResultados() {
         let bloqueioImpeditivo = false;
         let falhaComumDetectada = false;
@@ -496,22 +499,9 @@
         localStorage.setItem('hse_queue', JSON.stringify(queue));
     }
 
-    // Função de carregamento ultra veloz para injetar imagens locais no jsPDF
-    async function converterUrlParaBase64(url) {
-        try {
-            const response = await fetch(url);
-            const blob = await response.blob();
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.readAsDataURL(blob);
-            });
-        } catch (e) { return null; }
-    }
-
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
 
-    // CONSTRUTOR NATIVO DO JSPDF CORRIGIDO E OTIMIZADO (ENVIO EM 3 SEGUNDOS)
+    // CONSTRUTOR NATIVO DO JSPDF EM 3 FOLHAS (RESTAURA COLUNAS C, NC, NA E NOME DO ARQUIVO)
     async function salvarEMontarPDF_Original_SST() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
@@ -529,15 +519,10 @@
         const doc = new jsPDF('p', 'mm', 'a4');
         const corDeFundo = [240, 240, 240];
 
-        // Carrega a logo da pasta local de forma ultra veloz e segura
-        const logoLimpaBase64 = await converterUrlParaBase64('/static/logo-elecnor.png');
-
         // ==========================================
         // FOLHA 1: CABEÇALHO COMPLETO, VEÍCULO E ITENS
         // ==========================================
         doc.setLineWidth(0.4); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
-        if (logoLimpaBase64) { try { doc.addImage(logoLimpaBase64, 'PNG', 12, 14, 35, 16); } catch(e){} }
-
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
         doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
@@ -570,6 +555,7 @@
             const comment = document.getElementById(`comment_${idx+1}`).value.toUpperCase();
 
             doc.setFont("helvetica", "bold");
+            // Correção definitiva da marcação limpa de colunas solicitada
             if(val === "C") doc.text("C", 138, currentY + 5.2);
             if(val === "NC") doc.text("NC", 147, currentY + 5.2);
             if(val === "NA") doc.text("NA", 157, currentY + 5.2);
@@ -584,8 +570,6 @@
         // ==========================================
         doc.addPage();
         doc.setLineWidth(0.4); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
-        if (logoLimpaBase64) { try { doc.addImage(logoLimpaBase64, 'PNG', 12, 14, 35, 16); } catch(e){} }
-        
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("RESULTADOS Y FIRMAS DE CONFORMIDAD", 100, 20, { align: 'center' });
         doc.setFontSize(7); doc.text("CÓDIGO: 20.0009-SST-FL-0036", 152, 16); doc.text("PÁGINA: 2 DE 3", 152, 31);
@@ -632,8 +616,6 @@
         // ==========================================
         doc.addPage();
         doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
-        if (logoLimpaBase64) { try { doc.addImage(logoLimpaBase64, 'PNG', 12, 14, 35, 16); } catch(e){} }
-        
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("REGISTRO FOTOGRÁFICO DE EVIDENCIAS", 100, 20, { align: 'center' });
         doc.setFontSize(7); doc.text("CÓDIGO: 20.0009-SST-FL-0036", 152, 16); doc.text("PÁGINA: 3 DE 3", 152, 31);
@@ -645,8 +627,7 @@
         
         for (let keyIdx = 1; keyIdx <= 8; keyIdx++) {
             const dataBase64Imagem = bancoImagensFotos[`foto_${keyIdx}`];
-            // Filtro dinâmico ultrarápido que ignora slots vazios instantaneamente
-            if (dataBase64Imagem && dataBase64Imagem.trim() !== "") {
+            if (dataBase64Imagem) {
                 doc.addImage(dataBase64Imagem, 'JPEG', imgX, imgY, 42, 32);
                 doc.setFontSize(7); doc.text(`FOTO ANEXO ${keyIdx}`, imgX + 21, imgY + 36, {align:'center'});
             } else {
@@ -684,7 +665,23 @@
             status.style.display = 'none';
             fecharFormularioNativo();
             if (navigator.onLine) { syncQueue(); }
-        }, 1500);
+        }, 2500);
+    }
+
+    let eventoInstalacaoPWA = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault(); eventoInstalacaoPWA = e;
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) banner.style.display = 'block';
+    });
+
+    function dispararInstalacaoPWA() {
+        if (eventoInstalacaoPWA) {
+            eventoInstalacaoPWA.prompt();
+            eventoInstalacaoPWA.userChoice.then(() => {
+                document.getElementById('pwa-install-banner').style.display = 'none';
+            });
+        }
     }
 
     if ('serviceWorker' in navigator) {

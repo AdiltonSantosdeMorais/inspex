@@ -15,7 +15,7 @@
     .main-card { background:#fff; border-radius:12px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.05); text-align:center; position:relative; margin-bottom:15px; }
     .logo-elecnor { position:absolute; top:15px; left:20px; max-height:30px; }
     
-    /* INDICADOR DE CONEXÃO ORIGINAL */
+    /* INDICADOR DE CONEXIÓN */
     .network-badge { position:absolute; top:15px; right:20px; font-size:11px; font-weight:bold; color:#fff; padding:4px 12px; border-radius:15px; }
     .online { background:#2ecc71; }
     .offline { background:#e74c3c; }
@@ -33,7 +33,7 @@
     .search-input { border:none; outline:none; width:100%; font-size:14px; color:#333; }
     .search-input::placeholder { color:#aaa; }
 
-    /* LISTA DE CHECKLISTS (DIRETÓRIO /CHECKLIST/) */
+    /* LISTA DE CHECKLISTS */
     .checklist-list { display:flex; flex-direction:column; gap:12px; }
     .card-item { display:flex; justify-content:space-between; align-items:center; background:#fff; border-radius:6px; padding:18px 20px; text-decoration:none; color:#003366; font-weight:bold; font-size:14px; border-left:5px solid #0056b3; box-shadow:0 2px 6px rgba(0,0,0,0.03); transition:transform 0.1s; }
     .card-item:active { transform:scale(0.99); }
@@ -49,7 +49,7 @@
         <img class="logo-elecnor" src="static/logo-elecnor.png" alt="Elecnor" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/b/b9/Logo_Elecnor.svg'">
         <div id="network-indicator" class="network-badge online">Online</div>
         
-        <img class="logo-inspex" src="static/inspex.jpg" alt="InspeX" onerror="this.src='static/inspex.png'">
+        <img class="logo-inspex" src="static/inspex.jpg" alt="InspeX" onerror="this.src='static/logo-elecnor.png'">
         
         <div id="offline-counter" class="sync-counter">0 SINCRO PENDIENTES</div>
     </div>
@@ -89,7 +89,7 @@
 </div>
 
 <script>
-    // 1. DISPARO E REGISTRO DO SERVICE WORKER LOCAL
+    // 1. REGISTRO DEL SERVICE WORKER
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('service-worker.js')
@@ -98,7 +98,7 @@
         });
     }
 
-    // 2. FILTRO DE PESQUISA EM TEMPO REAL
+    // 2. BUSCADOR EN TIEMPO REAL
     function filtrarEquipamentos() {
         const input = document.getElementById('search-input').value.toUpperCase();
         const items = document.getElementById('checklist-list').getElementsByTagName('a');
@@ -113,7 +113,7 @@
         }
     }
 
-    // 3. MONITORADOR DE CONEXÃO (ONLINE / OFFLINE)
+    // 3. CONTROL DE ESTADO DE RED
     function updateNetworkStatus() {
         const ind = document.getElementById('network-indicator');
         if (navigator.onLine) {
@@ -137,7 +137,7 @@
         }
     }
 
-    // 4. MOTOR BACKGROUND INVISÍVEL DE SINCRONIZAÇÃO AUTOMÁTICA
+    // 4. MOTOR AUTOMÁTICO DE SINCRONIZACIÓN EN SEGUNDO PLANO
     async function verificarESincronizarFila() {
         atualizarContadorFila();
         if (!navigator.onLine) return;
@@ -160,7 +160,7 @@
                 localStorage.setItem('inspecoes_offline', JSON.stringify(itensRestantes));
                 atualizarContadorFila();
             } catch (error) {
-                console.error("Fila em background suspensa provisoriamente.", error);
+                console.error("Sincronización en background pausada temporalmente.", error);
                 break;
             }
         }

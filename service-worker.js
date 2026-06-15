@@ -1,4 +1,4 @@
-const CACHE_NAME = 'inspex-v5-cache';
+const CACHE_NAME = 'inspex-v6-cache';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -8,7 +8,7 @@ const urlsToCache = [
   '/static/config.js'
 ];
 
-// Instalação do Service Worker e cache dos recursos principais locais
+// Instalación del Service Worker y almacenamiento en cache de recursos locales
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -17,7 +17,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// Estratégia de Rede com Fallback para Cache: Tenta buscar atualizações, se falhar entrega do cache offline
+// Estratégia: Red con Fallback a Cache (Garantiza funcionamiento en la app y validación limpia en PWABuilder)
 self.addEventListener('fetch', event => {
   event.respondWith(
     fetch(event.request).catch(() => {
@@ -26,7 +26,7 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// Limpeza de caches antigos quando houver novas atualizações de versão
+// Limpieza de versiones obsoletas de cache
 self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(

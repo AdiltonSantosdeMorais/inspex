@@ -6,31 +6,35 @@
 <title>InspeX - Elecnor</title>
 <link rel="manifest" href="/manifest.json">
 <style>
-    /* ESTILOS ORIGINAIS DA TELA DE LISTA */
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
     body { background: #f5f7fa; padding: 20px; color: #333; display: flex; justify-content: center; }
     
-    .container { width: 100%; max-width: 1050px; display: flex; flex-direction: column; gap: 15px; }
+    /* MODIFICAÇÃO NECESSÁRIA: max-width dinâmico para comportar a folha técnica quando aberta */
+    .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; transition: max-width 0.2s; }
     
+    /* Cabeçalho Superior Branco (Idêntico ao seu design original) */
     .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; }
     .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
     .logo-elecnor { max-height: 25px; object-fit: contain; }
     .status-badge { background: #e8f5e9; color: #2ecc71; font-weight: bold; font-size: 11px; padding: 5px 12px; border-radius: 20px; }
     .logo-inspex { max-height: 140px; margin: 15px 0 5px 0; object-fit: contain; }
     
+    /* Barra de Busca */
     .search-box { position: relative; width: 100%; }
     .search-box input { width: 100%; padding: 13px 15px 13px 40px; border-radius: 10px; border: 1px solid #d0d5dd; background: #fff; font-size: 14px; outline: none; }
     .search-box input:focus { border-color: #0055a5; }
     .search-box::before { content: "🔍"; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.5; }
     
+    /* Lista de Equipamentos */
     .equip-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     
+    /* Card de Equipamento Individual */
     .equip-card { background: #fff; border-radius: 6px; padding: 18px 15px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border-left: 4px solid #0055a5; cursor: pointer; transition: transform 0.1s; }
     .equip-card:active { transform: scale(0.99); }
     .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
     .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
 
-    /* ESTILOS DO FORMULÁRIO SST COMPLETO */
+    /* ESTILOS DO FORMULÁRIO ORIGINAL DO SEU MODELO DE AMBULÂNCIA */
     .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -93,7 +97,7 @@
 </head>
 <body>
 
-<div class="container" id="main-container" style="max-width: 450px; margin: 0 auto;">
+<div class="container" id="main-container">
     
     <div id="section-lista" style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
         <div class="header-card">
@@ -166,11 +170,10 @@
                 <tr>
                     <td class="col-1">INSPECTOR / REALIZADO POR: <input type="text" id="v_inspector" placeholder="NOMBRE COMPLETO DEL INSPECTOR"></td>
                     <td class="col-2">AÑO: <input type="text" id="v_anio" placeholder="Ex: 2024"></td>
-                    <td class="col-3">EMPRESA: <input type="text" id="v_empresa" placeholder="Ex: ELECNOR" value="ELECNOR"></td>
+                    <td class="col-3">EMPRESA: <input type="text" id="v_empresa" value="ELECNOR"></td>
                 </tr>
                 <tr>
-                    <td colspan="2">KM / HORÓMETRO: <input type="text" id="v_km" placeholder="Ex: 45000"></td>
-                    <td></td>
+                    <td colspan="3">KM / HORÓMETRO: <input type="text" id="v_km" placeholder="Ex: 45000"></td>
                 </tr>
                 <tr>
                     <td colspan="3" class="legend-row">C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO</td>
@@ -403,6 +406,7 @@
             tbody.innerHTML += row;
         });
 
+        // Altera o container dinamicamente para o tamanho da folha cheia
         document.getElementById('main-container').style.maxWidth = "1050px";
         document.getElementById('section-lista').style.display = "none";
         document.getElementById('section-formulario').style.display = "block";
@@ -516,8 +520,7 @@
     function salvarChecklistOffline() {
         const patente = document.getElementById('v_patente').value;
         const inspector = document.getElementById('v_inspector').value;
-        const empresaField = document.getElementById('v_empresa');
-        const empresa = empresaField ? empresaField.value : "ELECNOR";
+        const empresa = document.getElementById('v_empresa').value;
         
         if (!patente) { alert("❌ Error: O preenchimento da PATENTE é obrigatório!"); return; }
         if (!inspector) { alert("❌ Error: El nombre del INSPECTOR é obrigatório!"); return; }

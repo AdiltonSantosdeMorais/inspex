@@ -503,20 +503,20 @@
         return null;
     }
 
-    // FUNÇÃO UNIFICADA: DESENHA A GRADE DE METADADOS PERFEITA CONFORME A IMAGEM 03
+    // CORREÇÃO DA SIMETRIA E DA GRADE DOS METADADOS DIREITOS
     function desenharTabelaMetadadosSST(doc, paginaAtual, totalPaginas) {
         const startX = 150;
         const startY = 10;
         const totalWidth = 50;
-        const rowHeight = 4.166; // 25mm de altura total divididos por 6 linhas exatas
+        const rowHeight = 4.166; // 25mm totais divididos por 6 linhas exatas
 
-        // Grade limite externa
+        // Grade limite externa da tabela direita
         doc.setDrawColor(0);
         doc.setLineWidth(0.4);
         doc.rect(startX, startY, totalWidth, 25);
 
-        // Linha divisória vertical interna simétrica
-        const colSplitX = startX + 17; // 17mm para títulos à esquerda, sobram 33mm para valores à direita
+        // Divisão vertical interna estrita: Títulos (17mm) | Valores (33mm)
+        const colSplitX = startX + 17; 
         doc.line(colSplitX, startY, colSplitX, startY + 25);
 
         const dadosMetadados = [
@@ -548,7 +548,7 @@
         });
     }
 
-    // CONSTRUTOR NATIVO DE 3 PÁGINAS COM CABEÇALHOS SIMÉTRICOS EM TODAS AS FOLHAS
+    // CONSTRUTOR CORRIGIDO PARA IMPRIMIR DINAMICAMENTE O TÍTULO EM DUAS LINHAS NAS 3 PÁGINAS
     async function salvarEMontarPDF_Original_SST() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
@@ -577,11 +577,12 @@
         
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
 
+        // Duas linhas de título dinâmicas obrigatórias na Folha 1
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
         doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
 
-        // Grade de metadados da folha 1
+        // Tabela de metadados direita da folha 1
         desenharTabelaMetadadosSST(doc, 1, 3);
 
         doc.rect(10, 35, 190, 20); doc.line(73, 35, 73, 55); doc.line(140, 35, 140, 55);
@@ -621,7 +622,7 @@
         });
 
         // ==========================================
-        // FOLHA 2: CABEÇALHO CORRIGIDO, RESULTADOS E FIRMAS
+        // FOLHA 2: DUAS LINHAS DE TÍTULO DA ENGENHARIA E GRADE DIREITA CORRIGIDA
         // ==========================================
         doc.addPage();
         doc.setLineWidth(0.4); 
@@ -629,10 +630,12 @@
         doc.line(50, 10, 50, 35);
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
         
+        // Duas linhas de título dinâmicas obrigatórias na Folha 2
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
-        doc.text("RESULTADOS Y FIRMAS DE CONFORMIDAD", 100, 22, { align: 'center' });
+        doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
+        doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
 
-        // Grade de metadados idêntica na folha 2
+        // Tabela de metadados direita da folha 2
         desenharTabelaMetadadosSST(doc, 2, 3);
 
         let yFolha2 = 40;
@@ -673,7 +676,7 @@
         doc.text("SEGURIDAD DO TRABAJO", 168, yFolha2 + 45, {align:'center'});
 
         // ==========================================
-        // FOLHA 3: CABEÇALHO CORRIGIDO E REGISTRO FOTOGRÁFICO
+        // FOLHA 3: DUAS LINHAS DE TÍTULO DA ENGENHARIA Y GRID COMPLETO DAS FOTOS
         // ==========================================
         doc.addPage();
         doc.setLineWidth(0.4); 
@@ -681,10 +684,12 @@
         doc.line(50, 10, 50, 35);
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
         
+        // Duas linhas de título dinâmicas obrigatórias na Folha 3
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
-        doc.text("REGISTRO FOTOGRÁFICO DE EVIDENCIAS", 100, 22, { align: 'center' });
+        doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
+        doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
 
-        // Grade de metadados idêntica na folha 3
+        // Tabela de metadados direita da folha 3
         desenharTabelaMetadadosSST(doc, 3, 3);
 
         doc.rect(10, 38, 190, 240);
@@ -717,7 +722,7 @@
 
         if (navigator.onLine) {
             try {
-                status.innerText = "🚀 SUBINDO ARQUIVO AL GOOGLE DRIVE...";
+                status.innerText = "🚀 ENVIANDO ARQUIVO AL GOOGLE DRIVE...";
                 await fetch(GOOGLE_SCRIPT_URL, { 
                     method: 'POST', 
                     mode: 'no-cors',
@@ -726,6 +731,7 @@
                 });
                 status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
             } catch (err) {
+                console.error(err);
                 status.innerText = "⚠️ REPORTE REGUARDADO NA FILA LOCAL (FALHA DE REDE)."; status.style.color = "orange";
             }
         } else {

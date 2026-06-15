@@ -11,7 +11,7 @@
     
     .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; }
     
-    /* Cabeçalho Superior */
+    /* Cabeçalho Superior Branco (Idêntico ao seu design) */
     .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; }
     .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
     .logo-elecnor { max-height: 25px; object-fit: contain; }
@@ -27,249 +27,146 @@
     /* Lista de Equipamentos */
     .equip-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     
-    /* Card de Equipamento */
+    /* Card de Equipamento Individual */
     .equip-card { background: #fff; border-radius: 6px; padding: 18px 15px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border-left: 4px solid #0055a5; cursor: pointer; transition: transform 0.1s; }
     .equip-card:active { transform: scale(0.99); }
     .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
-    .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; }
-
-    /* Estilos do Formulário Embutido (SST HTML Original) */
-    .checklist-container { background: #fff; border: 1px solid #000; padding: 15px; border-radius: 8px; width: 100%; }
-    .form-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-    .form-table td { border: 1px solid #000; padding: 8px; font-size: 12px; font-weight: bold; }
-    .form-table input[type="text"], .form-table input[type="date"] { width: 100%; border: none; border-bottom: 1px dashed #ccc; outline: none; font-size: 12px; margin-top: 5px; }
-    
-    .item-row { border: 1px solid #ddd; padding: 12px; border-radius: 6px; margin-bottom: 8px; background: #fafafa; }
-    .item-text { font-size: 13px; font-weight: bold; margin-bottom: 8px; display: block; color: #333; }
-    .item-actions { display: flex; gap: 10px; align-items: center; }
-    .select-status { padding: 6px; font-size: 12px; font-weight: bold; border-radius: 4px; border: 1px solid #ccc; background: white; }
-    .input-comment { flex: 1; padding: 6px; font-size: 12px; border: 1px solid #ccc; border-radius: 4px; }
-
-    .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-    .btn { flex: 1; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; text-align: center; font-size: 14px; }
-    .btn-back { background: #95a5a6; color: white; }
-    .btn-save { background: #4472c4; color: white; }
+    .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
 </style>
 </head>
 <body>
 
 <div class="container">
-    
-    <div id="tela-lista" style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
-        <div class="header-card">
-            <div class="header-top">
-                <img class="logo-elecnor" src="/static/logo-elecnor.png" alt="Elecnor">
-                <span class="status-badge" id="net-status">Online</span>
-            </div>
-            <img class="logo-inspex" src="/static/inspex.png" alt="InspeX">
+    <div class="header-card">
+        <div class="header-top">
+            <img class="logo-elecnor" src="/static/logo-elecnor.png" alt="Elecnor">
+            <span class="status-badge" id="net-status">Online</span>
         </div>
-
-        <div class="search-box">
-            <input type="text" id="search-input" placeholder="Buscar equipamento..." oninput="filtrarEquipamentos()">
-        </div>
-
-        <div class="equip-list" id="lista-container">
-            </div>
+        <img class="logo-inspex" src="/static/inspex.png" alt="InspeX">
     </div>
 
-    <div id="tela-formulario" style="display: none; width: 100%;">
-        <div class="checklist-container">
-            <h3 id="form-titulo" style="text-align: center; margin-bottom: 15px; color: #003366; text-transform: uppercase;"></h3>
-            
-            <table class="form-table">
-                <tr>
-                    <td>PATENTE / IDENT.: <input type="text" id="v_patente" placeholder="DIGITE AQUÍ"></td>
-                    <td>FECHA: <input type="date" id="v_fecha"></td>
-                </tr>
-                <tr>
-                    <td>KM / HORÓMETRO: <input type="text" id="v_km" placeholder="Ex: 45000"></td>
-                    <td>EMPRESA: <input type="text" id="v_empresa" value="ELECNOR" disabled style="color: #666; font-weight: bold;"></td>
-                </tr>
-            </table>
-
-            <div id="perguntas-container"></div>
-
-            <div class="btn-group">
-                <button class="btn btn-back" onclick="voltarParaLista()">⬅ Voltar</button>
-                <button class="btn btn-save" onclick="salvarChecklistLocal()">💾 SALVAR OFFLINE</button>
-            </div>
-        </div>
+    <div class="search-box">
+        <input type="text" id="search-input" placeholder="Buscar equipamento..." oninput="filtrarEquipamentos()">
     </div>
 
+    <div class="equip-list" id="lista-container">
+        <a href="/checklist/ambulancia.html" class="equip-card" data-name="AMBULANCIA">
+            <span class="equip-name">AMBULANCIA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/camion_aljibe.html" class="equip-card" data-name="CAMIÓN ALJIBE">
+            <span class="equip-name">CAMIÓN ALJIBE</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/camion_betonera.html" class="equip-card" data-name="CAMION BETONERA">
+            <span class="equip-name">CAMION BETONERA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/camion_cama_baja.html" class="equip-card" data-name="CAMIÓN CAMA BAJA">
+            <span class="equip-name">CAMIÓN CAMA BAJA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/camion_de_petroleo.html" class="equip-card" data-name="CAMIÓN DE PETROLEO">
+            <span class="equip-name">CAMIÓN DE PETROLEO</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/camion_tolva.html" class="equip-card" data-name="CAMIÓN TOLVA">
+            <span class="equip-name">CAMIÓN TOLVA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/camiones_3_4.html" class="equip-card" data-name="CAMIONES 3/4">
+            <span class="equip-name">CAMIONES 3/4</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/eslingas_y_grilletes.html" class="equip-card" data-name="ESLINGAS Y GRILLETES">
+            <span class="equip-name">ESLINGAS Y GRILLETES</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/excavadora_hidraulica.html" class="equip-card" data-name="EXCAVADORA HIDRAULICA">
+            <span class="equip-name">EXCAVADORA HIDRAULICA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/grua_y_pluma.html" class="equip-card" data-name="GRUA Y PLUMA">
+            <span class="equip-name">GRUA Y PLUMA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/manipuladora_telescopica.html" class="equip-card" data-name="MANIPULADORA TELESCOPICA">
+            <span class="equip-name">MANIPULADORA TELESCOPICA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/maquina_perforadora.html" class="equip-card" data-name="MAQUINA PERFORADORA">
+            <span class="equip-name">MAQUINA PERFORADORA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/mini_rodillo_compactador.html" class="equip-card" data-name="MINI RODILLO COMPACTADOR">
+            <span class="equip-name">MINI RODILLO COMPACTADOR</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/miniexcavadora_mini_carregadora.html" class="equip-card" data-name="MINIEXCAVADORA MINI CARREGADORA">
+            <span class="equip-name">MINIEXCAVADORA MINI CARREGADORA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/motor_generador.html" class="equip-card" data-name="MOTOR GENERADOR">
+            <span class="equip-name">MOTOR GENERADOR</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/plataforma_pta.html" class="equip-card" data-name="PLATAFORMA PTA">
+            <span class="equip-name">PLATAFORMA PTA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/remolque_tanque_de_petroleo.html" class="equip-card" data-name="REMOLQUE TANQUE DE PETROLEO">
+            <span class="equip-name">REMOLQUE TANQUE DE PETROLEO</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/retroexcavadora.html" class="equip-card" data-name="RETROEXCAVADORA">
+            <span class="equip-name">RETROEXCAVADORA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/rodillo_compactador.html" class="equip-card" data-name="RODILLO COMPACTADOR">
+            <span class="equip-name">RODILLO COMPACTADOR</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/taladro_de_rocka.html" class="equip-card" data-name="TALADRO DE ROCA">
+            <span class="equip-name">TALADRO DE ROCA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/tractor_de_neumaticos.html" class="equip-card" data-name="TRACTOR DE NEUMATICOS">
+            <span class="equip-name">TRACTOR DE NEUMATICOS</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/tractor_orugas_motoniveladora.html" class="equip-card" data-name="TRACTOR DE ORUGAS MOTONIVELADORA">
+            <span class="equip-name">TRACTOR DE ORUGAS MOTONIVELADORA</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/transporte_colectivo_furgonetas.html" class="equip-card" data-name="TRANSPORTE COLECTIVO FURGONETAS">
+            <span class="equip-name">TRANSPORTE COLECTIVO FURGONETAS</span><span class="disponivel-badge">Disponible</span>
+        </a>
+        <a href="/checklist/vehiculos_ligeros_camionetas.html" class="equip-card" data-name="VEHICULOS LIGEROS CAMIONETAS">
+            <span class="equip-name">VEHICULOS LIGEROS CAMIONETAS</span><span class="disponivel-badge">Disponible</span>
+        </a>
+    </div>
 </div>
 
 <script>
-    // Banco de Dados de Equipamentos (Os 24 itens oficiais)
-    const EQUIPAMENTOS = [
-        "AMBULANCIA", "CAMIÓN ALJIBE", "CAMION BETONERA", "CAMIÓN CAMA BAJA",
-        "CAMIÓN DE PETROLEO", "CAMIÓN TOLVA", "CAMIONES 3/4", "ESLINGAS Y GRILLETES",
-        "EXCAVADORA HIDRAULICA", "GRUA Y PLUMA", "MANIPULADORA TELESCOPICA", "MAQUINA PERFORADORA",
-        "MINI RODILLO COMPACTADOR", "MINIEXCAVADORA MINI CARREGADORA", "MOTOR GENERADOR", "PLATAFORMA PTA",
-        "REMOLQUE TANQUE DE PETROLEO", "RETROEXCAVADORA", "RODILLO COMPACTADOR", "TALADRO DE ROCA",
-        "TRACTOR DE NEUMATICOS", "TRACTOR DE ORUGAS MOTONIVELADORA", "TRANSPORTE COLECTIVO FURGONETAS", "VEHICULOS LIGEROS CAMIONETAS"
-    ];
-
-    // Listas de perguntas específicas para cada tipo de maquinário SST
-    const BANCO_PERGUNTAS = {
-        "AMBULANCIA": [
-            "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
-            "FRENO DE LAS RUEDAS FUNCIONANDO CORRECTAMENTE - IMP",
-            "FRENO DE ESTACIONAMIENTO",
-            "AGUA DEL RADIADOR CON NIVEL ADECUADO",
-            "LIMPIAPARABRISAS FUNCIONANDO CORRECTAMENTE",
-            "KIT DE HERRAMIENTAS (LLAVE DE RUEDAS, CRIQUE, GATO, TRIANGULO)",
-            "TUERCA DE FIJACIÓN DE LAS RUEDAS",
-            "SISTEMA ELÉCTRICO FUNCIONANDO CORRECTAMENTE",
-            "FAROS Y LUCES FUNCIONANDO CORRECTAMENTE",
-            "CLAXON/CAMARA DE MARCHA ATRÁS Y ALARMA SONORA DE MARCHA ATRÁS - IMP",
-            "RUEDAS SIN JUEGO EN EL VOLANTE",
-            "VELOCÍMETRO/TACOGRAFO",
-            "PUERTAS Y VENTANAS FUNCIONANDO CORRECTAMENTE",
-            "ASIENTOS EN BUEN ESTADO",
-            "ESPEJOS RETROVISORES - IMP",
-            "CINTURONES DE SEGURIDAD CONSERVADOS EN TODOS OS ASIENTOS - IMP",
-            "EXTINTOR DE INCENDIO VALIDO Y ADECUADO",
-            "VENTILACIÓN NATURAL OR ARTIFICIAL",
-            "NEUMATICOS CALIBRADOS Y EN BUEN ESTADO DE USO - IMP",
-            "ALARMA Y SIRENA DE EMERGENCIA FUNCIONANDO - IMP",
-            "CUÑA PARA RUEDAS",
-            "CONSERVACIÓN DEL INTERIOR DEL VEHÍCULO",
-            "IDENTIFICACIÓN DEL VEHÍCULO DE EMBARQUE - IMP"
-        ],
-        "CAMIÓN CAMA BAJA": [
-            "ESTADO GENERAL DEL VEHÍCULO Y CONFIGURACIÓN DE RAMPA",
-            "SISTEMA DE FRENOS DE SERVICIO Y ESTACIONAMIENTO - IMP",
-            "LUCES DE FRENO, REVERSA, VIRAGE Y DE DESTELLO",
-            "ESTADO DE NEUMÁTICOS E INDICADORES DE DESGASTE - IMP",
-            "SISTEMA DE ANCLAJE, CADENAS Y TENSORES DE CARGA - IMP",
-            "ESTADO DE DIRECCIÓN Y SUSPENSIÓN",
-            "NIVELES DE FLUIDOS (MOTOR, TRANSMISIÓN, HIDRÁULICO)",
-            "CINTURÓN DE SEGURIDAD Y ASIENTO DEL CONDUCTOR - IMP",
-            "EXTINTOR DE INCENDIO Y TRIÁNGULOS DE EMERGENCIA",
-            "ALARMA DE MARCHA ATRÁS Y BOCINA - IMP",
-            "ESPEJOS RETROVISORES LATERALES",
-            "LIMPIAPARABRISAS Y VIDRIOS SIN TRADURAS"
-        ],
-        "CAMIÓN DE PETROLEO": [
-            "SISTEMA DE PUESTA A TIERRA E INTERRUPTOR DE CORTE DE EMERGENCIA - IMP",
-            "ESTADO DO TANQUE, VÁLVULAS E MANGUEIRAS SEM FILTRAÇÕES - IMP",
-            "EXTINTORES DE INCÊNDIO PQS ADEQUADOS E VÁLIDOS - IMP",
-            "LETREROS DE ADVERTENCIA DE SEGURIDAD E IDENTIFICACIÓN UN - IMP",
-            "SISTEMA DE TRAVÕES E FREIO DE ESTACIONAMENTO",
-            "SISTEMA ELÉCTRICO E ILUMINAÇÃO À PROVA DE EXPLOSÃO",
-            "KIT CONTRA DERRAMES COMPLETO E DISPONÍVEL",
-            "ESTADO DE OS NEUMÁTICOS"
-        ]
-    };
-
-    // Perguntas padrão da Elecnor aplicadas caso o equipamento não possua lista específica ainda
-    const PERGUNTAS_PADRAO = [
-        "ESTADO GENERAL DEL EQUIPO / CARROCERÍA",
-        "SISTEMA DE FRENOS (DE SERVICIO Y DE ESTACIONAMIENTO) - IMP",
-        "SISTEMA ELÉCTRICO, LUCES DELANTERAS Y TRASERAS",
-        "ALARMA DE MARCHA ATRÁS Y BOCINA OPERATIVAS - IMP",
-        "ESPEJOS RETROVISORES E INSTRUMENTOS DE CABINA - IMP",
-        "CINTURÓN DE SEGURIDAD EN TODOS LOS ASIENTOS - IMP",
-        "NEUMÁTICOS / ORUGAS EN BUEN ESTADO DE USO - IMP",
-        "NIVEL DE ACEITE, AGUA Y FLUIDOS EN GENERAL",
-        "EXTINTOR DE INCENDIO VIGENTE E INSPECCIONADO",
-        "SISTEMA HIDRÁULICO E MANGUERAS SEM FILTRAÇÕES",
-        "ESTADO DE VIDRIOS, PARABRISAS Y LIMPIAPARABRISAS",
-        "KIT DE HERRAMIENTAS Y TRIÁNGULOS DE EMERGENCIA",
-        "ESTADO DE ASENTOS Y LIMPIEZA INTERIOR",
-        "IDENTIFICACIÓN VISUAL / LOGOS DE LA EMPRESA",
-        "DOCUMENTACIÓN DEL VEHÍCULO AL DÍA"
-    ];
-
-    let equipamentoAtual = "";
-    document.getElementById('v_fecha').valueAsDate = new Date();
-
-    // Renderiza a lista de cartões na inicialização do app
-    function renderizarListaEquipamentos() {
-        const container = document.getElementById('lista-container');
-        container.innerHTML = "";
-        EQUIPAMENTOS.forEach(nome => {
-            container.innerHTML += `
-                <div class="equip-card" onclick="abrirChecklist('${nome}')">
-                    <span class="equip-name">${nome}</span>
-                    <span class="disponivel-badge">Disponible</span>
-                </div>
-            `;
-        });
-    }
-
+    // Buscador en tiempo real
     function filtrarEquipamentos() {
         const filtro = document.getElementById('search-input').value.toUpperCase();
         const cards = document.querySelectorAll('.equip-card');
+        
         cards.forEach(card => {
-            const txt = card.querySelector('.equip-name').innerText;
-            card.style.display = txt.includes(filtro) ? "flex" : "none";
+            const nome = card.getAttribute('data-name');
+            if (nome.includes(filtro)) {
+                card.style.display = "flex";
+            } else {
+                card.style.display = "none";
+            }
         });
     }
 
-    function abrirChecklist(equip) {
-        equipamentoAtual = equip;
-        document.getElementById('form-titulo').innerText = "VERIFICACIÓN: " + equip;
-        document.getElementById('tela-lista').style.display = "none";
-        document.getElementById('tela-formulario').style.display = "block";
-        
-        const container = document.getElementById('perguntas-container');
-        container.innerHTML = "";
-
-        // Seleciona a lista de perguntas correspondente ou aplica a lista padrão
-        const listaPerguntas = BANCO_PERGUNTAS[equip] ? BANCO_PERGUNTAS[equip] : PERGUNTAS_PADRAO;
-        
-        listaPerguntas.forEach((p, index) => {
-            container.innerHTML += `
-                <div class="item-row">
-                    <span class="item-text"><strong>${index+1}.</strong> ${p}</span>
-                    <div class="item-actions">
-                        <select class="select-status" id="status_${index}">
-                            <option value="C">C</option>
-                            <option value="NC">NC</option>
-                            <option value="NA">NA</option>
-                        </select>
-                        <input type="text" class="input-comment" id="comentario_${index}" placeholder="Nota...">
-                    </div>
-                </div>
-            `;
-        });
-        window.scrollTo(0,0);
-    }
-
-    function voltarParaLista() {
-        document.getElementById('tela-formulario').style.display = "none";
-        document.getElementById('tela-lista').style.display = "block";
-        document.getElementById('v_patente').value = "";
-        document.getElementById('v_km').value = "";
-        window.scrollTo(0,0);
-    }
-
-    function salvarChecklistLocal() {
-        const patente = document.getElementById('v_patente').value;
-        if(!patente) { alert("❌ Error: ¡La PATENTE é obrigatória!"); return; }
-
-        alert("✅ ¡Inspección para " + equipamentoAtual + " guardada en el Tablet de forma exitosa!");
-        voltarParaLista();
-    }
-
+    // Monitoreo visual de red
     function atualizarStatusRede() {
         const badge = document.getElementById('net-status');
         if (navigator.onLine) {
-            badge.innerText = "Online"; badge.style.background = "#e8f5e9"; badge.style.color = "#2ecc71";
+            badge.innerText = "Online";
+            badge.style.background = "#e8f5e9";
+            badge.style.color = "#2ecc71";
         } else {
-            badge.innerText = "Offline"; badge.style.background = "#ffebee"; badge.style.color = "#e74c3c";
+            badge.innerText = "Offline";
+            badge.style.background = "#ffebee";
+            badge.style.color = "#e74c3c";
         }
     }
     window.addEventListener('online', atualizarStatusRede);
     window.addEventListener('offline', atualizarStatusRede);
     atualizarStatusRede();
 
-    renderizarListaEquipamentos();
-
+    // Activador del Service Worker para el soporte Offline PWA
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); });
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('¡Modo Offline de InspeX activado con éxito!', reg))
+                .catch(err => console.error('Error al registrar el modo offline:', err));
+        });
     }
 </script>
+
 </body>
 </html>

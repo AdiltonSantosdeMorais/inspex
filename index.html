@@ -57,7 +57,7 @@
     .comment-col { width: 25%; }
     .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #eee; text-transform: uppercase; }
     
-    /* ÁREA DE FOTOS ADICIONADA */
+    /* ÁREA DE FOTOS */
     .photos-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
     .photos-table td { border: 1px solid #000; padding: 12px; font-size: 11px; font-weight: bold; background: #fafafa; }
     .photos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 8px; }
@@ -164,7 +164,7 @@
                     <td class="col-3">FECHA DE INSPECCIÓN: <input type="date" id="v_fecha"></td>
                 </tr>
                 <tr>
-                    <td class="col-1">EMPRESA: <input type="text" id="v_empresa" value="ELECNOR"></td>
+                    <td class="col-1">INSPECTOR / REALIZADO POR: <input type="text" id="v_inspector" placeholder="NOMBRE COMPLETO DO INSPECTOR"></td>
                     <td class="col-2">AÑO: <input type="text" id="v_anio" placeholder="Ex: 2024"></td>
                     <td class="col-3">KM / HORÓMETRO: <input type="text" id="v_km" placeholder="Ex: 45000"></td>
                 </tr>
@@ -195,7 +195,7 @@
                             <div class="photo-slot"><span>Foto 3</span><input type="file" accept="image/*" id="input_foto_3" onchange="processarFoto(3)"><img id="prev_foto_3" class="photo-preview"></div>
                             <div class="photo-slot"><span>Foto 4</span><input type="file" accept="image/*" id="input_foto_4" onchange="processarFoto(4)"><img id="prev_foto_4" class="photo-preview"></div>
                             <div class="photo-slot"><span>Foto 5</span><input type="file" accept="image/*" id="input_foto_5" onchange="processarFoto(5)"><img id="prev_foto_5" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 6</span><input type="file" accept="image/*" id="input_foto_6" onchange="processarFoto(6)"><img id="prev_foto_6" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 6</span><input type="file" accept="image/*" id="input_foto_6" onchange="change" onchange="processarFoto(6)"><img id="prev_foto_6" class="photo-preview"></div>
                             <div class="photo-slot"><span>Foto 7</span><input type="file" accept="image/*" id="input_foto_7" onchange="processarFoto(7)"><img id="prev_foto_7" class="photo-preview"></div>
                             <div class="photo-slot"><span>Foto 8</span><input type="file" accept="image/*" id="input_foto_8" onchange="processarFoto(8)"><img id="prev_foto_8" class="photo-preview"></div>
                         </div>
@@ -305,7 +305,7 @@
     };
 
     let equipoSeleccionado = "";
-    let bancoImagensFotos = {}; // Guarda temporariamente os textos Base64 das fotos tiradas
+    let bancoImagensFotos = {}; 
 
     function filtrarEquipamentos() {
         const filtro = document.getElementById('search-input').value.toUpperCase();
@@ -326,7 +326,6 @@
         }
     }
 
-    // Processador que compacta as imagens para o formato offline do tablet
     function processarFoto(id) {
         const file = document.getElementById(`input_foto_${id}`).files[0];
         if (!file) return;
@@ -343,19 +342,19 @@
 
     function abrirFormularioNativo(equip) {
         equipoSeleccionado = equip;
-        bancoImagensFotos = {}; // Limpa as fotos antigas da memória de carregamento
+        bancoImagensFotos = {}; 
         
         document.getElementById('v_equipo').value = equip;
         document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + equip;
         document.getElementById('v_fecha').valueAsDate = new Date();
         
         document.getElementById('v_patente').value = "";
+        document.getElementById('v_inspector').value = "";
         document.getElementById('v_anio').value = "";
         document.getElementById('v_km').value = "";
         document.getElementById('obs_generales').value = "";
         document.getElementById('medidas_correctivas').value = "";
 
-        // Limpa os slots e previews de imagens físicas
         for (let idx = 1; idx <= 8; idx++) {
             document.getElementById(`input_foto_${idx}`).value = "";
             document.getElementById(`prev_foto_${idx}`).style.display = "none";
@@ -497,7 +496,9 @@
 
     function salvarChecklistOffline() {
         const patente = document.getElementById('v_patente').value;
+        const inspector = document.getElementById('v_inspector').value;
         if (!patente) { alert("❌ Error: O preenchimento da PATENTE é obrigatório!"); return; }
+        if (!inspector) { alert("❌ Error: El nombre do INSPECTOR é obrigatório!"); return; }
         
         const perguntas = BANCO_PERGUNTAS[equipoSeleccionado] || BANCO_PERGUNTAS["DEFAULT"];
         let respondidas = true;
@@ -532,6 +533,7 @@
             equipo: equipoSeleccionado,
             patente: patente.toUpperCase(),
             fecha: document.getElementById('v_fecha').value,
+            inspector: inspector.toUpperCase(),
             empresa: document.getElementById('v_empresa').value.toUpperCase(),
             anio: document.getElementById('v_anio').value.toUpperCase(),
             km_horometro: document.getElementById('v_km').value.toUpperCase(),
@@ -540,7 +542,7 @@
             observaciones_generales: document.getElementById('obs_generales').value.toUpperCase(),
             medidas_correctivas: document.getElementById('medidas_correctivas').value.toUpperCase(),
             resultado_final: resultadoFinal,
-            fotos: bancoImagensFotos, // INCLUSÃO DAS FOTOS NO PACOTE DE TEXTO OFFLINE
+            fotos: bancoImagensFotos, 
             assinatura_conductor: conductorSig,
             assinatura_supervisor: supervisorSig,
             assinatura_seguridad: seguridadSig

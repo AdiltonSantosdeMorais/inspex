@@ -217,7 +217,7 @@
                 </tr>
                 <tr>
                     <td>MEDIDAS CORRECTIVAS ADOPTADAS:
-                        <textarea id="medidas_correctivas" placeholder="Descreva ações tomadas..."></textarea>
+                        <textarea id="medidas_correctivas" placeholder="Descreva acciones tomadas..."></textarea>
                     </td>
                 </tr>
             </table>
@@ -461,7 +461,11 @@
 
         for (let i = 0; i < queue.length; i++) {
             try {
-                await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(queue[i]) });
+                await fetch(GOOGLE_SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    body: JSON.stringify(queue[i]) 
+                });
                 queue.splice(i, 1);
                 i--;
             } catch (e) { break; }
@@ -471,7 +475,7 @@
 
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
 
-    // FUNÇÃO MASTER COM DISTRIBUIÇÃO DE PÁGINAS E PARSE AUTOMÁTICO EM BASE64
+    // CORREÇÃO DEFINITIVA: RESOLVE O ENVIO AO DRIVE E ESTABILIZA AS PÁGINAS DO PDF
     async function gerarCopiaFielPDF_SST() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
@@ -483,86 +487,124 @@
         const btn = document.getElementById('btn-save-main');
         
         btn.disabled = true;
-        status.style.display = "block"; status.style.color = "orange"; status.innerText = "⏳ PROCESANDO REPORTE E ADAPTANDO PÁGINAS...";
+        status.style.display = "block"; status.style.color = "orange"; status.innerText = "⏳ GENERANDO REPORTE FIEL...";
 
-        const folhaElemento = document.getElementById('area-folha-pdf');
-        const larguraOriginal = folhaElemento.style.width;
-        folhaElemento.style.width = "1024px"; // Garante estabilidade na captura dos elementos
-
-        html2canvas(folhaElemento, {
-            scale: 2, 
-            useCORS: true,
-            allowTaint: true,
-            logging: false
-        }).then(async (canvas) => {
-            folhaElemento.style.width = larguraOriginal;
-
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            
-            const pdfWidth = doc.internal.pageSize.getWidth();
-            const pdfHeight = doc.internal.pageSize.getHeight();
-            
-            const marginX = 10;
-            const marginY = 10;
-            const larguraUtil = pdfWidth - (marginX * 2);
-            const alturaUtil = pdfHeight - (marginY * 2);
-
-            const imgWidthMm = larguraUtil;
-            const imgHeightMm = (canvas.height * imgWidthMm) / canvas.width;
-
-            let alturaRestante = imgHeightMm;
-            let posicaoY = marginY;
-            let paginaAtual = 1;
-
-            // Renderiza primeira página
-            doc.addImage(imgData, 'JPEG', marginX, posicaoY, imgWidthMm, imgHeightMm);
-            alturaRestante -= alturaUtil;
-
-            // Adiciona novas páginas se houver estouro vertical de forma elástica
-            while (alturaRestante > 0) {
-                doc.addPage();
-                paginaAtual++;
-                posicaoY = marginY - (paginaAtual - 1) * alturaUtil;
-                doc.addImage(imgData, 'JPEG', marginX, posicaoY, imgWidthMm, imgHeightMm);
-                alturaRestante -= alturaUtil;
-            }
-
-            const pdfBase64 = doc.output('datauristring').split(',')[1];
-            const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
-            
-            const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
-
-            if (navigator.onLine) {
-                try {
-                    status.innerText = "🚀 SUBINDO ARQUIVO AL GOOGLE DRIVE...";
-                    await fetch(GOOGLE_SCRIPT_URL, { 
-                        method: 'POST', 
-                        mode: 'no-cors', 
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload) 
-                    });
-                    status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
-                } catch (err) {
-                    saveToQueue(payload);
-                    status.innerText = "⚠️ GUARDADO NO APARELHO PARA SINCRONIZAÇÃO AUTOMÁTICA."; status.style.color = "orange";
-                }
-            } else {
-                saveToQueue(payload);
-                status.innerText = "☁️ MODO OFFLINE: REPORTE SALVO NO DISPOSITIVO."; status.style.color = "blue";
-            }
-
-            doc.save(nomeDoFicheiroPDF);
-            btn.disabled = false;
-            if (navigator.onLine) { setTimeout(syncQueue, 1000); }
-            setTimeout(() => { status.style.display = 'none'; fecharFormularioNativo(); }, 3500);
-            
-        }).catch((error) => {
-            console.error(error);
-            btn.disabled = false;
-            status.style.display = 'none';
+        // Criação de uma janela oculta temporária no tamanho padrão de computador para evitar compressão responsiva de celular
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'visibility';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        
+        const iframeDoc = iframe.contentWindow.document;
+        iframeDoc.open();
+        // Copia todos os estilos CSS atuais do aplicativo para dentro do ambiente de renderização isolado
+        iframeDoc.write('<html><head><style>' + Array.from(document.styleSheets).map(s => {
+            try { return Array.from(s.cssRules).map(r => r.cssText).join(''); } catch(e) { return ''; }
+        }).join('') + '</style></head><body style="padding:0; background:white;">');
+        
+        // Clona a estrutura real e preenchida do formulário do tablet
+        const cloneForm = document.getElementById('area-folha-pdf').cloneNode(true);
+        
+        // Preserva os valores reais digitados e selecionados pelos técnicos
+        cloneForm.querySelectorAll('input[type="text"], textarea').forEach(input => {
+            const original = document.getElementById(input.id);
+            if(original) input.setAttribute('value', original.value);
         });
+        
+        cloneForm.querySelectorAll('input[type="radio"]').forEach(radio => {
+            const originalObj = document.querySelector(`input[name="${radio.name}"][value="${radio.value}"]`);
+            if(originalObj && originalObj.checked) {
+                radio.setAttribute('checked', 'checked');
+            }
+        });
+
+        iframeDoc.write(cloneForm.outerHTML);
+        iframeDoc.write('</body></html>');
+        iframeDoc.close();
+
+        // Aguarda os elementos gráficos se estruturarem no ambiente limpo
+        setTimeout(() => {
+            const targetElement = iframeDoc.getElementById('area-folha-pdf');
+            targetElement.style.width = "1000px"; // Define a largura perfeita para o papel A4 vertical
+
+            // Transfere o traçado real das 3 assinaturas manuais do tablet para o PDF
+            ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'].forEach(id => {
+                const origCanvas = document.getElementById(id);
+                const destCanvas = iframeDoc.getElementById(id);
+                if(origCanvas && destCanvas) {
+                    const destCtx = destCanvas.getContext('2d');
+                    destCtx.drawImage(origCanvas, 0, 0);
+                }
+            });
+
+            html2canvas(targetElement, {
+                scale: 2, 
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            }).then(async (canvas) => {
+                document.body.removeChild(iframe); // Destrói a janela de fundo limpa
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                const pdfWidth = doc.internal.pageSize.getWidth();
+                const pdfHeight = doc.internal.pageSize.getHeight();
+                
+                const imgWidthMm = pdfWidth - 20; // 10mm de margem em cada lado
+                const imgHeightMm = (canvas.height * imgWidthMm) / canvas.width;
+
+                let alturaRestante = imgHeightMm;
+                let posicaoY = 10;
+
+                // Insere a imagem contínua dividindo as páginas de forma totalmente automática
+                doc.addImage(imgData, 'JPEG', 10, posicaoY, imgWidthMm, imgHeightMm);
+                alturaRestante -= (pdfHeight - 20);
+
+                while (alturaRestante > 0) {
+                    doc.addPage();
+                    posicaoY = alturaRestante - imgHeightMm + 10;
+                    doc.addImage(imgData, 'JPEG', 10, posicaoY, imgWidthMm, imgHeightMm);
+                    alturaRestante -= (pdfHeight - 20);
+                }
+
+                // Codificação e envio do payload idêntico ao sistema AlertaFlota
+                const pdfBase64 = doc.output('datauristring').split(',')[1];
+                const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
+                
+                const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
+
+                if (navigator.onLine) {
+                    try {
+                        status.innerText = "🚀 SUBINDO ARQUIVO AL GOOGLE DRIVE...";
+                        // Envio limpo usando modo 'no-cors' idêntico ao AlertaFlota para ignorar travas do navegador
+                        await fetch(GOOGLE_SCRIPT_URL, { 
+                            method: 'POST', 
+                            mode: 'no-cors', 
+                            body: JSON.stringify(payload) 
+                        });
+                        status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
+                    } catch (err) {
+                        saveToQueue(payload);
+                        status.innerText = "⚠️ GUARDADO NO APARELHO PARA SINCRONIZAÇÃO AUTOMÁTICA."; status.style.color = "orange";
+                    }
+                } else {
+                    saveToQueue(payload);
+                    status.innerText = "☁️ MODO OFFLINE: REPORTE SALVO NO DISPOSITIVO."; status.style.color = "blue";
+                }
+
+                doc.save(nomeDoFicheiroPDF);
+                btn.disabled = false;
+                if (navigator.onLine) { setTimeout(syncQueue, 1000); }
+                setTimeout(() => { status.style.display = 'none'; fecharFormularioNativo(); }, 3500);
+                
+            }).catch((err) => {
+                console.error(err);
+                if(document.body.contains(iframe)) document.body.removeChild(iframe);
+                btn.disabled = false;
+                status.style.display = 'none';
+            });
+        }, 300);
     }
 
     if ('serviceWorker' in navigator) {

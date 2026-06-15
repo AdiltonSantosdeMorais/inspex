@@ -1,14 +1,14 @@
-const CACHE_NAME = 'inspex-v6-cache';
+const CACHE_NAME = 'inspex-v7-cache';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
   '/static/logo-elecnor.png',
-  '/static/inspex.jpg',
+  '/static/inspex.png',
   '/static/config.js'
 ];
 
-// Instalación del Service Worker y almacenamiento en cache de recursos locales
+// Instalação do Service Worker e armazenamento em cache
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -17,7 +17,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// Estratégia: Red con Fallback a Cache (Garantiza funcionamiento en la app y validación limpia en PWABuilder)
+// Estratégia de Rede com Fallback para Cache
 self.addEventListener('fetch', event => {
   event.respondWith(
     fetch(event.request).catch(() => {
@@ -26,7 +26,7 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// Limpieza de versiones obsoletas de cache
+// Limpeza de versões obsoletas de cache
 self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(

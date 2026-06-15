@@ -9,26 +9,29 @@
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
     body { background: #f5f7fa; padding: 20px; color: #333; display: flex; justify-content: center; }
     
-    .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; transition: max-width 0.2s; }
+    .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; }
     
+    /* Cabeçalho Superior Branco Original */
     .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; }
     .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
     .logo-elecnor { max-height: 25px; object-fit: contain; }
     .status-badge { background: #e8f5e9; color: #2ecc71; font-weight: bold; font-size: 11px; padding: 5px 12px; border-radius: 20px; }
     .logo-inspex { max-height: 140px; margin: 15px 0 5px 0; object-fit: contain; }
     
+    /* Barra de Busca */
     .search-box { position: relative; width: 100%; }
     .search-box input { width: 100%; padding: 13px 15px 13px 40px; border-radius: 10px; border: 1px solid #d0d5dd; background: #fff; font-size: 14px; outline: none; }
     .search-box input:focus { border-color: #0055a5; }
     .search-box::before { content: "🔍"; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.5; }
     
+    /* Lista de Equipamentos */
     .equip-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     .equip-card { background: #fff; border-radius: 6px; padding: 18px 15px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border-left: 4px solid #0055a5; cursor: pointer; transition: transform 0.1s; }
     .equip-card:active { transform: scale(0.99); }
     .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
     .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
 
-    /* ESTILOS DO FORMULÁRIO */
+    /* ESTILOS DO FORMULÁRIO ORIGINAL DA ELECNOR */
     .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -55,6 +58,7 @@
     .comment-col { width: 25%; }
     .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #eee; text-transform: uppercase; }
     
+    /* ÁREA DE FOTOS MANTIDA */
     .photos-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
     .photos-table td { border: 1px solid #000; padding: 12px; font-size: 11px; font-weight: bold; background: #fafafa; }
     .photos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 8px; }
@@ -138,7 +142,7 @@
     </div>
 
     <div id="section-formulario" style="display: none; width: 100%;">
-        <div class="page-sheet">
+        <div class="page-sheet" id="area-folha-pdf">
             <table class="header-table">
                 <tr>
                     <td class="logo-box"><img src="/static/logo-elecnor.png" alt="Logo Elecnor"></td>
@@ -260,7 +264,7 @@
 </div>
 
 <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzuM3ldBjFInWMtH6xcZVCfmwXX6uknztafkxJjY_S_M32W2ne4Y35cgCgVbMZpBXpAkA/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
 
     const BANCO_PERGUNTAS = {
         "AMBULANCIA": [
@@ -380,6 +384,7 @@
         window.scrollTo(0,0);
         
         inicializarCanvases();
+        verificarReglasResultados();
     }
 
     function fecharFormularioNativo() {
@@ -389,7 +394,7 @@
         window.scrollTo(0,0);
     }
 
-    // LÓGICA DE BLOQUEIO ABSOLUTA BASEADA NAS REGRAS DE SST SOLICITADAS
+    // LÓGICA DE BLOQUEIO DE ACORDO COM REGRAS DE SST SOLICITADAS
     function verificarReglasResultados() {
         let bloqueioImpeditivo = false;
         let falhaComumDetectada = false;
@@ -403,9 +408,9 @@
                 todasRespondidas = false;
             } else if (marcado.value === "NC") {
                 if (pregunta.toUpperCase().includes("IMP")) {
-                    bloqueioImpeditivo = true; // Achou item IMP com falha
+                    bloqueioImpeditivo = true;
                 } else {
-                    falhaComumDetectada = true; // Achou item comum com falha
+                    falhaComumDetectada = true;
                 }
             }
         });
@@ -421,24 +426,23 @@
         const elNoLib = document.getElementById('cell_no_liberado');
         const chNoLib = document.getElementById('check_no_liberado');
 
-        // Desbloqueia tudo por padrão antes de recalcular
-        [elLib, chLib, elObs, chObs, elNoLib, chNoLib].forEach(el => el.classList.remove('disabled-option'));
-        btnLiberado.disabled = false; btnObs.disabled = false; btnNoLiberado.disabled = false;
+        [elLib, chLib, elObs, chObs, elNoLib, chNoLib].forEach(el => { if(el) el.classList.remove('disabled-option'); });
+        if(btnLiberado) btnLiberado.disabled = false; 
+        if(btnObs) btnObs.disabled = false; 
+        if(btnNoLiberado) btnNoLiberado.disabled = false;
 
         if (bloqueioImpeditivo) {
-            // SE FOR IMP NC -> Bloqueia LIBERADO e LIBERADO COM OBS
-            btnNoLiberado.checked = true;
-            [elLib, chLib, elObs, chObs].forEach(el => el.classList.add('disabled-option'));
-            btnLiberado.disabled = true; btnObs.disabled = true;
+            if(btnNoLiberado) btnNoLiberado.checked = true;
+            [elLib, chLib, elObs, chObs].forEach(el => { if(el) el.classList.add('disabled-option'); });
+            if(btnLiberado) btnLiberado.disabled = true; if(btnObs) btnObs.disabled = true;
         } 
         else if (falhaComumDetectada) {
-            // SE FOR COMUM NC -> Bloqueia LIBERADO e NO LIBERADO
-            btnObs.checked = true;
-            [elLib, chLib, elNoLib, chNoLib].forEach(el => el.classList.add('disabled-option'));
-            btnLiberado.disabled = true; btnNoLiberado.disabled = true;
+            if(btnObs) btnObs.checked = true;
+            [elLib, chLib, elNoLib, chNoLib].forEach(el => { if(el) el.classList.add('disabled-option'); });
+            if(btnLiberado) btnLiberado.disabled = true; if(btnNoLiberado) btnNoLiberado.disabled = true;
         } 
         else if (todasRespondidas) {
-            btnLiberado.checked = true;
+            if(btnLiberado) btnLiberado.checked = true;
         }
     }
 
@@ -486,6 +490,7 @@
 
         for (let i = 0; i < queue.length; i++) {
             try {
+                // Envia em formato de string JSON idêntico ao AlertaFlota para gravação direta
                 await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(queue[i]) });
                 queue.splice(i, 1);
                 i--;
@@ -496,7 +501,7 @@
 
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
 
-    // MOTOR DE DESENHO ORIGINAL INTEGRADO E DIVIDIDO EM 3 FOLHAS A4 FIXAS
+    // NOVO CONSTRUTOR FIXO DE 3 FOLHAS A4 (MANTÉM DESIGN DA COPIAPÓ SOLAR E DA LOGO DA ELECNOR)
     async function salvarEMontarPDF_Original_SST() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
@@ -515,7 +520,7 @@
         const corDeFundo = [240, 240, 240];
 
         // ==========================================
-        // FOLHA 1: CABEÇALHO, VEÍCULO E CHECKLIST
+        // FOLHA 1: HEADER E GRADE COMPLETA DO CHECKLIST
         // ==========================================
         doc.setLineWidth(0.4); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
@@ -550,20 +555,21 @@
             const comment = document.getElementById(`comment_${idx+1}`).value.toUpperCase();
 
             doc.setFont("helvetica", "bold");
-            if(val === "C") doc.text("X", 138, currentY + 5);
-            if(val === "NC") doc.text("X", 148, currentY + 5);
-            if(val === "NA") doc.text("X", 158, currentY + 5);
+            // RENDERIZAÇÃO ORIGINAL EM C, NC E NA SEM MISTURAR LETRA COMPACTADA
+            if(val === "C") doc.text("C", 138, currentY + 5.2);
+            if(val === "NC") doc.text("NC", 147, currentY + 5.2);
+            if(val === "NA") doc.text("NA", 157, currentY + 5.2);
             
             doc.setFont("helvetica", "normal"); doc.setFontSize(6.5);
-            doc.text(comment.substring(0, 16), 166, currentY + 5);
+            doc.text(comment.substring(0, 16), 166, currentY + 5.2);
             currentY += 8;
         });
 
         // ==========================================
-        // FOLHA 2: COMENTÁRIOS, MEDIDAS, RESULTADO E FIRMAS
+        // FOLHA 2: COMENTÁRIOS, MEDIDAS, RESULTADO E 3 FIRMAS
         // ==========================================
         doc.addPage();
-        doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
+        doc.setLineWidth(0.4); doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("RESULTADOS Y FIRMAS DE CONFORMIDAD", 100, 20, { align: 'center' });
         doc.setFontSize(7); doc.text("CÓDIGO: 20.0009-SST-FL-0036", 152, 16); doc.text("PÁGINA: 2 DE 3", 152, 31);
@@ -579,16 +585,14 @@
         doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(document.getElementById('medidas_correctivas').value.toUpperCase(), 180), 12, yFolha2 + 11);
         yFolha2 += 28;
 
-        // Bloco de Resultado
         doc.rect(10, yFolha2, 190, 12); doc.line(50, yFolha2, 50, yFolha2 + 12); doc.line(100, yFolha2, 100, yFolha2 + 12); doc.line(150, yFolha2, 150, yFolha2 + 12);
         doc.setFont("helvetica", "bold"); doc.text("RESULTADO:", 12, yFolha2 + 7);
         const finalRes = document.querySelector('input[name="resultado_final"]:checked')?.value || "";
         doc.text(finalRes === "LIBERADO" ? "[ X ] LIBERADO" : "[   ] LIBERADO", 55, yFolha2 + 7);
-        doc.text(finalRes === "LIBERADO_OBS" ? "[ X ] LIBERADO C/ OBS." : "[   ] LIBERADO C/ OBS.", 103, yFolha2 + 7);
-        doc.text(finalRes === "NO_LIBERADO" ? "[ X ] NO LIBERADO" : "[   ] NO LIBERADO", 155, yFolha2 + 7);
+        doc.text(finalRes === "LIBERADO_OBS" ? "[ X ] LIBERADO C/ OBS.", 103, yFolha2 + 7);
+        doc.text(finalRes === "NO_LIBERADO" ? "[ X ] NO LIBERADO", 155, yFolha2 + 7);
         yFolha2 += 18;
 
-        // Renderização das 3 assinaturas canvas perfeitamente separadas
         doc.setFont("helvetica", "bold"); doc.text("FIRMAS RESPONSABLES:", 12, yFolha2 + 4);
         yFolha2 += 6;
         
@@ -608,7 +612,7 @@
         doc.text("SEGURIDAD DO TRABAJO", 168, yFolha2 + 45, {align:'center'});
 
         // ==========================================
-        // FOLHA 3: REGISTRO FOTOGRÁFICO DAS 08 FOTOS
+        // FOLHA 3: GRID TOTALMENTE ATUALIZADO DE 08 FOTOS
         // ==========================================
         doc.addPage();
         doc.rect(10, 10, 190, 25); doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
@@ -621,42 +625,38 @@
 
         let imgX = 15, imgY = 52, contadorGrid = 0;
         
-        // Loop que monta o grid fixo para as 8 fotos sem estourar margem
         for (let keyIdx = 1; keyIdx <= 8; keyIdx++) {
             const dataBase64Imagem = bancoImagensFotos[`foto_${keyIdx}`];
             if (dataBase64Imagem) {
                 doc.addImage(dataBase64Imagem, 'JPEG', imgX, imgY, 42, 32);
                 doc.setFontSize(7); doc.text(`FOTO ANEXO ${keyIdx}`, imgX + 21, imgY + 36, {align:'center'});
             } else {
-                // Desenha o slot vazio se o técnico não tirou a foto
                 doc.setDrawColor(200); doc.rect(imgX, imgY, 42, 32);
                 doc.setFontSize(7); doc.text(`[ SIN FOTO ${keyIdx} ]`, imgX + 21, imgY + 18, {align:'center'});
                 doc.setDrawColor(0);
             }
             contadorGrid++;
             imgX += 46;
-            if(contadorGrid === 4) { imgX = 15; imgY += 45; } // Quebra de linha do grid de fotos
+            if(contadorGrid === 4) { imgX = 15; imgY += 45; } 
         }
 
-        // 6. COMPILAÇÃO E ENVIO DO PAYLOAD ORIGINAL EM BYTES JSON (ESTILO ALERTAFLOTA)
+        // 7. COMPILAÇÃO DO CONTEÚDO BINÁRIO EM STRING PAYLOAD (MÉTODO ALERTAFLOTA DE SUCESSO)
         const pdfBase64 = doc.output('datauristring').split(',')[1];
         const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
         
         const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
 
-        // Adiciona na fila local de sincronização como backup offline obrigatório
         saveToQueue(payload);
-
-        // Baixa a cópia local física direto no dispositivo
         doc.save(nomeDoFicheiroPDF);
 
         if (navigator.onLine) {
             try {
                 status.innerText = "🚀 SUBINDO ARQUIVO AL GOOGLE DRIVE...";
+                // Dispara o fetch stringificado via modo clássico no-cors travado na sua URL correta
                 await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
                 status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
             } catch (err) {
-                status.innerText = "⚠️ REPORTE GUARDADO LOCALMENTE (SYNC PENDENTE)."; status.style.color = "orange";
+                status.innerText = "⚠️ REPORTE REGUARDADO NA FILA LOCAL (FALHA DE REDE)."; status.style.color = "orange";
             }
         } else {
             status.innerText = "☁️ MODO OFFLINE: REPORTE SALVO NO DISPOSITIVO."; status.style.color = "blue";

@@ -214,7 +214,7 @@
         "AGUA DEL RADIADOR CON NIVEL ADECUADO?",
         "LIMPIAPARABRISAS FUNCIONANDO CORRECTAMENTE?",
         "KIT DE HERRAMIENTAS (LLAVE DE RUEDAS, BARRA DE FUERZA, GATO, TRIÁNGULO, CONOS)?",
-        "NEUMÁTICOS CALIBRADOS Y EN BUEN ESTADO DE USO? - IMP",
+        "NEUMÁTICOS CALIBRADOS Y EN BUEN ESTADO DE USO?- IMP",
         "TUERCA DE FIJACIÓN DE RUEDAS?",
         "FRENO DE ESTACIONAMIENTO?",
         "SISTEMA ELÉCTRICO FUNCIONANDO CORRECTAMENTE?",
@@ -229,7 +229,7 @@
         "EXTINTOR DE INCENDIO VÁLIDO Y ADECOADO?",
         "VENTILACIÓN NATURAL O ARTIFICIAL",
         "MOTOR BOMBA EN BUEN ESTADO?",
-        "CORREAS EN BUEN ESTADO Y PROTEGIDAS?",
+        "CORREAS EN BUEN ESTADO AND PROTEGIDAS?",
         "ESCALERA DE ACCESO AL TANQUE?",
         "MANGUERAS EN BUEN ESTADO?",
         "CONSERVACIÓN DEL INTERIOR DEL VEHÍCULO?",
@@ -266,7 +266,7 @@
             const clienteY = e.touches ? e.touches[0].clientY : e.clientY;
             return { x: clienteX - rect.left, y: clienteY - rect.top };
         }
-        function iniciar(e) { desenhando = true; ctx.beginPath(); const p = obterPosicao(e); ctx.moveTo(p.x, p.y); p.x = null; }
+        function iniciar(e) { desenhando = true; ctx.beginPath(); const p = obterPosicao(e); ctx.moveTo(p.x, p.y); }
         function mover(e) {
             if (!desenhando) return;
             if (e.touches) e.preventDefault();
@@ -490,7 +490,7 @@
             doc.text(`CÓDIGO: 20.0009-SST-FL-0037\nFECHA REF: 06/06/2026\nPÁGINA: ${numPagina} DE 3\nREVISIÓN: 00\nCATEGORÍA: PESADOS\nSECTOR: OPERACIONES`, 147, 14);
         }
 
-        // --- PÁGINA 1 ---
+        // --- PÁGINA 1 (Dados e Itens 1 a 15) ---
         desenharCabecalho(paginaActual);
         
         doc.rect(10, 32, 190, 13); doc.line(75, 32, 75, 45); doc.line(140, 32, 140, 45);
@@ -540,7 +540,7 @@
             y_dinamico += 14;
         }
 
-        // --- PÁGINA 2 ---
+        // --- PÁGINA 2 (Itens 16 ao 29, Observações e Status Final) ---
         doc.addPage(); paginaActual = 2;
         desenharCabecalho(paginaActual);
         
@@ -587,9 +587,8 @@
         doc.setFont("helvetica", "bold"); doc.text("RESULTADO DE LA LIBERACIÓN", 12, y_dinamico + 3.5);
         y_dinamico += 5; doc.rect(10, y_dinamico, 190, 7); doc.setFont("helvetica", "bold"); doc.setFontSize(9); 
         doc.text(`STATUS FINAL: ${resultadoFinal}`, 12, y_dinamico + 4.5);
-        y_dinamico += 7;
 
-        // --- PÁGINA 3 ---
+        // --- PÁGINA 3 (EXCLUSIVA E BLINDADA PARA AS 8 FOTOS E ASSINATURAS) ---
         doc.addPage(); paginaActual = 3;
         desenharCabecalho(paginaActual);
         y_dinamico = 32;
@@ -608,7 +607,7 @@
                 doc.addImage(imgBox.src, 'JPEG', x_img, y_img, 42, 23);
                 x_img += 46;
                 f_col++;
-                if(f_col === 4) {
+                if(f_col === 4) { // Quebra para a segunda fileira geométrica de fotos
                     f_col = 0;
                     x_img = 12;
                     y_img += 25;
@@ -617,6 +616,7 @@
         }
         y_dinamico += 58;
 
+        // Caixa de assinaturas montada perfeitamente na raiz da página 3
         doc.rect(10, y_dinamico, 190, 26); doc.line(73.33, y_dinamico, 73.33, y_dinamico + 26); doc.line(136.66, y_dinamico, 136.66, y_dinamico + 26);
         doc.setFont("helvetica", "bold"); doc.setFontSize(6); doc.setTextColor(...azulElecnor); 
         doc.text("OPERADOR / CONDUCTOR", 12, y_dinamico + 4); doc.text("SUPERVISOR / ENCARGADO", 75.33, y_dinamico + 4); doc.text("SEGURIDAD TRABAJO", 138.66, y_dinamico + 4);
@@ -633,7 +633,7 @@
 
             try {
                 await fetch(urlGoogleScript, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payloadDrive) });
-                alert("✅ ¡Inspección procesada exitosamente!\nEl reporte PDF dinâmico con todas las fotos ha sido enviado a tu Drive.");
+                alert("✅ ¡Inspección procesada exitosamente!\nEl reporte PDF de 3 páginas com firmas y fotos limpias ha sido enviado a tu Drive.");
                 window.location.href = "/";
             } catch (err) {
                 console.error(err); window.location.href = "/";

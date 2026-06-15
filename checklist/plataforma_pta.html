@@ -2,12 +2,15 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checklist Plataforma de Trabajo en Altura (PTA) - InspeX</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Checklist Plataforma de Trabajo en Altura (PTA) - SST</title>
 <style>
-    *{ margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
-    body{ background:#e5e5e5; padding:20px; color: #000; }
-    .page{ width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { background:#e5e5e5; padding:20px; color: #000; }
+    .page { width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    
+    table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+    td, th { border: 1px solid #000; padding: 8px; vertical-align: top; font-size: 11px; }
     
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -97,7 +100,7 @@
     <table class="vehicle-data-table">
         <tr>
             <td class="col-1">EQUIPO / MODELO: <input type="text" id="v_equipo" value="PLATAFORMA DE TRABAJO EN ALTURA – PTA"></td>
-            <td class="col-2">N° INTERNO / SERIE: <input type="text" id="v_patente" placeholder="Ex: PTA-01 O N° SERIE"></td>
+            <td class="col-2">N° INTERNO / SERIE: <input type="text" id="v_patente" placeholder="DIGITE AQUÍ EL N° INTERNO O SERIE"></td>
             <td class="col-3">FECHA DE INSPECCIÓN: <input type="date" id="v_fecha"></td>
         </tr>
         <tr>
@@ -209,7 +212,7 @@
         "DISPOSITIVOS DE SEGURIDAD QUE GARANTISEN SU PERFECTO NIVELAMIENTO EN EL PUNTO DE TRABAJO, SEGÚN ESPECIFICACIONES DEL FABRICANTE",
         "ASA DE APOYO INTERNA",
         "BARANDILLA QUE CUMPLA CON LAS ESPECIFICACIONES DEL FABRICANTE",
-        "PANEL DE CONTROL CON BOTÓN DE PARADA DE EMERGENCIA - IMP",
+        "PANEL DE CONTROL CON BOTÓN DE PARADA DE EMERGENGIA - IMP",
         "SISTEMA SONORO AUTOMÁTICO DE SEÑALIZACIÓN ACTIVADO DURING EL ASCENSO Y EL DESCENSO",
         "PROTECCIÓN CONTRA DESCARGAS ELÉCTRICAS, MEDIANTE CABLES DE ALIMENTACIÓN DE DOBLE AISLAMIENTO; ENCHUFES Y TOMAS REFORZADOS; PUESTA A TIERRA ELÉCTRICA;",
         "MANUALES DE OPERACIÓN Y MANTENIMIENTO DE LA PTA DEBEN ESTAR REDACTADOS EN ESPANHOL Y DISPONIBLES EN EL SITIO DE OBRA O FRENTE DE TRABAJO - IMP",
@@ -295,22 +298,23 @@
         const btnObs = document.getElementById('res_obs');
         const btnNoLiberado = document.getElementById('res_no_liberado');
 
-        const itensLayout = [
-            document.getElementById('cell_liberado'), document.getElementById('check_liberado'),
-            document.getElementById('cell_obs'), document.getElementById('check_obs'),
-            document.getElementById('cell_no_liberado'), document.getElementById('check_no_liberado')
-        ];
+        const cellLiberado = document.getElementById('cell_liberado');
+        const checkLiberado = document.getElementById('check_liberado');
+        const cellObs = document.getElementById('cell_obs');
+        const checkObs = document.getElementById('check_obs');
+        const cellNoLiberado = document.getElementById('cell_no_liberado');
+        const checkNoLiberado = document.getElementById('check_no_liberado');
 
-        itensLayout.forEach(el => el.classList.remove('disabled-option'));
+        [cellLiberado, checkLiberado, cellObs, checkObs, cellNoLiberado, checkNoLiberado].forEach(el => el.classList.remove('disabled-option'));
         btnLiberado.disabled = false; btnObs.disabled = false; btnNoLiberado.disabled = false;
 
         if (bloqueioImpeditivo) {
             btnNoLiberado.checked = true;
-            itensLayout.slice(0, 4).forEach(el => el.classList.add('disabled-option'));
+            [cellLiberado, checkLiberado, cellObs, checkObs].forEach(el => el.classList.add('disabled-option'));
             btnLiberado.disabled = true; btnObs.disabled = true;
         } else if (falhaComumDetectada) {
             btnObs.checked = true;
-            itensLayout.slice(0, 2).concat(itensLayout.slice(4, 6)).forEach(el => el.classList.add('disabled-option'));
+            [cellLiberado, checkLiberado, cellNoLiberado, checkNoLiberado].forEach(el => el.classList.add('disabled-option'));
             btnLiberado.disabled = true; btnNoLiberado.disabled = true;
         } else {
             btnLiberado.checked = true;
@@ -447,10 +451,10 @@
         inspecoesSalvas.push(payload);
         localStorage.setItem('inspecoes_offline', JSON.stringify(inspecoesSalvas));
         
-        executarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal);
+        ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal);
     }
 
-    function executarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal) {
+    function ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         const azulElecnor = [0, 51, 102];
@@ -468,7 +472,7 @@
             doc.text(tituloQuebrado, 95, 18, {align:"center"});
             
             doc.setFontSize(6.5);
-            doc.text(`CÓDIGO: 20.0009-SST-FL-0052\nFECHA REF: 09/06/2026\nPÁGINA: ${numPagina} DE 3\nREVISIÓN: 00\nCATEGORÍA: ALTURA / IZAJE\nSECTOR: OPERACIONES`, 147, 14);
+            doc.text(`CÓDIGO: 20.0009-SST-FL-0052\nFECHA REF: 09/06/2026\nPÁGINA: ${numPagina} DE 2\nREVISIÓN: 00\nCATEGORÍA: ALTURA / IZAJE\nSECTOR: OPERACIONES`, 147, 14);
         }
 
         // --- PÁGINA 1 ---
@@ -496,7 +500,6 @@
         let y_dinamico = 70;
         doc.setFont("helvetica", "bold"); doc.setFontSize(7.5);
         
-        // CORRECCIÓN DE BUCLE CONTINUO: Renderizado exacto de los 10 elementos sin cortes artificiales
         for (let i = 1; i <= preguntas.length; i++) {
             doc.rect(10, y_dinamico, 190, 14); doc.line(120, y_dinamico, 120, y_dinamico + 14); doc.line(132, y_dinamico, 132, y_dinamico + 14); doc.line(144, y_dinamico, 144, y_dinamico + 14); doc.line(156, y_dinamico, 156, y_dinamico + 14);
             doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(`${i}. ${preguntas[i-1]}`, 108), 12, y_dinamico + 5);
@@ -569,7 +572,7 @@
 
             try {
                 await fetch(urlGoogleScript, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payloadDrive) });
-                alert("✅ ¡Reporte PDF transmitido diretamente a tu Drive!");
+                alert("✅ ¡Inspección procesada exitosamente!\nEl reporte PDF con firmas e fotos limpas foi enviado ao Drive.");
                 window.location.href = "/";
             } catch (err) {
                 console.error(err); window.location.href = "/";

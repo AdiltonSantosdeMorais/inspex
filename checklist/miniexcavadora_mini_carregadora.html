@@ -8,14 +8,11 @@
     * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
     body { background:#e5e5e5; padding:10px; color: #000; }
     
-    /* CONTAINER PRINCIPAL RESPONSIVO */
     .page { width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     
-    /* TABELAS ADAPTÁVEIS */
     table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     td, th { border: 1px solid #000; padding: 8px; vertical-align: top; font-size: 11px; }
     
-    /* CABEÇALHO */
     .logo-box { width: 20%; text-align: center; padding: 5px; vertical-align: middle; }
     .logo-box img { max-height: 60px; max-width: 100%; object-fit: contain; }
     .title-box { width: 55%; text-align: center; font-weight: bold; font-size: 14px; vertical-align: middle; padding: 5px; }
@@ -23,13 +20,11 @@
     .info-sub-table td { border: none !important; border-bottom: 1px solid #000 !important; padding: 4px 6px !important; font-size: 10px; }
     .info-sub-table tr:last-child td { border-bottom: none !important; }
     
-    /* DADOS DO VEÍCULO */
     .vehicle-data-table td { font-weight: bold; height: auto; padding: 8px; }
     .vehicle-data-table input { width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 4px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; }
     
     .legend-row { background-color: #4472c4; color: #ffffff; text-align: center; font-weight: bold; font-size: 11px; padding: 8px !important; letter-spacing: 0.5px; }
     
-    /* GRID DO CHECKLIST RESPONSIVO */
     .checklist th { background:#f2f2f2; font-weight: bold; text-align: center; padding: 10px 5px; }
     .checklist td { vertical-align: middle; }
     .center { text-align: center; width: 45px; }
@@ -38,10 +33,9 @@
     .comment-col { width: 22%; }
     .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #ccc; text-transform: uppercase; padding: 2px; }
     
-    /* OBSERVAÇÕES */
-    .footer-obs-table textarea { width: 100%; height: 70px; border: 1px solid #ccc; resize: none; font-size: 11px; outline: none; margin-top: 5px; padding: 6px; text-transform: uppercase; border-radius: 4px; }
+    .footer-obs-table td { border: 1px solid #000; padding: 8px; font-size: 11px; font-weight: bold; vertical-align: top; }
+    .footer-obs-table textarea { width: 100%; height: 70px; border: 1px solid #ccc; resize: none; font-size: 11px; outline: none; margin-top: 5px; padding: 6px; text-transform: uppercase; border-radius: 4px; font-family: Arial; }
     
-    /* MATRIZ DE FOTOS RESPONSIVA */
     .photo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
     @media (min-width: 768px) { .photo-grid { grid-template-columns: repeat(4, 1fr); } }
     .photo-item { position: relative; border: 1px dashed #999; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; border-radius: 4px; }
@@ -49,42 +43,35 @@
     .photo-item input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5; }
     .photo-label { font-size: 10px; color: #555; font-weight: bold; text-align: center; pointer-events: none; }
 
-    /* SEÇÃO DE RESULTADOS */
-    .result-table { margin-top: 5px; }
+    .result-table { margin-top: 5px; width: 100%; border-collapse: collapse; }
+    .result-table td { border: 1px solid #000; padding: 8px; font-size: 11px; font-weight: bold; vertical-align: middle; }
     .result-title { background-color: #e1e1e1; text-align: center; width: 20%; }
     .result-option { width: 20%; text-align: center; font-size: 10px; }
     .result-checkbox { width: 6%; text-align: center; }
     .result-checkbox input { transform: scale(1.4); cursor: pointer; }
     
-    /* ASSINATURAS E CANVAS RESPONSIVOS */
-    .signatures-table { margin-top: 5px; }
-    .signatures-table td { text-align: center; height: auto; vertical-align: top; font-weight: bold; padding: 10px 5px; width: 33.33%; }
+    .signatures-table { margin-top: 5px; width: 100%; border-collapse: collapse; }
+    .signatures-table td { border: 1px solid #000; text-align: center; height: auto; vertical-align: top; font-weight: bold; padding: 10px 5px; width: 33.33%; }
     .canvas-container { margin-top: 6px; background: #fcfcfc; width: 100%; max-width: 240px; display: inline-block; }
     .sig-canvas { border: 1px dashed #999; background: #fff; display: block; width: 100%; height: 80px; cursor: crosshair; touch-action: none; }
     
-    /* BOTÕES DE ENVIO */
     .btn-container { display: flex; flex-direction: column; gap: 10px; margin: 15px auto; width: 100%; max-width: 1050px; padding: 0; }
     @media (min-width: 600px) { .btn-container { flex-direction: row; justify-content: center; } }
     .btn-salvar { background: #4472c4; color: white; border: none; padding: 16px; font-size: 15px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
     .btn-voltar { background: #95a5a6; color: white; border: none; padding: 16px; font-size: 15px; font-weight: bold; border-radius: 4px; cursor: pointer; text-decoration: none; text-align: center; width: 100%; max-width: 200px; }
 
-    /* REGRAS ADAPTATIVAS ESPECÍFICAS PARA TELAS DE CELULAR */
     @media (max-width: 600px) {
         body { padding: 5px; }
         .page { padding: 8px; border: none; }
         .header-table tr { display: flex; flex-direction: column; width: 100%; }
         .logo-box, .title-box, .info-box-cell { width: 100% !important; display: block; text-align: center; border-bottom: none !important; }
         .info-sub-table { border: 1px solid #000; margin-top: 5px; }
-        
         .vehicle-data-table tr { display: flex; flex-direction: column; width: 100%; }
         .vehicle-data-table td { width: 100% !important; display: block; border-bottom: none !important; }
-        
-        .checklist th:nth-child(5), .checklist td:nth-child(5) { display: none; } /* Oculta coluna comentários no celular para não esmagar os rádios */
         .result-table tr { display: flex; flex-wrap: wrap; }
         .result-title { width: 100% !important; padding: 8px; }
         .result-option { width: 35% !important; padding: 8px 4px; }
         .result-checkbox { width: 15% !important; }
-        
         .signatures-table tr { display: flex; flex-direction: column; }
         .signatures-table td { width: 100% !important; display: block; border-bottom: none !important; padding-bottom: 20px; }
         .canvas-container { max-width: 100%; }
@@ -228,7 +215,7 @@
 <script>
     const preguntas = [
         "¿Los neumáticos o cadenas están en buen estado? ¿Aptos para su uso? - IMP",
-        "¿Hay fugas de aceite o combustible? - IMP",
+        "QAy fugas de aceite o combustible? - IMP",
         "Estado general de la carcasa",
         "Mangueras hidráulicas y conexiones?",
         "Faros, luces traseras, luces de advertencia",
@@ -242,7 +229,7 @@
         "¿El motor arranca y se detiene sin dificultad?",
         "¿Controles (brazos, levantamiento, inclinación) respondiendo correctamente? - IMP",
         "¿Ausencia de ruidos anormales durante el funcionamiento?",
-        "¿Sistema de dirección operando normalmente? - IMP"
+        "¿Sistema de direção operando normalmente? - IMP"
     ];
 
     document.getElementById('v_fecha').valueAsDate = new Date();
@@ -273,7 +260,6 @@
             const rect = canvas.getBoundingClientRect();
             const clienteX = e.touches ? e.touches[0].clientX : e.clientX;
             const clienteY = e.touches ? e.touches[0].clientY : e.clientY;
-            // Mapeamento responsivo escalonado para as dimensões reais do elemento canvas
             return { 
                 x: ((clienteX - rect.left) / rect.width) * canvas.width, 
                 y: ((clienteY - rect.top) / rect.height) * canvas.height 
@@ -429,7 +415,7 @@
         }
 
         if (precisaDeFoto && fotosBase64.length === 0) {
-            alert("❌ Erro de Seguridad Elecnor:\nVocê marcou itens como 'NC' ou 'NA'. É OBRIGATÓRIO tirar ou anexar pelo menos 01 foto como evidência antes de salvar!");
+            alert("❌ Erro de Segurança Elecnor:\nVocê marcou itens como 'NC' ou 'NA'. É OBRIGATÓRIO tirar ou anexar pelo menos 01 foto como evidência antes de salvar!");
             return;
         }
 
@@ -482,7 +468,7 @@
         executarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal);
     }
 
-    function ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal) {
+    function executarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         const azulElecnor = [0, 51, 102];
@@ -503,12 +489,12 @@
             doc.text(`CÓDIGO: 20.0009-SST-FL-0050\nFECHA REF: 09/06/2026\nPÁGINA: ${numPagina} DE 3\nREVISIÓN: 00\nCATEGORÍA: PESADOS / EQUIPOS\nSECTOR: OPERACIONES`, 147, 14);
         }
 
-        // --- PÁGINA 1 ---
-        desenharCabecalho(1);
+        // --- PÁGINA 1 (Dados Estruturais e Itens 1 a 13) ---
+        desenharCabecalho(paginaActual);
         doc.rect(10, 32, 190, 13); doc.line(75, 32, 75, 45); doc.line(140, 32, 140, 45);
         doc.setFontSize(6.5); doc.setTextColor(...azulElecnor);
         doc.text("EQUIPO / MODELO:", 12, 35.5); doc.text("N° INTERNO / IDENT.:", 77, 35.5); doc.text("FECHA DE INSPECCIÓN:", 142, 35.5);
-        doc.setFontSize(9); doc.setTextColor(0);
+        doc.setFontSize(8.5); doc.setTextColor(0);
         const modeloTexto = doc.splitTextToSize("MINIEXCAVADORA / MINI CARREGADORA", 62);
         doc.text(modeloTexto, 12, 40.5); doc.text(patenteRaw.toUpperCase(), 77, 41); doc.text(document.getElementById('v_fecha').value, 142, 41);
 
@@ -542,7 +528,7 @@
             y_dinamico += 14;
         }
 
-        // --- PÁGINA 2 ---
+        // --- PÁGINA 2 (Itens 14 ao 16, Observações e Status Final) ---
         doc.addPage(); paginaActual = 2;
         desenharCabecalho(paginaActual);
         
@@ -581,9 +567,8 @@
         doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 6, 'F'); doc.rect(10, y_dinamico, 190, 6);
         doc.setFont("helvetica", "bold"); doc.text("RESULTADO DE LA LIBERACIÓN", 12, y_dinamico + 4);
         y_dinamico += 6; doc.rect(10, y_dinamico, 190, 8); doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.text(`STATUS FINAL: ${resultadoFinal}`, 12, y_dinamico + 5.5);
-        y_dinamico += 8;
 
-        // --- PÁGINA 3 ---
+        // --- PÁGINA 3 (EXCLUSIVA E BLINDADA PARA AS 8 FOTOS E ASSINATURAS) ---
         doc.addPage(); paginaActual = 3;
         desenharCabecalho(paginaActual);
         y_dinamico = 32;
@@ -613,9 +598,9 @@
         doc.rect(10, y_dinamico, 190, 26); doc.line(73.33, y_dinamico, 73.33, y_dinamico + 26); doc.line(136.66, y_dinamico, 136.66, y_dinamico + 26);
         doc.setFont("helvetica", "bold"); doc.setFontSize(6); doc.setTextColor(...azulElecnor); doc.text("OPERADOR / CONDUCTOR", 12, y_dinamico + 4); doc.text("SUPERVISOR / ENCARGADO", 75.33, y_dinamico + 4); doc.text("SEGURIDAD TRABAJO", 138.66, y_dinamico + 4);
         
-        doc.addImage(document.getElementById('canvas_conductor').toDataURL(), 'PNG', 14, y_dinamico + 6, 48, 14);
-        if(!verificarCanvasVazio('canvas_supervisor')) doc.addImage(document.getElementById('canvas_supervisor').toDataURL(), 'PNG', 77, y_dinamico + 6, 48, 14);
-        if(!verificarCanvasVazio('canvas_seguridad')) doc.addImage(document.getElementById('canvas_seguridad').toDataURL(), 'PNG', 140, y_dinamico + 6, 48, 14);
+        doc.addImage(document.getElementById('canvas_conductor').toDataURL(), 'PNG', 14, y_dinamico + 5, 48, 14);
+        if(!verificarCanvasVazio('canvas_supervisor')) doc.addImage(document.getElementById('canvas_supervisor').toDataURL(), 'PNG', 77, y_dinamico + 5, 48, 14);
+        if(!verificarCanvasVazio('canvas_seguridad')) doc.addImage(document.getElementById('canvas_seguridad').toDataURL(), 'PNG', 140, y_dinamico + 5, 48, 14);
 
         setTimeout(async function() {
             const pdfBase64 = doc.output('datauristring').split(',')[1];
@@ -625,7 +610,7 @@
 
             try {
                 await fetch(urlGoogleScript, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payloadDrive) });
-                alert("✅ ¡Reporte PDF transmitido diretamente a tu Drive!");
+                alert("✅ ¡Inspección procesada exitosamente!\nEl reporte PDF de 3 páginas con firmas e fotos limpas foi enviado ao Drive.");
                 window.location.href = "/";
             } catch (err) {
                 console.error(err); window.location.href = "/";

@@ -489,7 +489,7 @@
             doc.text(`CÓDIGO: 20.0009-SST-FL-0044\nFECHA REF: 06/06/2026\nPÁGINA: ${numPagina} DE 3\nREVISIÓN: 00\nCATEGORÍA: PESADOS\nSECTOR: OPERACIONES`, 147, 14);
         }
 
-        // --- PÁGINA 1 ---
+        // --- PÁGINA 1 (Dados e Itens 1 a 15) ---
         desenharCabecalho(paginaActual);
         
         doc.rect(10, 32, 190, 13); doc.line(75, 32, 75, 45); doc.line(140, 32, 140, 45);
@@ -539,7 +539,7 @@
             y_dinamico += 14;
         }
 
-        // --- PÁGINA 2 ---
+        // --- PÁGINA 2 (Itens 16 ao 28, Observações e Status Final) ---
         doc.addPage(); paginaActual = 2;
         desenharCabecalho(paginaActual);
         
@@ -553,65 +553,76 @@
         y_dinamico += 7;
 
         for (let i = 16; i <= preguntas.length; i++) {
-            doc.rect(10, y_dinamico, 190, 11); 
-            doc.line(120, y_dinamico, 120, y_dinamico + 11); doc.line(132, y_dinamico, 132, y_dinamico + 11); 
-            doc.line(144, y_dinamico, 144, y_dinamico + 11); doc.line(156, y_dinamico, 156, y_dinamico + 11);
+            doc.rect(10, y_dinamico, 190, 13); 
+            doc.line(120, y_dinamico, 120, y_dinamico + 13); doc.line(132, y_dinamico, 132, y_dinamico + 13); 
+            doc.line(144, y_dinamico, 144, y_dinamico + 13); doc.line(156, y_dinamico, 156, y_dinamico + 13);
             
-            doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(`${i}. ${preguntas[i-1]}`, 108), 12, y_dinamico + 4.5);
+            doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(`${i}. ${preguntas[i-1]}`, 108), 12, y_dinamico + 5);
             doc.setFont("helvetica", "bold");
             const radioMarcado = document.querySelector(`input[name="item_${i}"]:checked`);
             if (radioMarcado) {
-                if (radioMarcado.value === "C") doc.text("C", 126, y_dinamico + 6.5, {align:"center"});
-                if (radioMarcado.value === "NC") { doc.text(preguntas[i-1].toUpperCase().includes("IMP") ? "IMP" : "NC", 138, y_dinamico + 6.5, {align:"center"}); }
-                if (radioMarcado.value === "NA") doc.text("NA", 150, y_dinamico + 6.5, {align:"center"});
+                if (radioMarcado.value === "C") doc.text("C", 126, y_dinamico + 7, {align:"center"});
+                if (radioMarcado.value === "NC") { doc.text(preguntas[i-1].toUpperCase().includes("IMP") ? "IMP" : "NC", 138, y_dinamico + 7, {align:"center"}); }
+                if (radioMarcado.value === "NA") doc.text("NA", 150, y_dinamico + 7, {align:"center"});
             }
             const txtCom = document.getElementById(`comment_${i}`).value.toUpperCase();
-            if (txtCom) doc.text(doc.splitTextToSize(txtCom, 36), 158, y_dinamico + 4.5);
-            y_dinamico += 11;
+            if (txtCom) doc.text(doc.splitTextToSize(txtCom, 36), 158, y_dinamico + 5);
+            y_dinamico += 13;
         }
 
         doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 6, 'F'); doc.rect(10, y_dinamico, 190, 6);
         doc.setFont("helvetica", "bold"); doc.text("COMENTARIOS Y OBSERVACIONES GENERALES", 12, y_dinamico + 4);
         y_dinamico += 6; doc.rect(10, y_dinamico, 190, 14); doc.setFont("helvetica", "normal"); 
-        doc.text(doc.splitTextToSize(document.getElementById('obs_generales').value.toUpperCase() || "SIN OBSERVACIONES", 185), 12, y_dinamico + 4.5);
+        doc.text(doc.splitTextToSize(document.getElementById('obs_generales').value.toUpperCase() || "SIN OBSERVACIONES", 185), 12, y_dinamico + 5);
         y_dinamico += 14;
 
         doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 6, 'F'); doc.rect(10, y_dinamico, 190, 6);
         doc.setFont("helvetica", "bold"); doc.text("MEDIDAS CORRECTIVAS ADOPTADAS", 12, y_dinamico + 4);
         y_dinamico += 6; doc.rect(10, y_dinamico, 190, 14); doc.setFont("helvetica", "normal"); 
-        doc.text(doc.splitTextToSize(document.getElementById('medidas_correctivas').value.toUpperCase() || "SIN MEDIDAS CORRECTIVAS REGISTRADAS", 185), 12, y_dinamico + 4.5);
+        doc.text(doc.splitTextToSize(document.getElementById('medidas_correctivas').value.toUpperCase() || "SIN MEDIDAS CORRECTIVAS REGISTRADAS", 185), 12, y_dinamico + 5);
         y_dinamico += 14;
 
-        doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 5, 'F'); doc.rect(10, y_dinamico, 190, 5);
-        doc.setFont("helvetica", "bold"); doc.text("RESULTADO DE LA LIBERACIÓN", 12, y_dinamico + 3.5);
-        y_dinamico += 5; doc.rect(10, y_dinamico, 190, 7); doc.setFont("helvetica", "bold"); doc.setFontSize(9); 
-        doc.text(`STATUS FINAL: ${resultadoFinal}`, 12, y_dinamico + 4.5);
-        y_dinamico += 7;
+        doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 6, 'F'); doc.rect(10, y_dinamico, 190, 6);
+        doc.setFont("helvetica", "bold"); doc.text("RESULTADO DE LA LIBERACIÓN", 12, y_dinamico + 4);
+        y_dinamico += 6; doc.rect(10, y_dinamico, 190, 8); doc.setFont("helvetica", "bold"); doc.setFontSize(9); 
+        doc.text(`STATUS FINAL: ${resultadoFinal}`, 12, y_dinamico + 5.5);
 
-        let fInseridas = 0; let xOffset = 12;
-        doc.rect(10, y, 190, 31);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(6.5); doc.setTextColor(...azulElecnor);
-        doc.text("EVIDENCIAS FOTOGRÁFICAS ANEXADAS:", 12, y + 4);
+        // --- PÁGINA 3 (EXCLUSIVA E BLINDADA PARA AS 8 FOTOS E ASSINATURAS) ---
+        doc.addPage(); paginaActual = 3;
+        desenharCabecalho(paginaActual);
+        y_dinamico = 32;
 
-        for (let i = 1; i <= 8; i++) {
-            const imgBox = document.getElementById(`img_preview_${i}`);
+        doc.rect(10, y_dinamico, 190, 58);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(6.5); doc.setTextColor(...azulElecnor); 
+        doc.text("EVIDENCIAS FOTOGRÁFICAS ANEXADAS (SISTEMA INTEGRAL DE IMÁGENES):", 12, y_dinamico + 4);
+        
+        let f_col = 0;
+        let x_img = 12;
+        let y_img = y_dinamico + 6;
+
+        for (let idx = 1; idx <= 8; idx++) {
+            const imgBox = document.getElementById(`img_preview_${idx}`);
             if (imgBox && imgBox.src && imgBox.style.display !== 'none') {
-                if(fInseridas < 4) { 
-                    doc.addImage(imgBox.src, 'JPEG', xOffset, y + 5, 34, 23);
-                    xOffset += 45; fInseridas++;
+                doc.addImage(imgBox.src, 'JPEG', x_img, y_img, 42, 23);
+                x_img += 46;
+                f_col++;
+                if(f_col === 4) { // Quebra para a segunda fileira geométrica de fotos
+                    f_col = 0;
+                    x_img = 12;
+                    y_img += 25;
                 }
             }
         }
-        y += 31;
+        y_dinamico += 58;
 
-        doc.rect(10, y, 190, 26);
-        doc.line(73.33, y, 73.33, y + 26); doc.line(136.66, y, 136.66, y + 26);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(6); doc.setTextColor(...azulElecnor);
-        doc.text("OPERADOR / CONDUCTOR", 12, y + 4); doc.text("SUPERVISOR / ENCARGADO", 75.33, y + 4); doc.text("SEGURIDAD TRABAJO", 138.66, y + 4);
+        // Caixa de assinaturas montada perfeitamente na raiz da página 3
+        doc.rect(10, y_dinamico, 190, 26); doc.line(73.33, y_dinamico, 73.33, y_dinamico + 26); doc.line(136.66, y_dinamico, 136.66, y_dinamico + 26);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(6); doc.setTextColor(...azulElecnor); 
+        doc.text("OPERADOR / CONDUCTOR", 12, y_dinamico + 4); doc.text("SUPERVISOR / ENCARGADO", 75.33, y_dinamico + 4); doc.text("SEGURIDAD TRABAJO", 138.66, y_dinamico + 4);
         
-        doc.addImage(document.getElementById('canvas_conductor').toDataURL(), 'PNG', 14, y + 5, 48, 14);
-        if(!verificarCanvasVazio('canvas_supervisor')) doc.addImage(document.getElementById('canvas_supervisor').toDataURL(), 'PNG', 77, y + 5, 48, 14);
-        if(!verificarCanvasVazio('canvas_seguridad')) doc.addImage(document.getElementById('canvas_seguridad').toDataURL(), 'PNG', 140, y + 5, 48, 14);
+        doc.addImage(document.getElementById('canvas_conductor').toDataURL(), 'PNG', 14, y_dinamico + 6, 48, 14);
+        if(!verificarCanvasVazio('canvas_supervisor')) doc.addImage(document.getElementById('canvas_supervisor').toDataURL(), 'PNG', 77, y_dinamico + 6, 48, 14);
+        if(!verificarCanvasVazio('canvas_seguridad')) doc.addImage(document.getElementById('canvas_seguridad').toDataURL(), 'PNG', 140, y_dinamico + 6, 48, 14);
 
         setTimeout(async function() {
             const pdfBase64 = doc.output('datauristring').split(',')[1];
@@ -621,7 +632,7 @@
 
             try {
                 await fetch(urlGoogleScript, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payloadDrive) });
-                alert("✅ ¡Inspección procesada exitosamente!\nEl reporte PDF dinâmico com todas las fotos ha sido enviado a tu Drive.");
+                alert("✅ ¡Inspección procesada exitosamente!\nEl reporte PDF de 3 páginas com firmas y fotos limpias ha sido enviado a tu Drive.");
                 window.location.href = "/";
             } catch (err) {
                 console.error(err); window.location.href = "/";

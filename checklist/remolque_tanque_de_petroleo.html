@@ -2,12 +2,15 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Checklist Remolque Tanque de Petroleo - SST</title>
 <style>
-    *{ margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
-    body{ background:#e5e5e5; padding:20px; color: #000; }
-    .page{ width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { background:#e5e5e5; padding:20px; color: #000; }
+    .page { width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    
+    table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+    td, th { border: 1px solid #000; padding: 8px; vertical-align: top; font-size: 11px; }
     
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -37,16 +40,13 @@
     .comment-col { width: 25%; }
     .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #eee; text-transform: uppercase; }
     
-    .footer-obs-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
     .footer-obs-table td { border: 1px solid #000; padding: 8px; font-size: 11px; font-weight: bold; vertical-align: top; }
-    .footer-obs-table textarea { width: 100%; height: 60px; border: 1px solid #eee; resize: none; font-size: 11px; outline: none; margin-top: 5px; font-family: Arial; padding: 5px; text-transform: uppercase; }
+    .footer-obs-table textarea { width: 100%; height: 60px; border: 1px solid #eee; resize: none; font-size: 11px; outline: none; margin-top: 5px; padding: 6px; text-transform: uppercase; font-family: Arial; }
     
-    .photos-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .photos-table td { border: 1px solid #000; padding: 10px; font-size: 11px; font-weight: bold; }
     .photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
     .photo-item { position: relative; border: 1px dashed #bbb; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; }
     .photo-item img { width: 100%; height: 100%; object-fit: cover; }
-    .photo-item input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    .photo-item input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5; }
     .photo-label { font-size: 10px; color: #7f8c8d; text-align: center; pointer-events: none; }
 
     .result-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
@@ -56,11 +56,8 @@
     .result-checkbox { width: 8%; text-align: center; }
     .result-checkbox input { transform: scale(1.4); cursor: pointer; }
     
-    .disabled-option { opacity: 0.4; pointer-events: none; background-color: #f2f2f2; }
-    
     .signatures-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
     .signatures-table td { border: 1px solid #000; text-align: center; height: 140px; vertical-align: top; font-weight: bold; font-size: 11px; padding: 6px; width: 33.33%; color: #333; }
-    
     .canvas-container { margin-top: 5px; background: #fcfcfc; display: inline-block; text-align: center; }
     .sig-canvas { border: 1px dashed #999; background: #fff; display: block; cursor: crosshair; }
     .btn-clear { background: #e74c3c; color: white; border: none; padding: 2px 6px; font-size: 9px; border-radius: 2px; cursor: pointer; margin-top: 4px; display: inline-block; }
@@ -69,6 +66,8 @@
     .btn-salvar { background: #4472c4; color: white; border: none; padding: 16px 45px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     .btn-salvar:hover { background: #355a9c; }
     .btn-voltar { background: #95a5a6; color: white; border: none; padding: 16px 25px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; text-decoration: none; text-align: center; }
+
+    .disabled-option { opacity: 0.4; pointer-events: none; background-color: #f2f2f2; }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -87,7 +86,7 @@
                     <tr><td><strong>Fecha:</strong> 09/06/2026</td></tr>
                     <tr><td><strong>Página:</strong> 1/1</td></tr>
                     <tr><td><strong>Revisión:</strong> 00</td></tr>
-                    <tr><td><strong>Categoria:</strong> Combustíveis</td></tr>
+                    <tr><td><strong>Categoria:</strong> Combustibles</td></tr>
                     <tr><td><strong>Sector:</strong> Operaciones</td></tr>
                 </table>
             </td>
@@ -212,14 +211,14 @@
         "LUCES DE FRENO Y DE REVERSA",
         "ALARMA SONORA DE REVERSA - IMP",
         "EXTINTOR DE INCENDIOS DEL TANQUE",
-        "NEUMÁTICOS",
+        "NEUMÁTICOS - IMP",
         "LLANTA DE REPUESTO / LLAVES",
         "CÁMARA DE MARCHA ATRÁS - IMP",
         "TRIÁNGULO DE SEGURIDAD",
         "ESTADO DEL TANQUE",
         "CONDICIÓN DE LAS MANGUERAS / CONECTORES",
         "EPP CONDUCTOR - IMP",
-        "SEÑALIZÇÃO / PUESTA A TIERRA - IMP",
+        "SEÑALIZACIÓN / PUESTA A TIERRA - IMP",
         "FUGAS - IMP",
         "VAZAMENTOS - IMP",
         "COMPRESOR",
@@ -460,10 +459,10 @@
         inspecoesSalvas.push(payload);
         localStorage.setItem('inspecoes_offline', JSON.stringify(inspecoesSalvas));
         
-        executarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal);
+        ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal);
     }
 
-    function executarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal) {
+    function ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         const azulElecnor = [0, 51, 102];
@@ -481,11 +480,11 @@
             doc.text(tituloQuebrado, 95, 18, {align:"center"});
             
             doc.setFontSize(6.5);
-            doc.text(`CÓDIGO: 20.0009-SST-FL-0053\nFECHA REF: 09/06/2026\nPÁGINA: ${numPagina} DE 2\nREVISIÓN: 00\nCATEGORÍA: COMBUSTÍVEIS\nSECTOR: OPERACIONES`, 147, 14);
+            doc.text(`CÓDIGO: 20.0009-SST-FL-0053\nFECHA REF: 09/06/2026\nPÁGINA: ${numPagina} DE 3\nREVISIÓN: 00\nCATEGORÍA: COMBUSTÍVEIS\nSECTOR: OPERACIONES`, 147, 14);
         }
 
-        // --- PÁGINA 1 ---
-        desenharCabecalho(1);
+        // --- PÁGINA 1 (Dados e Itens 1 a 15) ---
+        desenharCabecalho(paginaActual);
         doc.rect(10, 32, 190, 13); doc.line(75, 32, 75, 45); doc.line(140, 32, 140, 45);
         doc.setFontSize(6.5); doc.setTextColor(...azulElecnor);
         doc.text("EQUIPO / MODELO:", 12, 35.5); doc.text("PATENTE / IDENT.:", 77, 35.5); doc.text("FECHA DE INSPECCIÓN:", 142, 35.5);
@@ -522,7 +521,7 @@
             y_dinamico += 14;
         }
 
-        // --- PÁGINA 2 ---
+        // --- PÁGINA 2 (Itens 16 ao 22, Observações Gerais e Resultado Final) ---
         doc.addPage(); paginaActual = 2;
         desenharCabecalho(paginaActual);
         
@@ -534,8 +533,7 @@
         y_dinamico += 7;
 
         for (let i = 16; i <= preguntas.length; i++) {
-            doc.rect(10, y_dinamico, 190, 11);
-            doc.line(120, y_dinamico, 120, y_dinamico + 11); doc.line(132, y_dinamico, 132, y_dinamico + 11); doc.line(144, y_dinamico, 144, y_dinamico + 11); doc.line(156, y_dinamico, 156, y_dinamico + 11);
+            doc.rect(10, y_dinamico, 190, 11); doc.line(120, y_dinamico, 120, y_dinamico + 11); doc.line(132, y_dinamico, 132, y_dinamico + 11); doc.line(144, y_dinamico, 144, y_dinamico + 11); doc.line(156, y_dinamico, 156, y_dinamico + 11);
             doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(`${i}. ${preguntas[i-1]}`, 108), 12, y_dinamico + 4.5);
             doc.setFont("helvetica", "bold");
             const radioMarcado = document.querySelector(`input[name="item_${i}"]:checked`);
@@ -562,18 +560,33 @@
         doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 6, 'F'); doc.rect(10, y_dinamico, 190, 6);
         doc.setFont("helvetica", "bold"); doc.text("RESULTADO DE LA LIBERACIÓN", 12, y_dinamico + 4);
         y_dinamico += 6; doc.rect(10, y_dinamico, 190, 8); doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.text(`STATUS FINAL: ${resultadoFinal}`, 12, y_dinamico + 5.5);
-        y_dinamico += 8;
 
-        let fInseridas = 0; let xOffset = 12;
-        doc.rect(10, y_dinamico, 190, 31); doc.setFont("helvetica", "bold"); doc.setFontSize(6.5); doc.setTextColor(...azulElecnor); doc.text("EVIDENCIAS FOTOGRÁFICAS ANEXADAS:", 12, y_dinamico + 4);
+        // --- PÁGINA 3 (EXCLUSIVA E BLINDADA PARA AS 8 FOTOS E ASSINATURAS) ---
+        doc.addPage(); paginaActual = 3;
+        desenharCabecalho(paginaActual);
+        y_dinamico = 32;
 
-        for (let i = 1; i <= 8; i++) {
-            const imgBox = document.getElementById(`img_preview_${i}`);
+        doc.rect(10, y_dinamico, 190, 58);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(6.5); doc.setTextColor(...azulElecnor); doc.text("EVIDENCIAS FOTOGRÁFICAS ANEXADAS (SISTEMA INTEGRAL DE IMÁGENES):", 12, y_dinamico + 4);
+        
+        let f_col = 0;
+        let x_img = 12;
+        let y_img = y_dinamico + 6;
+
+        for (let idx = 1; idx <= 8; idx++) {
+            const imgBox = document.getElementById(`img_preview_${idx}`);
             if (imgBox && imgBox.src && imgBox.style.display !== 'none') {
-                if(fInseridas < 4) { doc.addImage(imgBox.src, 'JPEG', xOffset, y_dinamico + 5, 34, 23); xOffset += 45; fInseridas++; }
+                doc.addImage(imgBox.src, 'JPEG', x_img, y_img, 42, 23);
+                x_img += 46;
+                f_col++;
+                if(f_col === 4) {
+                    f_col = 0;
+                    x_img = 12;
+                    y_img += 25;
+                }
             }
         }
-        y_dinamico += 31;
+        y_dinamico += 58;
 
         doc.rect(10, y_dinamico, 190, 26); doc.line(73.33, y_dinamico, 73.33, y_dinamico + 26); doc.line(136.66, y_dinamico, 136.66, y_dinamico + 26);
         doc.setFont("helvetica", "bold"); doc.setFontSize(6); doc.setTextColor(...azulElecnor); doc.text("CONDUCTOR / OPERADOR", 12, y_dinamico + 4); doc.text("SUPERVISOR / ENCARGADO", 75.33, y_dinamico + 4); doc.text("SEGURIDAD TRABAJO", 138.66, y_dinamico + 4);
@@ -590,7 +603,7 @@
 
             try {
                 await fetch(urlGoogleScript, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payloadDrive) });
-                alert("✅ ¡Reporte PDF transmitido diretamente a tu Drive!");
+                alert("✅ ¡Inspección procesada exitosamente!\nEl reporte PDF de 3 páginas con firmas e fotos limpas foi enviado ao Drive.");
                 window.location.href = "/";
             } catch (err) {
                 console.error(err); window.location.href = "/";

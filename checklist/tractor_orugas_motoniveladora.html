@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checklist Tractor de Orugas / Motoniveladora - InspeX</title>
+<title>Checklist Tractor de Orugas / Motoniveladora - SST</title>
 <style>
-    *{ margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
-    body{ background:#e5e5e5; padding:20px; color: #000; }
-    .page{ width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { background:#e5e5e5; padding:20px; color: #000; }
+    .page { width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -46,7 +46,7 @@
     .photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
     .photo-item { position: relative; border: 1px dashed #bbb; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; }
     .photo-item img { width: 100%; height: 100%; object-fit: cover; }
-    .photo-item input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    .photo-item input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5; }
     .photo-label { font-size: 10px; color: #7f8c8d; text-align: center; pointer-events: none; }
 
     .result-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
@@ -62,7 +62,7 @@
     .signatures-table td { border: 1px solid #000; text-align: center; height: 140px; vertical-align: top; font-weight: bold; font-size: 11px; padding: 6px; width: 33.33%; color: #333; }
     
     .canvas-container { margin-top: 5px; background: #fcfcfc; display: inline-block; text-align: center; }
-    .sig-canvas { border: 1px dashed #999; background: #fff; display: block; cursor: crosshair; }
+    .sig-canvas { border: 1px dashed #999; background: #fff; display: block; cursor: crosshair; touch-action: none; }
     .btn-clear { background: #e74c3c; color: white; border: none; padding: 2px 6px; font-size: 9px; border-radius: 2px; cursor: pointer; margin-top: 4px; display: inline-block; }
 
     .btn-container { display: flex; justify-content: center; gap: 15px; margin: 20px auto; width: 100%; max-width: 1050px; padding: 0 10px; }
@@ -379,7 +379,7 @@
 
     async function validarEEnviar() {
         const patenteRaw = document.getElementById('v_patente').value;
-        if (!patenteRaw) { alert("❌ Erro: O preenchimento da PATENTE / IDENT. é obrigatório!"); return; }
+        if (!patenteRaw) { alert("❌ Erro: O preenchimento do N° INTERNO / IDENT. é obrigatório!"); return; }
 
         let itensIncompletos = [];
         let precisaDeFoto = false;
@@ -455,17 +455,15 @@
             assinatura_seguridad: seguridadSigBase64
         };
 
-        // Cache local preventivo imediato
         let inspecoesSalvas = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
         inspecoesSalvas.push(payload);
         localStorage.setItem('inspecoes_offline', JSON.stringify(inspecoesSalvas));
         
-        // Dispara a geração visual do PDF na hora
-        executarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal);
+        ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal);
     }
 
-    // BLINDAGEM DE VELOCIDADE: Envio assíncrono com limite de tempo (Timeout) para o Drive
-    function executarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal) {
+    // MECANISMO DE PROTEÇÃO: Envio assíncrono com Timeout de 15 segundos para salvar localmente caso falte sinal
+    function ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         const azulElecnor = [0, 51, 102];
@@ -486,25 +484,19 @@
             doc.text(`CÓDIGO: 20.0009-SST-FL-0058\nFECHA REF: 06/06/2026\nPÁGINA: ${numPagina} DE 3\nREVISIÓN: 00\nCATEGORÍA: PESADOS / MAQUINARIA\nSECTOR: OPERACIONES`, 147, 14);
         }
 
-        // --- PÁGINA 1 ---
-        desenharCabecalho(1);
-        
+        // --- PÁGINA 1 (Dados Estruturais e Primeiras 15 Perguntas) ---
+        desenharCabecalho(paginaActual);
         doc.rect(10, 32, 190, 13); doc.line(75, 32, 75, 45); doc.line(140, 32, 140, 45);
         doc.setFontSize(6.5); doc.setTextColor(...azulElecnor);
         doc.text("EQUIPO / MODELO:", 12, 35.5); doc.text("PATENTE / IDENT.:", 77, 35.5); doc.text("FECHA DE INSPECCIÓN:", 142, 35.5);
-        doc.setFontSize(8.5); doc.setTextColor(0);
+        doc.setFontSize(9); doc.setTextColor(0);
         const modeloTexto = doc.splitTextToSize("TRACTOR DE ORUGAS / MOTONIVELADORA", 62);
-        doc.text(modeloTexto, 12, 40.5);
-        doc.text(patenteRaw.toUpperCase(), 77, 41);
-        doc.text(document.getElementById('v_fecha').value, 142, 41);
+        doc.text(modeloTexto, 12, 40.5); doc.text(patenteRaw.toUpperCase(), 77, 41); doc.text(document.getElementById('v_fecha').value, 142, 41);
 
-        doc.rect(10, 45, 190, 12); doc.line(75, 45, 75, 57); doc.line(140, 45, 140, 57);
+        doc.rect(10, 44, 190, 12); doc.line(75, 45, 75, 57); doc.line(140, 45, 140, 57);
         doc.setFontSize(6.5); doc.setTextColor(...azulElecnor);
         doc.text("EMPRESA:", 12, 48); doc.text("INSPECTOR / REVISADO POR:", 77, 48); doc.text("KM / HORÓMETRO:", 142, 48);
-        doc.setFontSize(8.5); doc.setTextColor(0);
-        doc.text(document.getElementById('v_empresa').value.toUpperCase(), 12, 53);
-        doc.text(nomeEmMaiusculo, 77, 53);
-        doc.text(document.getElementById('v_km').value.toUpperCase(), 142, 53);
+        doc.setFontSize(8.5); doc.setTextColor(0); doc.text(document.getElementById('v_empresa').value.toUpperCase(), 12, 51); doc.text(nomeEmMaiusculo, 77, 53); doc.text(document.getElementById('v_km').value.toUpperCase(), 142, 53);
 
         doc.setFillColor(...azulElecnor); doc.rect(10, 57, 190, 6, 'F');
         doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(255);
@@ -531,9 +523,10 @@
             y_dinamico += 14;
         }
 
-        // --- PÁGINA 2 ---
+        // --- PÁGINA 2 (Itens 16 ao 22, Observações Gerais e Resultado de Liberação) ---
         doc.addPage(); paginaActual = 2;
         desenharCabecalho(paginaActual);
+        
         y_dinamico = 32;
         doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 7, 'F'); doc.rect(10, y_dinamico, 190, 7);
         doc.line(120, y_dinamico, 120, y_dinamico + 7); doc.line(132, y_dinamico, 132, y_dinamico + 7); doc.line(144, y_dinamico, 144, y_dinamico + 7); doc.line(156, y_dinamico, 156, y_dinamico + 7);
@@ -571,7 +564,7 @@
         y_dinamico += 6; doc.rect(10, y_dinamico, 190, 8); doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.text(`STATUS FINAL: ${resultadoFinal}`, 12, y_dinamico + 5.5);
         y_dinamico += 8;
 
-        // --- PÁGINA 3 ---
+        // --- PÁGINA 3 (EXCLUSIVA E BLINDADA PARA AS 8 FOTOS E ASSINATURAS) ---
         doc.addPage(); paginaActual = 3;
         desenharCabecalho(paginaActual);
         y_dinamico = 32;
@@ -605,7 +598,6 @@
         if(!verificarCanvasVazio('canvas_supervisor')) doc.addImage(document.getElementById('canvas_supervisor').toDataURL(), 'PNG', 77, y_dinamico + 6, 48, 14);
         if(!verificarCanvasVazio('canvas_seguridad')) doc.addImage(document.getElementById('canvas_seguridad').toDataURL(), 'PNG', 140, y_dinamico + 6, 48, 14);
 
-        // MECANISMO DE CRASH-PROTECTION: Timeout assíncrono de 15 segundos para destravar a tela
         const controladorAbortar = new AbortController();
         const temporizadorSeguranca = setTimeout(() => {
             controladorAbortar.abort();

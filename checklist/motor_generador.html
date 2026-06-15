@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checklist Motor Generador - SST</title>
 <style>
-    *{ margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
-    body{ background:#e5e5e5; padding:20px; color: #000; }
-    .page{ width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { background:#e5e5e5; padding:20px; color: #000; }
+    .page { width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -97,7 +97,7 @@
     <table class="vehicle-data-table">
         <tr>
             <td class="col-1">EQUIPO / POTENCIA: <input type="text" id="v_equipo" value="MOTOR GENERADOR"></td>
-            <td class="col-2">N° INTERNO / SERIE: <input type="text" id="v_patente" placeholder="Ex: GEN-01 O N° SERIE"></td>
+            <td class="col-2">N° INTERNO / SERIE: <input type="text" id="v_patente" placeholder="DIGITE AQUÍ EL N° INTERNO O SERIE"></td>
             <td class="col-3">FECHA DE INSPECCIÓN: <input type="date" id="v_fecha"></td>
         </tr>
         <tr>
@@ -222,7 +222,7 @@
         "Enchufes de tomas y conexiones eléctricas en buen estado",
         "Protección contra sobrecorriente / interruptor automático",
         "Entradas y salidas de aire desobstruidas",
-        "Señalización del nivel de tensión de trabajo",
+        "Señalización del nivel de tensión de trabalho",
         "Placa de identificación fijada al equipo",
         "Puesta a tierra eléctrica"
     ];
@@ -305,22 +305,23 @@
         const btnObs = document.getElementById('res_obs');
         const btnNoLiberado = document.getElementById('res_no_liberado');
 
-        const itensLayout = [
-            document.getElementById('cell_liberado'), document.getElementById('check_liberado'),
-            document.getElementById('cell_obs'), document.getElementById('check_obs'),
-            document.getElementById('cell_no_liberado'), document.getElementById('check_no_liberado')
-        ];
+        const cellLiberado = document.getElementById('cell_liberado');
+        const checkLiberado = document.getElementById('check_liberado');
+        const cellObs = document.getElementById('cell_obs');
+        const checkObs = document.getElementById('check_obs');
+        const cellNoLiberado = document.getElementById('cell_no_liberado');
+        const checkNoLiberado = document.getElementById('check_no_liberado');
 
-        itensLayout.forEach(el => el.classList.remove('disabled-option'));
+        [cellLiberado, checkLiberado, cellObs, checkObs, cellNoLiberado, checkNoLiberado].forEach(el => el.classList.remove('disabled-option'));
         btnLiberado.disabled = false; btnObs.disabled = false; btnNoLiberado.disabled = false;
 
         if (bloqueioImpeditivo) {
             btnNoLiberado.checked = true;
-            itensLayout.slice(0, 4).forEach(el => el.classList.add('disabled-option'));
+            [cellLiberado, checkLiberado, cellObs, checkObs].forEach(el => el.classList.add('disabled-option'));
             btnLiberado.disabled = true; btnObs.disabled = true;
         } else if (falhaComumDetectada) {
             btnObs.checked = true;
-            itensLayout.slice(0, 2).concat(itensLayout.slice(4, 6)).forEach(el => el.classList.add('disabled-option'));
+            [cellLiberado, checkLiberado, cellNoLiberado, checkNoLiberado].forEach(el => el.classList.add('disabled-option'));
             btnLiberado.disabled = true; btnNoLiberado.disabled = true;
         } else {
             btnLiberado.checked = true;
@@ -396,7 +397,7 @@
         }
 
         if (itensIncompletos.length > 0) {
-            alert(`❌ Erro impeditivo: Todos os itens de escolha son obrigatórios!\nVocê esqueceu de marcar os seguintes itens: ${itensIncompletos.join(', ')}`);
+            alert(`❌ Erro impeditivo: Todos os itens de escolha são obrigatórios!\nVocê esqueceu de marcar os seguintes itens: ${itensIncompletos.join(', ')}`);
             return;
         }
 
@@ -407,7 +408,7 @@
         }
 
         if (precisaDeFoto && fotosBase64.length === 0) {
-            alert("❌ Erro de Seguridad Elecnor:\nVocê marcou itens como 'NC' ou 'NA'. É OBRIGATÓRIO tirar ou anexar pelo menos 01 foto como evidência antes de salvar!");
+            alert("❌ Erro de Segurança Elecnor:\nVocê marcou itens como 'NC' ou 'NA'. É OBRIGATÓRIO tirar ou anexar pelo menos 01 foto como evidência antes de salvar!");
             return;
         }
 
@@ -457,10 +458,10 @@
         inspecoesSalvas.push(payload);
         localStorage.setItem('inspecoes_offline', JSON.stringify(inspecoesSalvas));
         
-        executarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal);
+        ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal);
     }
 
-    function executarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal) {
+    function ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         const azulElecnor = [0, 51, 102];
@@ -481,12 +482,12 @@
             doc.text(`CÓDIGO: 20.0009-SST-FL-0051\nFECHA REF: 09/06/2026\nPÁGINA: ${numPagina} DE 3\nREVISIÓN: 00\nCATEGORÍA: EQUIPOS / ELÉCTRICOS\nSECTOR: OPERACIONES`, 147, 14);
         }
 
-        // --- PÁGINA 1 ---
-        desenharCabecalho(1);
+        // --- PÁGINA 1 (Identificação e Itens 1 a 15) ---
+        desenharCabecalho(paginaActual);
         doc.rect(10, 32, 190, 13); doc.line(75, 32, 75, 45); doc.line(140, 32, 140, 45);
         doc.setFontSize(6.5); doc.setTextColor(...azulElecnor);
         doc.text("EQUIPO / POTENCIA:", 12, 35.5); doc.text("N° INTERNO / SERIE:", 77, 35.5); doc.text("FECHA DE INSPECCIÓN:", 142, 35.5);
-        doc.setFontSize(9); doc.setTextColor(0);
+        doc.setFontSize(8.5); doc.setTextColor(0);
         doc.text("MOTOR GENERADOR", 12, 41); doc.text(patenteRaw.toUpperCase(), 77, 41); doc.text(document.getElementById('v_fecha').value, 142, 41);
 
         doc.rect(10, 44, 190, 12); doc.line(75, 45, 75, 57); doc.line(140, 45, 140, 57);
@@ -504,7 +505,7 @@
 
         let y_dinamico = 70;
         doc.setFont("helvetica", "bold"); doc.setFontSize(7.5);
-        for (let i = 1; i <= preguntas.length; i++) {
+        for (let i = 1; i <= 15; i++) {
             doc.rect(10, y_dinamico, 190, 14); doc.line(120, y_dinamico, 120, y_dinamico + 14); doc.line(132, y_dinamico, 132, y_dinamico + 14); doc.line(144, y_dinamico, 144, y_dinamico + 14); doc.line(156, y_dinamico, 156, y_dinamico + 14);
             doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(`${i}. ${preguntas[i-1]}`, 108), 12, y_dinamico + 5);
             doc.setFont("helvetica", "bold");
@@ -517,6 +518,34 @@
             const txtCom = document.getElementById(`comment_${i}`).value.toUpperCase();
             if (txtCom) doc.text(doc.splitTextToSize(txtCom, 36), 158, y_dinamico + 5);
             y_dinamico += 14;
+        }
+
+        // --- PÁGINA 2 (Itens 16 ao 20, Observações e Status Final) ---
+        doc.addPage(); paginaActual = 2;
+        desenharCabecalho(paginaActual);
+        
+        y_dinamico = 32;
+        doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 7, 'F'); doc.rect(10, y_dinamico, 190, 7);
+        doc.line(120, y_dinamico, 120, y_dinamico + 7); doc.line(132, y_dinamico, 132, y_dinamico + 7); 
+        doc.line(144, y_dinamico, 144, y_dinamico + 7); doc.line(156, y_dinamico, 156, y_dinamico + 7);
+        doc.setFont("helvetica", "bold"); doc.text("ELEMENTOS VERIFICADOS", 12, y_dinamico + 4.5);
+        doc.text("C", 126, y_dinamico + 4.5, {align:"center"}); doc.text("NC", 138, y_dinamico + 4.5, {align:"center"}); 
+        doc.text("NA", 150, y_dinamico + 4.5, {align:"center"}); doc.text("COMENTARIOS", 158, y_dinamico + 4.5);
+        y_dinamico += 7;
+
+        for (let i = 16; i <= preguntas.length; i++) {
+            doc.rect(10, y_dinamico, 190, 13); doc.line(120, y_dinamico, 120, y_dinamico + 13); doc.line(132, y_dinamico, 132, y_dinamico + 13); doc.line(144, y_dinamico, 144, y_dinamico + 13); doc.line(156, y_dinamico, 156, y_dinamico + 13);
+            doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(`${i}. ${preguntas[i-1]}`, 108), 12, y_dinamico + 5);
+            doc.setFont("helvetica", "bold");
+            const radioMarcado = document.querySelector(`input[name="item_${i}"]:checked`);
+            if (radioMarcado) {
+                if (radioMarcado.value === "C") doc.text("C", 126, y_dinamico + 7, {align:"center"});
+                if (radioMarcado.value === "NC") { doc.text(preguntas[i-1].toUpperCase().includes("IMP") ? "IMP" : "NC", 138, y_dinamico + 7, {align:"center"}); }
+                if (radioMarcado.value === "NA") doc.text("NA", 150, y_dinamico + 7, {align:"center"});
+            }
+            const txtCom = document.getElementById(`comment_${i}`).value.toUpperCase();
+            if (txtCom) doc.text(doc.splitTextToSize(txtCom, 36), 158, y_dinamico + 5);
+            y_dinamico += 13;
         }
 
         doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 6, 'F'); doc.rect(10, y_dinamico, 190, 6);
@@ -532,10 +561,9 @@
         doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 6, 'F'); doc.rect(10, y_dinamico, 190, 6);
         doc.setFont("helvetica", "bold"); doc.text("RESULTADO DE LA LIBERACIÓN", 12, y_dinamico + 4);
         y_dinamico += 6; doc.rect(10, y_dinamico, 190, 8); doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.text(`STATUS FINAL: ${resultadoFinal}`, 12, y_dinamico + 5.5);
-        y_dinamico += 8;
 
-        // --- PÁGINA 2 ---
-        doc.addPage(); paginaActual = 2;
+        // --- PÁGINA 3 (EXCLUSIVA E BLINDADA PARA AS 8 FOTOS E ASSINATURAS) ---
+        doc.addPage(); paginaActual = 3;
         desenharCabecalho(paginaActual);
         y_dinamico = 32;
 
@@ -564,9 +592,9 @@
         doc.rect(10, y_dinamico, 190, 26); doc.line(73.33, y_dinamico, 73.33, y_dinamico + 26); doc.line(136.66, y_dinamico, 136.66, y_dinamico + 26);
         doc.setFont("helvetica", "bold"); doc.setFontSize(6); doc.setTextColor(...azulElecnor); doc.text("OPERADOR / RESPONSIBLE", 12, y_dinamico + 4); doc.text("SUPERVISOR / ENCARGADO", 75.33, y_dinamico + 4); doc.text("SEGURIDAD TRABAJO", 138.66, y_dinamico + 4);
         
-        doc.addImage(document.getElementById('canvas_conductor').toDataURL(), 'PNG', 14, y_dinamico + 6, 48, 14);
-        if(!verificarCanvasVazio('canvas_supervisor')) doc.addImage(document.getElementById('canvas_supervisor').toDataURL(), 'PNG', 77, y_dinamico + 6, 48, 14);
-        if(!verificarCanvasVazio('canvas_seguridad')) doc.addImage(document.getElementById('canvas_seguridad').toDataURL(), 'PNG', 140, y_dinamico + 6, 48, 14);
+        doc.addImage(document.getElementById('canvas_conductor').toDataURL(), 'PNG', 14, y_dinamico + 5, 48, 14);
+        if(!verificarCanvasVazio('canvas_supervisor')) doc.addImage(document.getElementById('canvas_supervisor').toDataURL(), 'PNG', 77, y_dinamico + 5, 48, 14);
+        if(!verificarCanvasVazio('canvas_seguridad')) doc.addImage(document.getElementById('canvas_seguridad').toDataURL(), 'PNG', 140, y_dinamico + 5, 48, 14);
 
         setTimeout(async function() {
             const pdfBase64 = doc.output('datauristring').split(',')[1];
@@ -576,7 +604,7 @@
 
             try {
                 await fetch(urlGoogleScript, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payloadDrive) });
-                alert("✅ ¡Reporte PDF transmitido diretamente a tu Drive!");
+                alert("✅ ¡Inspección procesada exitosamente!\nEl reporte PDF de 3 páginas con firmas e fotos limpas foi enviado ao Drive.");
                 window.location.href = "/";
             } catch (err) {
                 console.error(err); window.location.href = "/";

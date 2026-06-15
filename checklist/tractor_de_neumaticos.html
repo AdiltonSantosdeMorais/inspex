@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checklist Tractor de Neumáticos - InspeX</title>
+<title>Checklist Tractor de Neumáticos - SST</title>
 <style>
-    *{ margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
-    body{ background:#e5e5e5; padding:20px; color: #000; }
-    .page{ width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { background:#e5e5e5; padding:20px; color: #000; }
+    .page { width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -46,7 +46,7 @@
     .photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
     .photo-item { position: relative; border: 1px dashed #bbb; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; }
     .photo-item img { width: 100%; height: 100%; object-fit: cover; }
-    .photo-item input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    .photo-item input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5; }
     .photo-label { font-size: 10px; color: #7f8c8d; text-align: center; pointer-events: none; }
 
     .result-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
@@ -62,7 +62,8 @@
     .signatures-table td { border: 1px solid #000; text-align: center; height: 140px; vertical-align: top; font-weight: bold; font-size: 11px; padding: 6px; width: 33.33%; color: #333; }
     
     .canvas-container { margin-top: 5px; background: #fcfcfc; display: inline-block; text-align: center; }
-    .sig-canvas { border: 1px dashed #999; background: #fff; display: block; cursor: crosshair; }
+    .canvas-container button { display: inline-block; }
+    .sig-canvas { border: 1px dashed #999; background: #fff; display: block; cursor: crosshair; touch-action: none; }
     .btn-clear { background: #e74c3c; color: white; border: none; padding: 2px 6px; font-size: 9px; border-radius: 2px; cursor: pointer; margin-top: 4px; display: inline-block; }
 
     .btn-container { display: flex; justify-content: center; gap: 15px; margin: 20px auto; width: 100%; max-width: 1050px; padding: 0 10px; }
@@ -97,7 +98,7 @@
     <table class="vehicle-data-table">
         <tr>
             <td class="col-1">EQUIPO / MODELO: <input type="text" id="v_equipo" value="TRACTOR DE NEUMÁTICOS"></td>
-            <td class="col-2">N° INTERNO / IDENT.: <input type="text" id="v_patente" placeholder="Ex: TRA-01 O N° INTERNO"></td>
+            <td class="col-2">N° INTERNO / IDENT.: <input type="text" id="v_patente" placeholder="DIGITE AQUÍ EL N° INTERNO"></td>
             <td class="col-3">FECHA DE INSPECCIÓN: <input type="date" id="v_fecha"></td>
         </tr>
         <tr>
@@ -129,7 +130,7 @@
     <table class="footer-obs-table">
         <tr>
             <td>COMENTARIOS Y OBSERVACIONES GENERALES
-                <textarea id="obs_generales" placeholder="Digite observações gerais sobre o estado del tractor..."></textarea>
+                <textarea id="obs_generales" placeholder="Digite observaciones generales sobre el estado del tractor..."></textarea>
             </td>
         </tr>
         <tr>
@@ -206,13 +207,13 @@
 <script>
     const preguntas = [
         "Correias en buen estado de conservation",
-        "Filtros en buenas condiciones",
-        "Aceites con nivel correcto and dentro del plazo de validez",
+        "Filtros en buenas conditions",
+        "Aceites con nivel correcto and dentro del prazo de validez",
         "Palancas de mando funcionando correctamente - IMP",
-        "Freno de servicio y de estacionamiento funcionando correctamente",
+        "Freno de servicio y de estacionamiento funcionando correctamente - IMP",
         "Agua del radiador con nivel adecuado",
         "Limpiaparabrisas funcionando correctamente",
-        "Kit de herramientas (llave de rueda, barra de fuerza)",
+        "Kit de ferramentas (llave de rueda, barra de fuerza)",
         "¿Existe algún tipo de fuga (aceite o agua)?",
         "Sistema eléctrico funcionando correctamente",
         "Faros y luces funcionando correctamente - IMP",
@@ -380,7 +381,7 @@
 
     async function validarEEnviar() {
         const patenteRaw = document.getElementById('v_patente').value;
-        if (!patenteRaw) { alert("❌ Erro: O preenchimento do N° INTERNO / IDENT. é obrigatório!"); return; }
+        if (!patenteRaw) { alert("❌ Erro: O preenchimento da PATENTE / IDENT. é obrigatório!"); return; }
 
         let itensIncompletos = [];
         let precisaDeFoto = false;
@@ -460,10 +461,10 @@
         inspecoesSalvas.push(payload);
         localStorage.setItem('inspecoes_offline', JSON.stringify(inspecoesSalvas));
         
-        executarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal);
+        ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal);
     }
 
-    function executarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal) {
+    function ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         const azulElecnor = [0, 51, 102];
@@ -484,8 +485,8 @@
             doc.text(`CÓDIGO: 20.0009-SST-FL-0057\nFECHA REF: 09/06/2026\nPÁGINA: ${numPagina} DE 3\nREVISIÓN: 00\nCATEGORÍA: PESADOS / EQUIPOS\nSECTOR: OPERACIONES`, 147, 14);
         }
 
-        // --- PÁGINA 1 ---
-        desenharCabecalho(1);
+        // --- PÁGINA 1 (Dados Estruturais e Primeiras 15 Perguntas) ---
+        desenharCabecalho(paginaActual);
         doc.rect(10, 32, 190, 13); doc.line(75, 32, 75, 45); doc.line(140, 32, 140, 45);
         doc.setFontSize(6.5); doc.setTextColor(...azulElecnor);
         doc.text("EQUIPO / MODELO:", 12, 35.5); doc.text("N° INTERNO / IDENT.:", 77, 35.5); doc.text("FECHA DE INSPECCIÓN:", 142, 35.5);
@@ -522,7 +523,7 @@
             y_dinamico += 14;
         }
 
-        // --- PÁGINA 2 ---
+        // --- PÁGINA 2 (Itens 16 ao 23, Observações e Status Final de Liberação) ---
         doc.addPage(); paginaActual = 2;
         desenharCabecalho(paginaActual);
         
@@ -530,7 +531,8 @@
         doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 7, 'F'); doc.rect(10, y_dinamico, 190, 7);
         doc.line(120, y_dinamico, 120, y_dinamico + 7); doc.line(132, y_dinamico, 132, y_dinamico + 7); doc.line(144, y_dinamico, 144, y_dinamico + 7); doc.line(156, y_dinamico, 156, y_dinamico + 7);
         doc.setFont("helvetica", "bold"); doc.text("ELEMENTOS VERIFICADOS", 12, y_dinamico + 4.5);
-        doc.text("C", 126, y_dinamico + 4.5, {align:"center"}); doc.text("NC", 138, y_dinamico + 4.5, {align:"center"}); doc.text("NA", 150, y_dinamico + 4.5, {align:"center"}); doc.text("COMENTARIOS", 158, y_dinamico + 4.5);
+        doc.text("C", 126, y_dinamico + 4.5, {align:"center"}); doc.text("NC", 138, y_dinamico + 4.5, {align:"center"}); 
+        doc.text("NA", 150, y_dinamico + 4.5, {align:"center"}); doc.text("COMENTARIOS", 158, y_dinamico + 4.5);
         y_dinamico += 7;
 
         for (let i = 16; i <= preguntas.length; i++) {
@@ -563,7 +565,7 @@
         y_dinamico += 6; doc.rect(10, y_dinamico, 190, 8); doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.text(`STATUS FINAL: ${resultadoFinal}`, 12, y_dinamico + 5.5);
         y_dinamico += 8;
 
-        // --- PÁGINA 3 ---
+        // --- PÁGINA 3 (EXCLUSIVA E BLINDADA PARA AS 8 FOTOS E ASSINATURAS) ---
         doc.addPage(); paginaActual = 3;
         desenharCabecalho(paginaActual);
         y_dinamico = 32;
@@ -605,7 +607,7 @@
 
             try {
                 await fetch(urlGoogleScript, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payloadDrive) });
-                alert("✅ ¡Reporte PDF transmitido diretamente a tu Drive!");
+                alert("✅ ¡Inspección procesada exitosamente!\nEl reporte PDF de 3 páginas con firmas e fotos limpas foi enviado ao Drive.");
                 window.location.href = "/";
             } catch (err) {
                 console.error(err); window.location.href = "/";

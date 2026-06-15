@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checklist Manipuladora Telescópica - InspeX</title>
+<title>Checklist Manipuladora Telescópica - SST</title>
 <style>
-    *{ margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
-    body{ background:#e5e5e5; padding:20px; color: #000; }
-    .page{ width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { background:#e5e5e5; padding:20px; color: #000; }
+    .page { width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -21,9 +21,9 @@
     .info-sub-table tr:last-child td { border-bottom: none !important; }
     
     .vehicle-data-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .vehicle-data-table td { border: 1px solid #000; padding: 6px 8px; font-size: 11px; font-weight: bold; height: 40px; vertical-align: top; }
-    .vehicle-data-table input { width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 4px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; }
-    .col-1 { width: 50%; } .col-2 { width: 25%; } .col-3 { width: 25%; }
+    .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; }
+    .vehicle-data-table input { width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; }
+    .col-1 { width: 45%; } .col-2 { width: 30%; } .col-3 { width: 25%; }
     
     .legend-row { background-color: #4472c4; color: #ffffff; text-align: center; font-weight: bold; font-size: 12px; height: 28px; letter-spacing: 0.5px; padding: 6px 0 !important; }
     
@@ -97,7 +97,7 @@
     <table class="vehicle-data-table">
         <tr>
             <td class="col-1">EQUIPO / MODELO: <input type="text" id="v_equipo" value="MANIPULADORA TELESCÓPICA"></td>
-            <td class="col-2">N° INTERNO / IDENT.: <input type="text" id="v_patente" placeholder="Ex: MAN-01 O N° SERIE"></td>
+            <td class="col-2">N° INTERNO / IDENT.: <input type="text" id="v_patente" placeholder="DIGITE AQUÍ EL N° INTERNO"></td>
             <td class="col-3">FECHA DE INSPECCIÓN: <input type="date" id="v_fecha"></td>
         </tr>
         <tr>
@@ -144,12 +144,11 @@
             <td>EVIDENCIAS FOTOGRÁFICAS (MÁXIMO 08 FOTOS)
                 <div class="photo-grid">
                     <script>
-                        // CORREÇÃO: f_count unificado para liberar o clique da câmera na tela
                         for(let f_count=1; f_count<=8; f_count++) {
                             document.write(`
                                 <div class="photo-item" id="box_photo_${f_count}">
                                     <span class="photo-label" id="label_photo_${f_count}">📸 Foto ${f_count}</span>
-                                    <input type="file" accept="image/*" capture="environment" onchange="carregarFoto(this, ${f_count})">
+                                    <input type="file" accept="image/*" capture="environment" onchange="compressAndLoadPhoto(this, ${f_count})">
                                     <img id="img_preview_${f_count}" style="display:none;">
                                 </div>
                             `);
@@ -297,8 +296,11 @@
             const id = index + 1;
             const radioNC = document.querySelector(`input[name="item_${id}"][value="NC"]:checked`);
             if (radioNC) {
-                if (pregunta.includes("IMP")) bloqueioImpeditivo = true;
-                else falhaComumDetectada = true;
+                if (pregunta.toUpperCase().includes("IMP")) {
+                    bloqueioImpeditivo = true;
+                } else {
+                    falhaComumDetectada = true;
+                }
             }
         });
 
@@ -329,14 +331,33 @@
         }
     }
 
-    function carregarFoto(input, index) {
+    function compressAndLoadPhoto(input, index) {
         const file = input.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                const img = document.getElementById(`img_preview_${index}`);
-                document.getElementById(`label_photo_${index}`).style.display = "none";
-                img.src = e.target.result; img.style.display = "block";
+                const imgElement = new Image();
+                const imgBox = document.getElementById(`img_preview_${index}`);
+                imgElement.src = e.target.result;
+                imgElement.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const MAX_WIDTH = 600;
+                    const MAX_HEIGHT = 450;
+                    let width = imgElement.width;
+                    let height = imgElement.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                    }
+                    canvas.width = width; canvas.height = height;
+                    ctx.drawImage(imgElement, 0, 0, width, height);
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
+                    document.getElementById(`label_photo_${index}`).style.display = "none";
+                    imgBox.src = compressedBase64; imgBox.style.display = "block";
+                }
             }
             reader.readAsDataURL(file);
         }
@@ -364,11 +385,18 @@
 
         let itensIncompletos = [];
         let precisaDeFoto = false;
+        let payloadAnswers = {};
+        let payloadComments = {};
 
         for (let i = 1; i <= preguntas.length; i++) {
             const radio = document.querySelector(`input[name="item_${i}"]:checked`);
-            if (!radio) { itensIncompletos.push(i); } 
-            else if (radio.value === "NC" || radio.value === "NA") { precisaDeFoto = true; }
+            if (!radio) { 
+                itensIncompletos.push(i); 
+            } else {
+                payloadAnswers[`item_${i}`] = radio.value;
+                payloadComments[`item_${i}`] = document.getElementById(`comment_${i}`).value.toUpperCase();
+                if (radio.value === "NC" || radio.value === "NA") { precisaDeFoto = true; }
+            }
         }
 
         if (itensIncompletos.length > 0) {
@@ -377,13 +405,13 @@
         }
 
         let fotosBase64 = [];
-        for (let i = 1; i <= 8; i++) {
-            const img = document.getElementById('img_preview_' + i);
-            if(img.src && img.style.display !== "none") fotosBase64.push(img.src);
+        for (let f_count = 1; f_count <= 8; f_count++) {
+            const img = document.getElementById('img_preview_' + f_count);
+            if(img && img.src && img.style.display !== "none") fotosBase64.push(img.src);
         }
 
         if (precisaDeFoto && fotosBase64.length === 0) {
-            alert("❌ Erro de Seguridad Elecnor:\nVocê marcou itens como 'NC' ou 'NA'. É OBRIGATÓRIO tirar ou anexar pelo menos 01 foto como evidência antes de salvar!");
+            alert("❌ Erro de Segurança Elecnor:\nVocê marcou itens como 'NC' ou 'NA'. É OBRIGATÓRIO tirar ou anexar pelo menos 01 foto como evidência antes de salvar!");
             return;
         }
 
@@ -398,189 +426,215 @@
             if (nomeInspetor === null) return;
         }
 
+        const nomeEmMaiusculo = nomeInspetor.toUpperCase();
         const botaoSalvar = document.querySelector('.btn-salvar');
         if(botaoSalvar) { botaoSalvar.innerText = "⏳ Compilando Reporte PDF..."; botaoSalvar.disabled = true; }
 
+        let conductorSigBase64 = document.getElementById('canvas_conductor').toDataURL();
+        let supervisorSigBase64 = !verificarCanvasVazio('canvas_supervisor') ? document.getElementById('canvas_supervisor').toDataURL() : "";
+        let seguridadSigBase64 = !verificarCanvasVazio('canvas_seguridad') ? document.getElementById('canvas_seguridad').toDataURL() : "";
+        
+        const radioResultado = document.querySelector('input[name="resultado_final"]:checked');
+        const resultadoFinal = radioResultado ? radioResultado.value : "LIBERADO";
+
+        let payload = {
+            id_interno: Date.now().toString(),
+            inspector: nomeEmMaiusculo,
+            equipo: "MANIPULADORA TELESCÓPICA",
+            patente: patenteRaw.toUpperCase(),
+            fecha: document.getElementById('v_fecha').value,
+            empresa: document.getElementById('v_empresa').value.toUpperCase(),
+            anio: document.getElementById('v_anio').value.toUpperCase(),
+            km_horometro: document.getElementById('v_km').value.toUpperCase(),
+            respuestas: payloadAnswers,
+            comentarios: payloadComments,
+            observaciones_generales: document.getElementById('obs_generales').value.toUpperCase(),
+            medidas_correctivas: document.getElementById('medidas_correctivas').value.toUpperCase(),
+            resultado_final: resultadoFinal,
+            fotos: fotosBase64,
+            assinatura_conductor: conductorSigBase64,
+            assinatura_supervisor: supervisorSigBase64,
+            assinatura_seguridad: seguridadSigBase64
+        };
+
+        let inspecoesSalvas = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
+        inspecoesSalvas.push(payload);
+        localStorage.setItem('inspecoes_offline', JSON.stringify(inspecoesSalvas));
+        
+        ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal);
+    }
+
+    function ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         const azulElecnor = [0, 51, 102];
         const cinzaFundo = [226, 232, 240];
+        let paginaActual = 1;
 
         function desenharCabecalho(numPagina) {
             doc.setDrawColor(0); doc.setLineWidth(0.4);
             doc.rect(10, 10, 190, 22);
             doc.line(45, 10, 45, 32); doc.line(145, 10, 145, 32);
-            
-            if (logoBase64Global) {
-                doc.addImage(logoBase64Global, 'PNG', 13, 12, 28, 17);
-            } else {
-                doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(0);
-                doc.text("ELECNOR", 25, 22, {align:"center"});
-            }
+            if (logoBase64Global) doc.addImage(logoBase64Global, 'PNG', 13, 12, 28, 17);
             
             doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(0);
-            doc.text("LISTA DE VERIFICACIÓN MENSUAL PARA MANIPULADORA TELESCÓPICA", 95, 22, {align:"center"});
+            const tituloQuebrado = doc.splitTextToSize("LISTA DE VERIFICACIÓN MENSUAL PARA MANIPULADORA TELESCÓPICA", 95);
+            doc.text(tituloQuebrado, 95, 20, {align:"center"});
+            
             doc.setFontSize(6.5);
-            doc.text(`CÓDIGO: 20.0009-SST-FL-0047\nFECHA REF: 09/06/2026\nPÁGINA: ${numPagina} DE 2\nREVISIÓN: 00\nCATEGORÍA: PESADOS\nSECTOR: OPERACIONES`, 147, 14);
+            doc.text(`CÓDIGO: 20.0009-SST-FL-0047\nFECHA REF: 09/06/2026\nPÁGINA: ${numPagina} DE 3\nREVISIÓN: 00\nCATEGORÍA: PESADOS\nSECTOR: OPERACIONES`, 147, 14);
         }
 
-        // --- PÁGINA 1 ---
-        desenharCabecalho(1);
+        // --- PÁGINA 1 (Dados e Itens 1 a 15) ---
+        desenharCabecalho(paginaActual);
         
-        doc.rect(10, 32, 190, 12); doc.line(65, 32, 65, 44); doc.line(135, 32, 135, 44);
+        doc.rect(10, 32, 190, 13); doc.line(75, 32, 75, 45); doc.line(140, 32, 140, 45);
         doc.setFontSize(6.5); doc.setTextColor(...azulElecnor);
-        doc.text("EQUIPO / MODELO:", 12, 35); doc.text("PATENTE / IDENT.:", 67, 35); doc.text("FECHA DE INSPECCIÓN:", 137, 35);
-        doc.setFontSize(9); doc.setTextColor(0);
-        doc.text(document.getElementById('v_equipo').value.toUpperCase(), 12, 41);
-        doc.text(patenteRaw.toUpperCase(), 67, 41);
-        doc.text(document.getElementById('v_fecha').value, 137, 41);
-
-        doc.rect(10, 44, 190, 12); doc.line(65, 44, 65, 56); doc.line(135, 44, 135, 56);
-        doc.setFontSize(6.5); doc.setTextColor(...azulElecnor);
-        doc.text("EMPRESA:", 12, 47); doc.text("INSPECTOR / REVISADO POR:", 67, 47); doc.text("KM / HORÓMETRO:", 137, 47);
+        doc.text("EQUIPO / MODELO:", 12, 35.5); doc.text("N° INTERNO / IDENT.:", 77, 35.5); doc.text("FECHA DE INSPECCIÓN:", 142, 35.5);
         doc.setFontSize(8.5); doc.setTextColor(0);
-        doc.text(document.getElementById('v_empresa').value.toUpperCase(), 12, 51);
-        doc.text(nomeInspetor.toUpperCase(), 67, 51);
-        doc.text(document.getElementById('v_km').value.toUpperCase(), 137, 51);
+        doc.text("MANIPULADORA TELESCÓPICA", 12, 40.5);
+        doc.text(patenteRaw.toUpperCase(), 77, 41);
+        doc.text(document.getElementById('v_fecha').value, 142, 41);
 
-        doc.setFillColor(...azulElecnor); doc.rect(10, 56, 190, 6, 'F');
+        doc.rect(10, 45, 190, 12); doc.line(75, 45, 75, 57); doc.line(140, 45, 140, 57);
+        doc.setFontSize(6.5); doc.setTextColor(...azulElecnor);
+        doc.text("EMPRESA:", 12, 48); doc.text("INSPECTOR / REVISADO POR:", 77, 48); doc.text("HORÓMETRO:", 142, 48);
+        doc.setFontSize(8.5); doc.setTextColor(0);
+        doc.text(document.getElementById('v_empresa').value.toUpperCase(), 12, 53);
+        doc.text(nomeEmMaiusculo, 77, 53);
+        doc.text(document.getElementById('v_km').value.toUpperCase(), 142, 53);
+
+        doc.setFillColor(...azulElecnor); doc.rect(10, 57, 190, 6, 'F');
         doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(255);
-        doc.text("C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO", 105, 60, {align:"center"});
+        doc.text("C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO", 105, 61, {align:"center"});
 
-        doc.setTextColor(0); doc.setFillColor(...cinzaFundo); doc.rect(10, 62, 190, 7, 'F'); doc.rect(10, 62, 190, 7);
-        doc.line(120, 62, 120, 69); doc.line(132, 62, 132, 69); doc.line(144, 62, 144, 69); doc.line(156, 62, 156, 69);
-        doc.text("ELEMENTOS VERIFICADOS", 12, 66.5);
-        doc.text("C", 126, 66.5, {align:"center"}); doc.text("NC", 138, 66.5, {align:"center"}); doc.text("NA", 150, 66.5, {align:"center"});
-        doc.text("COMENTARIOS", 158, 66.5);
+        doc.setTextColor(0); doc.setFillColor(...cinzaFundo); doc.rect(10, 63, 190, 7, 'F'); doc.rect(10, 63, 190, 7);
+        doc.line(120, 63, 120, 70); doc.line(132, 63, 132, 70); doc.line(144, 63, 144, 70); doc.line(156, 63, 156, 70);
+        doc.text("ELEMENTOS VERIFICADOS", 12, 67.5); doc.text("C", 126, 67.5, {align:"center"}); doc.text("NC", 138, 67.5, {align:"center"}); doc.text("NA", 150, 67.5, {align:"center"}); doc.text("COMENTARIOS", 158, 67.5);
 
-        let y = 69;
+        let y_dinamico = 70;
         doc.setFont("helvetica", "bold"); doc.setFontSize(7.5);
+        
         for (let i = 1; i <= 15; i++) {
-            doc.rect(10, y, 190, 14);
-            doc.line(120, y, 120, y + 14); doc.line(132, y, 132, y + 14); doc.line(144, y, 144, y + 14); doc.line(156, y, 156, y + 14);
+            doc.rect(10, y_dinamico, 190, 14); 
+            doc.line(120, y_dinamico, 120, y_dinamico + 14); doc.line(132, y_dinamico, 132, y_dinamico + 14); 
+            doc.line(144, y_dinamico, 144, y_dinamico + 14); doc.line(156, y_dinamico, 156, y_dinamico + 14);
             
-            doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(`${i}. ${preguntas[i-1]}`, 108), 12, y + 5);
-
+            doc.setFont("helvetica", "normal"); 
+            doc.text(doc.splitTextToSize(`${i}. ${preguntas[i-1]}`, 108), 12, y_dinamico + 5);
+            
             doc.setFont("helvetica", "bold");
             const radioMarcado = document.querySelector(`input[name="item_${i}"]:checked`);
             if (radioMarcado) {
-                if (radioMarcado.value === "C") doc.text("C", 126, y + 8, {align:"center"});
-                if (radioMarcado.value === "NC") {
-                    const isImp = preguntas[i-1].toUpperCase().includes("IMP");
-                    doc.text(isImp ? "IMP" : "NC", 138, y + 8, {align:"center"});
-                }
-                if (radioMarcado.value === "NA") doc.text("NA", 150, y + 8, {align:"center"});
+                if (radioMarcado.value === "C") doc.text("C", 126, y_dinamico + 8, {align:"center"});
+                if (radioMarcado.value === "NC") { doc.text(preguntas[i-1].toUpperCase().includes("IMP") ? "IMP" : "NC", 138, y_dinamico + 8, {align:"center"}); }
+                if (radioMarcado.value === "NA") doc.text("NA", 150, y_dinamico + 8, {align:"center"});
             }
-
-            doc.setFont("helvetica", "normal");
             const txtCom = document.getElementById(`comment_${i}`).value.toUpperCase();
-            if (txtCom) doc.text(doc.splitTextToSize(txtCom, 36), 158, y + 6);
-            y += 14;
+            if (txtCom) doc.text(doc.splitTextToSize(txtCom, 36), 158, y_dinamico + 5);
+            y_dinamico += 14;
         }
 
-        // --- PÁGINA 2 ---
-        doc.addPage();
-        desenharCabecalho(2);
-
-        y = 32;
-        doc.setFillColor(...cinzaFundo); doc.rect(10, y, 190, 7, 'F'); doc.rect(10, y, 190, 7);
-        doc.line(120, y, 120, y + 7); doc.line(132, y, 132, y + 7); doc.line(144, y, 144, y + 7); doc.line(156, y, 156, y + 7);
-        doc.setFont("helvetica", "bold"); doc.text("ELEMENTOS VERIFICADOS", 12, y + 4.5);
-        doc.text("C", 126, y + 4.5, {align:"center"}); doc.text("NC", 138, y + 4.5, {align:"center"}); doc.text("NA", 150, y + 4.5, {align:"center"});
-        doc.text("COMENTARIOS", 158, y + 4.5);
+        // --- PÁGINA 2 (Itens 16 ao 23, Observações e Status Final) ---
+        doc.addPage(); paginaActual = 2;
+        desenharCabecalho(paginaActual);
         
-        y += 7;
+        y_dinamico = 32;
+        doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 7, 'F'); doc.rect(10, y_dinamico, 190, 7);
+        doc.line(120, y_dinamico, 120, y_dinamico + 7); doc.line(132, y_dinamico, 132, y_dinamico + 7); 
+        doc.line(144, y_dinamico, 144, y_dinamico + 7); doc.line(156, y_dinamico, 156, y_dinamico + 7);
+        doc.setFont("helvetica", "bold"); doc.text("ELEMENTOS VERIFICADOS", 12, y_dinamico + 4.5);
+        doc.text("C", 126, y_dinamico + 4.5, {align:"center"}); doc.text("NC", 138, y_dinamico + 4.5, {align:"center"}); 
+        doc.text("NA", 150, y_dinamico + 4.5, {align:"center"}); doc.text("COMENTARIOS", 158, y_dinamico + 4.5);
+        y_dinamico += 7;
 
         for (let i = 16; i <= preguntas.length; i++) {
-            doc.rect(10, y, 190, 13);
-            doc.line(120, y, 120, y + 13); doc.line(132, y, 132, y + 13); doc.line(144, y, 144, y + 13); doc.line(156, y, 156, y + 13);
-
-            doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(`${i}. ${preguntas[i-1]}`, 108), 12, y + 5);
-
+            doc.rect(10, y_dinamico, 190, 13); 
+            doc.line(120, y_dinamico, 120, y_dinamico + 13); doc.line(132, y_dinamico, 132, y_dinamico + 13); 
+            doc.line(144, y_dinamico, 144, y_dinamico + 13); doc.line(156, y_dinamico, 156, y_dinamico + 13);
+            
+            doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(`${i}. ${preguntas[i-1]}`, 108), 12, y_dinamico + 5);
             doc.setFont("helvetica", "bold");
             const radioMarcado = document.querySelector(`input[name="item_${i}"]:checked`);
             if (radioMarcado) {
-                if (radioMarcado.value === "C") doc.text("C", 126, y + 7, {align:"center"});
-                if (radioMarcado.value === "NC") {
-                    const isImp = preguntas[i-1].toUpperCase().includes("IMP");
-                    doc.text(isImp ? "IMP" : "NC", 138, y + 7, {align:"center"});
-                }
-                if (radioMarcado.value === "NA") doc.text("NA", 150, y + 7, {align:"center"});
+                if (radioMarcado.value === "C") doc.text("C", 126, y_dinamico + 7, {align:"center"});
+                if (radioMarcado.value === "NC") { doc.text(preguntas[i-1].toUpperCase().includes("IMP") ? "IMP" : "NC", 138, y_dinamico + 7, {align:"center"}); }
+                if (radioMarcado.value === "NA") doc.text("NA", 150, y_dinamico + 7, {align:"center"});
             }
-
-            doc.setFont("helvetica", "normal");
             const txtCom = document.getElementById(`comment_${i}`).value.toUpperCase();
-            if (txtCom) doc.text(doc.splitTextToSize(txtCom, 36), 158, y + 5);
-            y += 13;
+            if (txtCom) doc.text(doc.splitTextToSize(txtCom, 36), 158, y_dinamico + 5);
+            y_dinamico += 13;
         }
 
-        doc.setFillColor(...cinzaFundo); doc.rect(10, y, 190, 6, 'F'); doc.rect(10, y, 190, 6);
-        doc.setFont("helvetica", "bold"); doc.text("COMENTARIOS Y OBSERVACIONES GENERALES", 12, y + 4);
-        y += 6; doc.rect(10, y, 190, 16); doc.setFont("helvetica", "normal");
-        doc.text(doc.splitTextToSize(document.getElementById('obs_generales').value.toUpperCase() || "SIN OBSERVACIONES", 185), 12, y + 5);
-        y += 16;
+        doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 6, 'F'); doc.rect(10, y_dinamico, 190, 6);
+        doc.setFont("helvetica", "bold"); doc.text("COMENTARIOS Y OBSERVACIONES GENERALES", 12, y_dinamico + 4);
+        y_dinamico += 6; doc.rect(10, y_dinamico, 190, 16); doc.setFont("helvetica", "normal"); 
+        doc.text(doc.splitTextToSize(document.getElementById('obs_generales').value.toUpperCase() || "SIN OBSERVACIONES", 185), 12, y_dinamico + 5);
+        y_dinamico += 16;
 
-        doc.setFillColor(...cinzaFundo); doc.rect(10, y, 190, 6, 'F'); doc.rect(10, y, 190, 6);
-        doc.setFont("helvetica", "bold"); doc.text("MEDIDAS CORRECTIVAS ADOPTADAS", 12, y + 4);
-        y += 6; doc.rect(10, y, 190, 16); doc.setFont("helvetica", "normal");
-        doc.text(doc.splitTextToSize(document.getElementById('medidas_correctivas').value.toUpperCase() || "SIN MEDIDAS CORRECTIVAS REGISTRADAS", 185), 12, y + 5);
-        y += 16;
+        doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 6, 'F'); doc.rect(10, y_dinamico, 190, 6);
+        doc.setFont("helvetica", "bold"); doc.text("MEDIDAS CORRECTIVAS ADOPTADAS", 12, y_dinamico + 4);
+        y_dinamico += 6; doc.rect(10, y_dinamico, 190, 16); doc.setFont("helvetica", "normal"); 
+        doc.text(doc.splitTextToSize(document.getElementById('medidas_correctivas').value.toUpperCase() || "SIN MEDIDAS CORRECTIVAS REGISTRADAS", 185), 12, y_dinamico + 5);
+        y_dinamico += 16;
 
-        doc.setFillColor(...cinzaFundo); doc.rect(10, y, 190, 6, 'F'); doc.rect(10, y, 190, 6);
-        doc.setFont("helvetica", "bold"); doc.text("RESULTADO DE LA LIBERACIÓN", 12, y + 4);
-        y += 6; doc.rect(10, y, 190, 8); doc.setFont("helvetica", "bold"); doc.setFontSize(9);
+        doc.setFillColor(...cinzaFundo); doc.rect(10, y_dinamico, 190, 6, 'F'); doc.rect(10, y_dinamico, 190, 6);
+        doc.setFont("helvetica", "bold"); doc.text("RESULTADO DE LA LIBERACIÓN", 12, y_dinamico + 4);
+        y_dinamico += 6; doc.rect(10, y_dinamico, 190, 8); doc.setFont("helvetica", "bold"); doc.setFontSize(9); 
         const rFinalTxt = document.querySelector('input[name="resultado_final"]:checked').value;
-        doc.text(`STATUS FINAL: ${rFinalTxt}`, 12, y + 5.5);
-        y += 8;
+        doc.text(`STATUS FINAL: ${rFinalTxt}`, 12, y_dinamico + 5.5);
 
-        let fInseridas = 0; let xOffset = 12;
-        doc.rect(10, y, 190, 31);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(6.5); doc.setTextColor(...azulElecnor);
-        doc.text("EVIDENCIAS FOTOGRÁFICAS ANEXADAS:", 12, y + 4);
+        // --- PÁGINA 3 (EXCLUSIVA E BLINDADA PARA AS 8 FOTOS E ASSINATURAS) ---
+        doc.addPage(); paginaActual = 3;
+        desenharCabecalho(paginaActual);
+        y_dinamico = 32;
 
-        for (let i = 1; i <= 8; i++) {
-            const imgBox = document.getElementById(`img_preview_${i}`);
+        doc.rect(10, y_dinamico, 190, 58);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(6.5); doc.setTextColor(...azulElecnor); 
+        doc.text("EVIDENCIAS FOTOGRÁFICAS ANEXADAS (SISTEMA INTEGRAL DE IMÁGENES):", 12, y_dinamico + 4);
+        
+        let f_col = 0;
+        let x_img = 12;
+        let y_img = y_dinamico + 6;
+
+        for (let idx = 1; idx <= 8; idx++) {
+            const imgBox = document.getElementById(`img_preview_${idx}`);
             if (imgBox && imgBox.src && imgBox.style.display !== 'none') {
-                if(fInseridas < 4) { 
-                    doc.addImage(imgBox.src, 'JPEG', xOffset, y + 5, 34, 23);
-                    xOffset += 45; fInseridas++;
+                doc.addImage(imgBox.src, 'JPEG', x_img, y_img, 42, 23);
+                x_img += 46;
+                f_col++;
+                if(f_col === 4) {
+                    f_col = 0;
+                    x_img = 12;
+                    y_img += 25;
                 }
             }
         }
-        y += 31;
+        y_dinamico += 58;
 
-        doc.rect(10, y, 190, 26);
-        doc.line(73.33, y, 73.33, y + 26); doc.line(136.66, y, 136.66, y + 26);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(6); doc.setTextColor(...azulElecnor);
-        doc.text("OPERADOR / CONDUCTOR", 12, y + 4); doc.text("SUPERVISOR / ENCARGADO", 75.33, y + 4); doc.text("SEGURIDAD TRABAJO", 138.66, y + 4);
+        doc.rect(10, y_dinamico, 190, 26); doc.line(73.33, y_dinamico, 73.33, y_dinamico + 26); doc.line(136.66, y_dinamico, 136.66, y_dinamico + 26);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(6); doc.setTextColor(...azulElecnor); 
+        doc.text("OPERADOR / CONDUCTOR", 12, y_dinamico + 4); doc.text("SUPERVISOR / ENCARGADO", 75.33, y_dinamico + 4); doc.text("SEGURIDAD TRABAJO", 138.66, y_dinamico + 4);
         
-        doc.addImage(document.getElementById('canvas_conductor').toDataURL(), 'PNG', 14, y + 5, 48, 14);
-        if(!verificarCanvasVazio('canvas_supervisor')) doc.addImage(document.getElementById('canvas_supervisor').toDataURL(), 'PNG', 77, y + 5, 48, 14);
-        if(!verificarCanvasVazio('canvas_seguridad')) doc.addImage(document.getElementById('canvas_seguridad').toDataURL(), 'PNG', 140, y + 5, 48, 14);
+        doc.addImage(document.getElementById('canvas_conductor').toDataURL(), 'PNG', 14, y_dinamico + 5, 48, 14);
+        if(!verificarCanvasVazio('canvas_supervisor')) doc.addImage(document.getElementById('canvas_supervisor').toDataURL(), 'PNG', 77, y_dinamico + 5, 48, 14);
+        if(!verificarCanvasVazio('canvas_seguridad')) doc.addImage(document.getElementById('canvas_seguridad').toDataURL(), 'PNG', 140, y_dinamico + 5, 48, 14);
 
         setTimeout(async function() {
             const pdfBase64 = doc.output('datauristring').split(',')[1];
             const nomeDoArquivo = `Checklist_Manipuladora_Telescopica_${patenteRaw.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
-            
-            const payload = { name: nomeDoArquivo, bytes: pdfBase64 };
+            const payloadDrive = { name: nomeDoArquivo, bytes: pdfBase64 };
             const urlGoogleScript = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
 
             try {
-                await fetch(urlGoogleScript, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify(payload)
-                });
-
-                alert("✅ ¡Inspección de Manipuladora Telescópica Guardada!\nEl reporte PDF estructurado ha sido enviado directamente a tu Drive.");
+                await fetch(urlGoogleScript, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payloadDrive) });
+                alert("✅ ¡Inspección procesada exitosamente!\nEl reporte PDF de 3 páginas con firmas e fotos limpas foi enviado ao Drive.");
                 window.location.href = "/";
             } catch (err) {
-                console.error(err);
-                window.print();
-                window.location.href = "/";
+                console.error(err); window.location.href = "/";
             }
         }, 1000);
-    } // <-- CORREÇÃO: Chave inserida fechando a função perfeitamente
+    }
 </script>
 </body>
 </html>

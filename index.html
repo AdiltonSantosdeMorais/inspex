@@ -11,7 +11,7 @@
     
     .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; transition: max-width 0.2s; }
     
-    /* Cabeçalho Superior Branco */
+    /* Cabeçalho Superior Branco (Idêntico ao seu design original) */
     .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; }
     .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
     .logo-elecnor { max-height: 25px; object-fit: contain; }
@@ -33,7 +33,7 @@
     .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
     .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
 
-    /* ESTILOS DO SEU FORMULÁRIO ORIGINAL INTACTO */
+    /* ESTILOS DO FORMULÁRIO ORIGINAL DO SEU MODELO INTACTO */
     .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -511,12 +511,13 @@
         if(canvas) { canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); }
     }
 
-    // INTERAÇÃO COMPLETA DE CLIQUE: PERGUNTA O NOME VIA POP-UP DO SISTEMA
     function salvarChecklistOffline() {
         const patente = document.getElementById('v_patente').value;
+        const empresa = document.getElementById('v_empresa').value;
+        
         if (!patente) { alert("❌ Error: O preenchimento da PATENTE é obrigatório!"); return; }
 
-        // MÁGICA DO POP-UP: Solicita o nome sem precisar alterar o cabeçalho original da folha
+        // CAIXA DE AVISO: Solicita o nome sem alterar o layout original visual da folha
         const inspector = prompt("Por favor, ingrese o NOME COMPLETO do inspetor:");
         if (!inspector || inspector.trim() === "") { 
             alert("❌ Error: O nome do inspetor é obrigatório para registrar o relatório!"); 
@@ -561,8 +562,8 @@
             equipo: equipoSeleccionado,
             patente: patente.toUpperCase(),
             fecha: document.getElementById('v_fecha').value,
-            inspector: inspector.toUpperCase(), // Nome injetado direto no arquivo
-            empresa: document.getElementById('v_empresa').value.toUpperCase(),
+            inspector: inspector.toUpperCase(), 
+            empresa: empresa.toUpperCase(),
             anio: document.getElementById('v_anio').value.toUpperCase(),
             km_horometro: document.getElementById('v_km').value.toUpperCase(),
             respuestas: payloadAnswers,
@@ -586,26 +587,51 @@
         sincronizarDadosPendentes();
     }
 
+    // MOTOR DESCOMPACTADOR CAMPO POR CAMPO PARA TOTAL COMPATIBILIDADE
     async function sincronizarDadosPendentes() {
         if (!navigator.onLine) return;
 
         let locais = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
         if (locais.length === 0) return;
 
-        console.log("Conexão detectada. Sincronizando relatórios pendentes...");
+        console.log("Conexão detectada. Sincronizando relatórios no formato original...");
 
         const btn = document.getElementById('btn-save-main');
         if(btn) btn.disabled = true;
 
         for (let i = 0; i < locais.length; i++) {
             const item = locais[i];
-            
-            // O NOME DO ARQUIVO PDF AGORA LEVA O NOME DO INSPETOR NA DESCRIÇÃO DO ARQUIVO!
             const nomeDoArquivo = `Checklist_${item.equipo}_${item.patente}_RealizadoPor_${item.inspector}_${item.fecha}.pdf`;
             
             const formData = new FormData();
             formData.append("name", nomeDoArquivo);
-            formData.append("metadata", JSON.stringify(item));
+            
+            formData.append("v_equipo", item.equipo);
+            formData.append("v_patente", item.patente);
+            formData.append("v_fecha", item.fecha);
+            formData.append("v_empresa", item.empresa);
+            formData.append("v_anio", item.anio);
+            formData.append("v_km", item.km_horometro);
+            formData.append("v_inspector", item.inspector);
+            formData.append("resultado_final", item.resultado_final);
+            formData.append("obs_generales", item.observaciones_generales);
+            formData.append("medidas_correctivas", item.medidas_correctivas);
+
+            for (const key in item.respuestas) {
+                formData.append(key, item.respuestas[key]);
+            }
+
+            for (const key in item.comentarios) {
+                formData.append(key, item.comentarios[key]);
+            }
+
+            formData.append("canvas_conductor", item.assinatura_conductor);
+            formData.append("canvas_supervisor", item.assinatura_supervisor);
+            formData.append("canvas_seguridad", item.assinatura_seguridad);
+
+            for (const key in item.fotos) {
+                formData.append(key, item.fotos[key]);
+            }
 
             try {
                 await fetch(GOOGLE_SCRIPT_URL, {
@@ -616,9 +642,9 @@
                 locais.splice(i, 1);
                 i--;
                 localStorage.setItem('inspecoes_offline', JSON.stringify(locais));
-                console.log(`Relatório ${nomeDoArquivo} enviado com sucesso ao Google Drive.`);
+                console.log(`Relatório de ${item.equipo} enviado com sucesso ao Google Drive.`);
             } catch (err) {
-                console.error("Erro crítico ao enviar dados para o Drive: ", err);
+                console.error("Erro ao transmitir dados para o script: ", err);
                 break;
             }
         }

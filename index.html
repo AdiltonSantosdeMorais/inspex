@@ -9,10 +9,10 @@
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
     body { background: #f5f7fa; padding: 20px; color: #333; display: flex; justify-content: center; }
     
-    .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; }
+    .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; transition: max-width 0.2s; }
     
-    /* Cabeçalho Superior Branco (Idêntico ao seu design) */
-    .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; }
+    /* Cabeçalho Superior Branco */
+    .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; }
     .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
     .logo-elecnor { max-height: 25px; object-fit: contain; }
     .status-badge { background: #e8f5e9; color: #2ecc71; font-weight: bold; font-size: 11px; padding: 5px 12px; border-radius: 20px; }
@@ -32,141 +32,631 @@
     .equip-card:active { transform: scale(0.99); }
     .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
     .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
+
+    /* ESTILOS DO SEU FORMULÁRIO ORIGINAL INTACTO */
+    .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+    .header-table td { border: 1px solid #000; vertical-align: middle; }
+    .logo-box { width: 20%; height: 100px; text-align: center; padding: 5px; }
+    .logo-box img { max-height: 80px; max-width: 100%; object-fit: contain; }
+    .title-box { width: 55%; text-align: center; font-weight: bold; font-size: 16px; padding: 10px; color: #333; }
+    
+    .info-box-cell { width: 25%; padding: 0 !important; }
+    .info-sub-table { width: 100%; border-collapse: collapse; }
+    .info-sub-table td { border: none !important; border-bottom: 1px solid #000 !important; padding: 3px 8px !important; font-size: 11px; line-height: 1.3; }
+    .info-sub-table tr:last-child td { border-bottom: none !important; }
+    
+    .vehicle-data-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
+    .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; }
+    .vehicle-data-table input { width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; }
+    .col-1 { width: 45%; } .col-2 { width: 30%; } .col-3 { width: 25%; }
+    .legend-row { background-color: #4472c4; color: #ffffff; text-align: center; font-weight: bold; font-size: 12px; height: 28px; letter-spacing: 0.5px; padding: 6px 0 !important; }
+    
+    .checklist-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: -1px; }
+    .checklist-table th, .checklist-table td { border: 1px solid #000; padding: 6px 8px; vertical-align: middle; }
+    .checklist-table th { background:#f2f2f2; font-weight: bold; text-align: center; height: 32px; }
+    .center { text-align: center; width: 55px; }
+    .center input[type="radio"] { transform: scale(1.3); cursor: pointer; width: 18px; height: 18px; }
+    .comment-col { width: 25%; }
+    .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #eee; text-transform: uppercase; }
+    
+    /* ÁREA DE FOTOS */
+    .photos-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
+    .photos-table td { border: 1px solid #000; padding: 12px; font-size: 11px; font-weight: bold; background: #fafafa; }
+    .photos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 8px; }
+    .photo-slot { border: 1px dashed #4472c4; background: #fff; padding: 8px; text-align: center; border-radius: 4px; position: relative; }
+    .photo-slot input[type="file"] { width: 100%; font-size: 10px; margin-top: 5px; cursor: pointer; }
+    .photo-preview { max-width: 100%; height: 60px; object-fit: contain; display: none; margin-top: 5px; border-radius: 2px; border: 1px solid #ddd; }
+
+    .footer-obs-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
+    .footer-obs-table td { border: 1px solid #000; padding: 8px; font-size: 11px; font-weight: bold; vertical-align: top; }
+    .footer-obs-table textarea { width: 100%; height: 60px; border: 1px solid #eee; resize: none; font-size: 11px; outline: none; margin-top: 5px; font-family: Arial; padding: 5px; text-transform: uppercase; }
+    
+    .result-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
+    .result-table td { border: 1px solid #000; padding: 8px; font-size: 11px; font-weight: bold; vertical-align: middle; }
+    .result-title { background-color: #e1e1e1; text-align: center; width: 25%; }
+    .result-option { width: 17%; text-align: center; }
+    .result-checkbox { width: 8%; text-align: center; }
+    .result-checkbox input { transform: scale(1.4); cursor: pointer; }
+    .disabled-option { opacity: 0.4; pointer-events: none; background-color: #f2f2f2; }
+    
+    .signatures-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
+    .signatures-table td { border: 1px solid #000; text-align: center; height: 140px; vertical-align: top; font-weight: bold; font-size: 11px; padding: 6px; width: 33.33%; color: #333; }
+    .canvas-container { margin-top: 5px; background: #fcfcfc; display: inline-block; text-align: center; }
+    .sig-canvas { border: 1px dashed #999; background: #fff; display: block; cursor: crosshair; }
+    .btn-clear { background: #e74c3c; color: white; border: none; padding: 2px 6px; font-size: 9px; border-radius: 2px; cursor: pointer; margin-top: 4px; display: inline-block; }
+    
+    .btn-container { display: flex; justify-content: center; gap: 15px; margin: 20px auto; width: 100%; padding: 0 10px; }
+    .btn-salvar { background: #4472c4; color: white; border: none; padding: 16px 45px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .btn-salvar:hover { background: #355a9c; }
+    .btn-voltar { background: #95a5a6; color: white; border: none; padding: 16px 25px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; text-align: center; }
+
+    #pwa-install-banner { display: none; background: #0055a5; color: white; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 14px; cursor: pointer; margin-bottom: 10px; }
 </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header-card">
-        <div class="header-top">
-            <img class="logo-elecnor" src="/static/logo-elecnor.png" alt="Elecnor">
-            <span class="status-badge" id="net-status">Online</span>
+<div class="container" id="main-container">
+    
+    <div id="section-lista" style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
+        <div class="header-card">
+            <div class="header-top">
+                <img class="logo-elecnor" src="/static/logo-elecnor.png" alt="Elecnor">
+                <span class="status-badge" id="net-status">Online</span>
+            </div>
+            <img class="logo-inspex" src="/static/inspex.png" alt="InspeX">
         </div>
-        <img class="logo-inspex" src="/static/inspex.png" alt="InspeX">
+
+        <div id="pwa-install-banner" onclick="dispararInstalacaoPWA()">📲 CLIQUE AQUI PARA INSTALAR O INSPEX NO TABLET</div>
+
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Buscar equipamento..." oninput="filtrarEquipamentos()">
+        </div>
+
+        <div class="equip-list" id="lista-container">
+            <div class="equip-card" onclick="abrirFormularioNativo('AMBULANCIA')" data-name="AMBULANCIA"><span class="equip-name">AMBULANCIA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN ALJIBE')" data-name="CAMIÓN ALJIBE"><span class="equip-name">CAMIÓN ALJIBE</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('CAMION BETONERA')" data-name="CAMION BETONERA"><span class="equip-name">CAMION BETONERA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN CAMA BAJA')" data-name="CAMIÓN CAMA BAJA"><span class="equip-name">CAMIÓN CAMA BAJA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN DE PETROLEO')" data-name="CAMIÓN DE PETROLEO"><span class="equip-name">CAMIÓN DE PETROLEO</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN TOLVA')" data-name="CAMIÓN TOLVA"><span class="equip-name">CAMIÓN TOLVA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('CAMIONES 3/4')" data-name="CAMIONES 3/4"><span class="equip-name">CAMIONES 3/4</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('ESLINGAS Y GRILLETES')" data-name="ESLINGAS Y GRILLETES"><span class="equip-name">ESLINGAS Y GRILLETES</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('EXCAVADORA HIDRAULICA')" data-name="EXCAVADORA HIDRAULICA"><span class="equip-name">EXCAVADORA HIDRAULICA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('GRUA Y PLUMA')" data-name="GRUA Y PLUMA"><span class="equip-name">GRUA Y PLUMA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('MANIPULADORA TELESCOPICA')" data-name="MANIPULADORA TELESCOPICA"><span class="equip-name">MANIPULADORA TELESCOPICA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('MAQUINA PERFORADORA')" data-name="MAQUINA PERFORADORA"><span class="equip-name">MAQUINA PERFORADORA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('MINI RODILLO COMPACTADOR')" data-name="MINI RODILLO COMPACTADOR"><span class="equip-name">MINI RODILLO COMPACTADOR</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('MINIEXCAVADORA MINI CARREGADORA')" data-name="MINIEXCAVADORA MINI CARREGADORA"><span class="equip-name">MINIEXCAVADORA MINI CARREGADORA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('MOTOR GENERADOR')" data-name="MOTOR GENERADOR"><span class="equip-name">MOTOR GENERADOR</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('PLATAFORMA PTA')" data-name="PLATAFORMA PTA"><span class="equip-name">PLATAFORMA PTA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('REMOLQUE TANQUE DE PETROLEO')" data-name="REMOLQUE TANQUE DE PETROLEO"><span class="equip-name">REMOLQUE TANQUE DE PETROLEO</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('RETROEXCAVADORA')" data-name="RETROEXCAVADORA"><span class="equip-name">RETROEXCAVADORA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('RODILLO COMPACTADOR')" data-name="RODILLO COMPACTADOR"><span class="equip-name">RODILLO COMPACTADOR</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('TALADRO DE ROCA')" data-name="TALADRO DE ROCA"><span class="equip-name">TALADRO DE ROCA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('TRACTOR DE NEUMATICOS')" data-name="TRACTOR DE NEUMATICOS"><span class="equip-name">TRACTOR DE NEUMATICOS</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('TRACTOR DE ORUGAS MOTONIVELADORA')" data-name="TRACTOR DE ORUGAS MOTONIVELADORA"><span class="equip-name">TRACTOR DE ORUGAS MOTONIVELADORA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('TRANSPORTE COLECTIVO FURGONETAS')" data-name="TRANSPORTE COLECTIVO FURGONETAS"><span class="equip-name">TRANSPORTE COLECTIVO FURGONETAS</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('VEHICULOS LIGEROS CAMIONETAS')" data-name="VEHICULOS LIGEROS CAMIONETAS"><span class="equip-name">VEHICULOS LIGEROS CAMIONETAS</span><span class="disponivel-badge">Disponible</span></div>
+        </div>
     </div>
 
-    <div class="search-box">
-        <input type="text" id="search-input" placeholder="Buscar equipamento..." oninput="filtrarEquipamentos()">
-    </div>
+    <div id="section-formulario" style="display: none; width: 100%;">
+        <div class="page-sheet">
+            <table class="header-table">
+                <tr>
+                    <td class="logo-box"><img src="/static/logo-elecnor.png" alt="Logo Elecnor"></td>
+                    <td class="title-box" id="dinamico-titulo-equip">LISTA DE VERIFICACIÓN MENSUAL</td>
+                    <td class="info-box-cell">
+                        <table class="info-sub-table">
+                            <tr><td><strong>Código:</strong> 20.0009-SST-FL-0036</td></tr>
+                            <tr><td><strong>Fecha Ref:</strong> 15/06/2026</td></tr>
+                            <tr><td><strong>Página:</strong> 1/1</td></tr>
+                            <tr><td><strong>Revisión:</strong> 00</td></tr>
+                            <tr><td><strong>Categoria:</strong> General</td></tr>
+                            <tr><td><strong>Sector:</strong> Seguridad</td></tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
 
-    <div class="equip-list" id="lista-container">
-        <a href="/checklist/ambulancia.html" class="equip-card" data-name="AMBULANCIA">
-            <span class="equip-name">AMBULANCIA</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/camion_aljibe.html" class="equip-card" data-name="CAMIÓN ALJIBE">
-            <span class="equip-name">CAMIÓN ALJIBE</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/camion_betonera.html" class="equip-card" data-name="CAMION BETONERA">
-            <span class="equip-name">CAMION BETONERA</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/camion_cama_baja.html" class="equip-card" data-name="CAMIÓN CAMA BAJA">
-            <span class="equip-name">CAMIÓN CAMA BAJA</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/camion_de_petroleo.html" class="equip-card" data-name="CAMIÓN DE PETROLEO">
-            <span class="equip-name">CAMIÓN DE PETROLEO</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/camion_tolva.html" class="equip-card" data-name="CAMIÓN TOLVA">
-            <span class="equip-name">CAMIÓN TOLVA</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/camiones_3_4.html" class="equip-card" data-name="CAMIONES 3/4">
-            <span class="equip-name">CAMIONES 3/4</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/eslingas_y_grilletes.html" class="equip-card" data-name="ESLINGAS Y GRILLETES">
-            <span class="equip-name">ESLINGAS Y GRILLETES</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/excavadora_hidraulica.html" class="equip-card" data-name="EXCAVADORA HIDRAULICA">
-            <span class="equip-name">EXCAVADORA HIDRAULICA</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/grua_y_pluma.html" class="equip-card" data-name="GRUA Y PLUMA">
-            <span class="equip-name">GRUA Y PLUMA</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/manipuladora_telescopica.html" class="equip-card" data-name="MANIPULADORA TELESCOPICA">
-            <span class="equip-name">MANIPULADORA TELESCOPICA</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/maquina_perforadora.html" class="equip-card" data-name="MAQUINA PERFORADORA">
-            <span class="equip-name">MAQUINA PERFORADORA</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/mini_rodillo_compactador.html" class="equip-card" data-name="MINI RODILLO COMPACTADOR">
-            <span class="equip-name">MINI RODILLO COMPACTADOR</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/miniexcavadora_mini_carregadora.html" class="equip-card" data-name="MINIEXCAVADORA MINI CARREGADORA">
-            <span class="equip-name">MINIEXCAVADORA MINI CARREGADORA</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/motor_generador.html" class="equip-card" data-name="MOTOR GENERADOR">
-            <span class="equip-name">MOTOR GENERADOR</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/plataforma_pta.html" class="equip-card" data-name="PLATAFORMA PTA">
-            <span class="equip-name">PLATAFORMA PTA</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/remolque_tanque_de_petroleo.html" class="equip-card" data-name="REMOLQUE TANQUE DE PETROLEO">
-            <span class="equip-name">REMOLQUE TANQUE DE PETROLEO</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/retroexcavadora.html" class="equip-card" data-name="RETROEXCAVADORA">
-            <span class="equip-name">RETROEXCAVADORA</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/rodillo_compactador.html" class="equip-card" data-name="RODILLO COMPACTADOR">
-            <span class="equip-name">RODILLO COMPACTADOR</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/taladro_de_rocka.html" class="equip-card" data-name="TALADRO DE ROCA">
-            <span class="equip-name">TALADRO DE ROCA</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/tractor_de_neumaticos.html" class="equip-card" data-name="TRACTOR DE NEUMATICOS">
-            <span class="equip-name">TRACTOR DE NEUMATICOS</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/tractor_orugas_motoniveladora.html" class="equip-card" data-name="TRACTOR DE ORUGAS MOTONIVELADORA">
-            <span class="equip-name">TRACTOR DE ORUGAS MOTONIVELADORA</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/transporte_colectivo_furgonetas.html" class="equip-card" data-name="TRANSPORTE COLECTIVO FURGONETAS">
-            <span class="equip-name">TRANSPORTE COLECTIVO FURGONETAS</span><span class="disponivel-badge">Disponible</span>
-        </a>
-        <a href="/checklist/vehiculos_ligeros_camionetas.html" class="equip-card" data-name="VEHICULOS LIGEROS CAMIONETAS">
-            <span class="equip-name">VEHICULOS LIGEROS CAMIONETAS</span><span class="disponivel-badge">Disponible</span>
-        </a>
+            <table class="vehicle-data-table">
+                <tr>
+                    <td class="col-1">EQUIPO / MODELO: <input type="text" id="v_equipo" readonly></td>
+                    <td class="col-2">PATENTE / IDENT.: <input type="text" id="v_patente" placeholder="DIGITE AQUÍ LA PATENTE"></td>
+                    <td class="col-3">FECHA DE INSPECCIÓN: <input type="date" id="v_fecha"></td>
+                </tr>
+                <tr>
+                    <td class="col-1">EMPRESA: <input type="text" id="v_empresa" value="ELECNOR"></td>
+                    <td class="col-2">AÑO: <input type="text" id="v_anio" placeholder="Ex: 2024"></td>
+                    <td class="col-3">KM / HORÓMETRO: <input type="text" id="v_km" placeholder="Ex: 45000"></td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="legend-row">C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO</td>
+                </tr>
+            </table>
+
+            <table class="checklist-table">
+                <thead>
+                    <tr>
+                        <th>ELEMENTOS VERIFICADOS</th>
+                        <th class="center">C</th>
+                        <th class="center">NC</th>
+                        <th class="center">NA</th>
+                        <th>COMENTARIOS</th>
+                    </tr>
+                </thead>
+                <tbody id="checklist-dinamico-rows"></tbody>
+            </table>
+
+            <table class="photos-table">
+                <tr>
+                    <td>REGISTRO FOTOGRÁFICO DE EVIDENCIAS (MÁXIMO 8 FOTOS)
+                        <div class="photos-grid">
+                            <div class="photo-slot"><span>Foto 1</span><input type="file" accept="image/*" id="input_foto_1" onchange="processarFoto(1)"><img id="prev_foto_1" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 2</span><input type="file" accept="image/*" id="input_foto_2" onchange="processarFoto(2)"><img id="prev_foto_2" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 3</span><input type="file" accept="image/*" id="input_foto_3" onchange="processarFoto(3)"><img id="prev_foto_3" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 4</span><input type="file" accept="image/*" id="input_foto_4" onchange="processarFoto(4)"><img id="prev_foto_4" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 5</span><input type="file" accept="image/*" id="input_foto_5" onchange="processarFoto(5)"><img id="prev_foto_5" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 6</span><input type="file" accept="image/*" id="input_foto_6" onchange="processarFoto(6)"><img id="prev_foto_6" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 7</span><input type="file" accept="image/*" id="input_foto_7" onchange="processarFoto(7)"><img id="prev_foto_7" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 8</span><input type="file" accept="image/*" id="input_foto_8" onchange="processarFoto(8)"><img id="prev_foto_8" class="photo-preview"></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="footer-obs-table">
+                <tr>
+                    <td>COMENTARIOS Y OBSERVACIONES GENERALES
+                        <textarea id="obs_generales" placeholder="Digite observaciones generales..."></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>MEDIDAS CORRECTIVAS ADOPTADAS:
+                        <textarea id="medidas_correctivas" placeholder="Descreva acciones tomadas..."></textarea>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="result-table">
+                <tr>
+                    <td class="result-title">RESULTADO</td>
+                    <td class="result-option" id="cell_liberado">LIBERADO</td>
+                    <td class="result-checkbox" id="check_liberado"><input type="radio" name="resultado_final" id="res_liberado" value="LIBERADO"></td>
+                    <td class="result-option" id="cell_obs">LIBERADO COM OBS.</td>
+                    <td class="result-checkbox" id="check_obs"><input type="radio" name="resultado_final" id="res_obs" value="LIBERADO_OBS"></td>
+                    <td class="result-option" id="cell_no_liberado">NO LIBERADO</td>
+                    <td class="result-checkbox" id="check_no_liberado"><input type="radio" name="resultado_final" id="res_no_liberado" value="NO_LIBERADO"></td>
+                </tr>
+            </table>
+
+            <table class="signatures-table">
+                <tr>
+                    <td>OPERADOR / CONDUCTOR
+                        <div class="canvas-container">
+                            <canvas id="canvas_conductor" class="sig-canvas" width="220" height="75"></canvas>
+                            <button class="btn-clear" onclick="limparCanvas('canvas_conductor')">🗑️ Limpar</button>
+                        </div>
+                    </td>
+                    <td>SUPERVISOR / ENCARGADO / CAPATAZ
+                        <div class="canvas-container">
+                            <canvas id="canvas_supervisor" class="sig-canvas" width="220" height="75"></canvas>
+                            <button class="btn-clear" onclick="limparCanvas('canvas_supervisor')">🗑️ Limpar</button>
+                        </div>
+                    </td>
+                    <td>SEGURIDAD DO TRABAJO
+                        <div class="canvas-container">
+                            <canvas id="canvas_seguridad" class="sig-canvas" width="220" height="75"></canvas>
+                            <button class="btn-clear" onclick="limparCanvas('canvas_seguridad')">🗑️ Limpar</button>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="btn-container">
+            <button class="btn-voltar" onclick="fecharFormularioNativo()">⬅ Voltar</button>
+            <button class="btn-salvar" id="btn-save-main" onclick="salvarChecklistOffline()">💾 ENVIAR Y SALVAR CHECKLIST</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // Buscador en tiempo real
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
+
+    const BANCO_PERGUNTAS = {
+        "AMBULANCIA": [
+            "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
+            "FRENO DE LAS RUEDAS FUNCIONANDO CORRECTAMENTE - IMP",
+            "FRENO DE ESTACIONAMIENTO",
+            "AGUA DEL RADIADOR CON NIVEL ADECUADO",
+            "LIMPIAPARABRISAS FUNCIONANDO CORRECTAMENTE",
+            "KIT DE HERRAMIENTAS (LLAVE DE RUEDAS, CRIQUE, GATO, TRIANGULO)",
+            "TUERCA DE FIJACIÓN DE LAS RUEDAS",
+            "SISTEMA ELÉCTRICO FUNCIONANDO CORRECTAMENTE",
+            "FAROS Y LUCES FUNCIONANDO CORRECTAMENTE",
+            "CLAXON/CAMARA DE MARCHA ATRÁS Y ALARMA SONORA DE MARCHA ATRÁS - IMP",
+            "RUEDAS SIN JUEGO EN EL VOLANTE",
+            "VELOCÍMETRO/TACOGRAFO",
+            "PUERTAS Y VENTANAS FUNCIONANDO CORRECTAMENTE",
+            "ASIENTOS EN BUEN ESTADO",
+            "ESPEJOS RETROVISORES - IMP",
+            "CINTURONES DE SEGURIDAD CONSERVADOS EN TODOS OS ASIENTOS - IMP",
+            "EXTINTOR DE INCENDIO VALIDO Y ADECUADO",
+            "VENTILACIÓN NATURAL OR ARTIFICIAL",
+            "NEUMATICOS CALIBRADOS Y EN BUEN ESTADO DE USO - IMP",
+            "ALARMA Y SIRENA DE EMERGENCIA FUNCIONANDO - IMP",
+            "CUÑA PARA RUEDAS",
+            "CONSERVACIÓN DEL INTERIOR DEL VEHÍCULO",
+            "IDENTIFICACIÓN DEL VEHÍCULO DE EMBARQUE - IMP"
+        ],
+        "DEFAULT": [
+            "ESTADO GENERAL DEL EQUIPO / CARROCERÍA",
+            "SISTEMA DE FRENOS (DE SERVICIO Y DE ESTACIONAMIENTO) - IMP",
+            "SISTEMA ELÉCTRICO, LUCES DELANTERAS Y TRASERAS",
+            "ALARMA DE MARCHA ATRÁS Y BOCINA OPERATIVAS - IMP",
+            "ESPEJOS RETROVISORES E INSTRUMENTOS DE CABINA - IMP",
+            "CINTURÓN DE SEGURIDAD IN TODOS LOS ASIENTOS - IMP",
+            "NEUMÁTICOS / ORUGAS EN BUEN ESTADO DE USO - IMP",
+            "NIVEL DE ACEITE, AGUA Y FLUIDOS EN GENERAL",
+            "EXTINTOR DE INCENDIO VIGENTE E INSPECCIONADO",
+            "SISTEMA HIDRÁULICO E MANGUERAS SEM FILTRAÇÕES",
+            "ESTADO DE VIDRIOS, PARABRASAS Y LIMPIAPARABRISAS",
+            "DOCUMENTACIÓN DEL EQUIPO AL DÍA"
+        ]
+    };
+
+    let equipoSeleccionado = "";
+    let bancoImagensFotos = {}; 
+
     function filtrarEquipamentos() {
         const filtro = document.getElementById('search-input').value.toUpperCase();
         const cards = document.querySelectorAll('.equip-card');
-        
         cards.forEach(card => {
             const nome = card.getAttribute('data-name');
-            if (nome.includes(filtro)) {
-                card.style.display = "flex";
-            } else {
-                card.style.display = "none";
-            }
+            card.style.display = nome && nome.includes(filtro) ? "flex" : "none";
         });
     }
 
-    // Monitoreo visual de red
     function atualizarStatusRede() {
         const badge = document.getElementById('net-status');
+        if (!badge) return;
         if (navigator.onLine) {
-            badge.innerText = "Online";
-            badge.style.background = "#e8f5e9";
-            badge.style.color = "#2ecc71";
+            badge.innerText = "Online"; badge.style.background = "#e8f5e9"; badge.style.color = "#2ecc71";
         } else {
-            badge.innerText = "Offline";
-            badge.style.background = "#ffebee";
-            badge.style.color = "#e74c3c";
+            badge.innerText = "Offline"; badge.style.background = "#ffebee"; badge.style.color = "#e74c3c";
         }
     }
-    window.addEventListener('online', atualizarStatusRede);
-    window.addEventListener('offline', atualizarStatusRede);
-    atualizarStatusRede();
 
-    // Activador del Service Worker para el soporte Offline PWA
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
-                .then(reg => console.log('¡Modo Offline de InspeX activado con éxito!', reg))
-                .catch(err => console.error('Error al registrar el modo offline:', err));
+    function processarFoto(id) {
+        const input = document.getElementById(`input_foto_${id}`);
+        if (!input || !input.files[0]) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            bancoImagensFotos[`foto_${id}`] = e.target.result;
+            const preview = document.getElementById(`prev_foto_${id}`);
+            if(preview) {
+                preview.src = e.target.result;
+                preview.style.display = "block";
+            }
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function abrirFormularioNativo(equip) {
+        equipoSeleccionado = equip;
+        bancoImagensFotos = {}; 
+        
+        document.getElementById('v_equipo').value = equip;
+        document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + equip;
+        document.getElementById('v_fecha').valueAsDate = new Date();
+        
+        document.getElementById('v_patente').value = "";
+        document.getElementById('v_anio').value = "";
+        document.getElementById('v_empresa').value = "ELECNOR";
+        document.getElementById('v_km').value = "";
+        document.getElementById('obs_generales').value = "";
+        document.getElementById('medidas_correctivas').value = "";
+
+        for (let idx = 1; idx <= 8; idx++) {
+            const input = document.getElementById(`input_foto_${idx}`);
+            const preview = document.getElementById(`prev_foto_${idx}`);
+            if(input) input.value = "";
+            if(preview) { preview.style.display = "none"; preview.src = ""; }
+        }
+
+        const resLiberado = document.getElementById('res_liberado');
+        const resObs = document.getElementById('res_obs');
+        const resNoLiberado = document.getElementById('res_no_liberado');
+        
+        if(resLiberado) resLiberado.checked = false;
+        if(resObs) resObs.checked = false;
+        if(resNoLiberado) resNoLiberado.checked = false;
+        
+        const itensLayout = [
+            document.getElementById('cell_liberado'), document.getElementById('check_liberado'),
+            document.getElementById('cell_obs'), document.getElementById('check_obs'),
+            document.getElementById('cell_no_liberado'), document.getElementById('check_no_liberado')
+        ];
+        itensLayout.forEach(el => { if(el) el.classList.remove('disabled-option'); });
+
+        const tbody = document.getElementById('checklist-dinamico-rows');
+        tbody.innerHTML = "";
+        
+        const perguntas = BANCO_PERGUNTAS[equip] || BANCO_PERGUNTAS["DEFAULT"];
+        
+        perguntas.forEach((pregunta, index) => {
+            const id = index + 1;
+            const row = `
+                <tr>
+                    <td><strong>${id}.</strong> ${pregunta}</td>
+                    <td class="center"><input type="radio" name="item_${id}" value="C" onchange="verificarReglasResultados()"></td>
+                    <td class="center"><input type="radio" name="item_${id}" value="NC" onchange="verificarReglasResultados()"></td>
+                    <td class="center"><input type="radio" name="item_${id}" value="NA" onchange="verificarReglasResultados()"></td>
+                    <td class="comment-col"><input type="text" id="comment_${id}" placeholder="Nota..."></td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+
+        document.getElementById('main-container').style.maxWidth = "1050px";
+        document.getElementById('section-lista').style.display = "none";
+        document.getElementById('section-formulario').style.display = "block";
+        window.scrollTo(0,0);
+        
+        inicializarCanvases();
+        limparCanvas('canvas_conductor');
+        limparCanvas('canvas_supervisor');
+        limparCanvas('canvas_seguridad');
+    }
+
+    function fecharFormularioNativo() {
+        document.getElementById('main-container').style.maxWidth = "450px";
+        document.getElementById('section-formulario').style.display = "none";
+        document.getElementById('section-lista').style.display = "block";
+        window.scrollTo(0,0);
+    }
+
+    function verificarReglasResultados() {
+        let bloqueioImpeditivo = false;
+        let falhaComumDetectada = false;
+        let todasRespondidas = true;
+        
+        const perguntas = BANCO_PERGUNTAS[equipoSeleccionado] || BANCO_PERGUNTAS["DEFAULT"];
+
+        perguntas.forEach((pregunta, index) => {
+            const id = index + 1;
+            const marcado = document.querySelector(`input[name="item_${id}"]:checked`);
+            
+            if (!marcado) {
+                todasRespondidas = false;
+            } else if (marcado.value === "NC") {
+                if (pregunta.toUpperCase().includes("IMP")) {
+                    bloqueioImpeditivo = true;
+                } else {
+                    falhaComumDetectada = true;
+                }
+            }
+        });
+
+        const btnLiberado = document.getElementById('res_liberado');
+        const btnObs = document.getElementById('res_obs');
+        const btnNoLiberado = document.getElementById('res_no_liberado');
+        
+        const itensLayout = [
+            document.getElementById('cell_liberado'), document.getElementById('check_liberado'),
+            document.getElementById('cell_obs'), document.getElementById('check_obs'),
+            document.getElementById('cell_no_liberado'), document.getElementById('check_no_liberado')
+        ];
+
+        itensLayout.forEach(el => { if(el) el.classList.remove('disabled-option'); });
+        if(btnLiberado) btnLiberado.disabled = false; 
+        if(btnObs) btnObs.disabled = false; 
+        if(btnNoLiberado) btnNoLiberado.disabled = false;
+
+        if (bloqueioImpeditivo) {
+            if(btnNoLiberado) btnNoLiberado.checked = true;
+            itensLayout.slice(0, 4).forEach(el => { if(el) el.classList.add('disabled-option'); });
+            if(btnLiberado) btnLiberado.disabled = true; 
+            if(btnObs) btnObs.disabled = true;
+        } 
+        else if (falhaComumDetectada) {
+            if(btnObs) btnObs.checked = true;
+            itensLayout.slice(0, 2).concat(itensLayout.slice(4, 6)).forEach(el => { if(el) el.classList.add('disabled-option'); });
+            if(btnLiberado) btnLiberado.disabled = true; 
+            if(btnNoLiberado) btnNoLiberado.disabled = true;
+        } 
+        else if (todasRespondidas) {
+            if(btnLiberado) btnLiberado.checked = true;
+        } else {
+            if(btnLiberado) btnLiberado.checked = false; 
+            if(btnObs) btnObs.checked = false; 
+            if(btnNoLiberado) btnNoLiberado.checked = false;
+        }
+    }
+
+    function inicializarCanvases() {
+        const canvases = ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'];
+        canvases.forEach(id => {
+            const canvas = document.getElementById(id);
+            if(!canvas) return;
+            const clone = canvas.cloneNode(true);
+            canvas.parentNode.replaceChild(clone, canvas);
+            
+            const novoCanvas = document.getElementById(id);
+            const novoCtx = novoCanvas.getContext('2d');
+            novoCtx.lineWidth = 2; novoCtx.strokeStyle = "#004B87";
+            let desenhando = false;
+            
+            function obterPosicao(e) {
+                const rect = novoCanvas.getBoundingClientRect();
+                const clienteX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clienteY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: clienteX - rect.left, y: clienteY - rect.top };
+            }
+            novoCanvas.onmousedown = function(e) { desenhando = true; novoCtx.beginPath(); const p = obterPosicao(e); novoCtx.moveTo(p.x, p.y); };
+            novoCanvas.onmousemove = function(e) { if (!desenhando) return; const pos = obterPosicao(e); novoCtx.lineTo(pos.x, pos.y); novoCtx.stroke(); };
+            window.addEventListener('mouseup', () => { desenhando = false; });
+            
+            novoCanvas.ontouchstart = function(e) { desenhando = true; novoCtx.beginPath(); const p = obterPosicao(e); novoCtx.moveTo(p.x, p.y); };
+            novoCanvas.ontouchmove = function(e) { if (!desenhando) return; e.preventDefault(); const pos = obterPosicao(e); novoCtx.lineTo(pos.x, pos.y); novoCtx.stroke(); };
+            window.addEventListener('touchend', () => { desenhando = false; });
         });
     }
-</script>
 
+    function limparCanvas(id) {
+        const canvas = document.getElementById(id);
+        if(canvas) { canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); }
+    }
+
+    // INTERAÇÃO COMPLETA DE CLIQUE: PERGUNTA O NOME VIA POP-UP DO SISTEMA
+    function salvarChecklistOffline() {
+        const patente = document.getElementById('v_patente').value;
+        if (!patente) { alert("❌ Error: O preenchimento da PATENTE é obrigatório!"); return; }
+
+        // MÁGICA DO POP-UP: Solicita o nome sem precisar alterar o cabeçalho original da folha
+        const inspector = prompt("Por favor, ingrese o NOME COMPLETO do inspetor:");
+        if (!inspector || inspector.trim() === "") { 
+            alert("❌ Error: O nome do inspetor é obrigatório para registrar o relatório!"); 
+            return; 
+        }
+        
+        const perguntas = BANCO_PERGUNTAS[equipoSeleccionado] || BANCO_PERGUNTAS["DEFAULT"];
+        let respondidas = true;
+        let payloadAnswers = {};
+        let payloadComments = {};
+
+        perguntas.forEach((pregunta, index) => {
+            const id = index + 1;
+            const radio = document.querySelector(`input[name="item_${id}"]:checked`);
+            if(!radio) {
+                respondidas = false;
+            } else {
+                payloadAnswers[`item_${id}`] = radio.value;
+                const commentInput = document.getElementById(`comment_${id}`);
+                payloadComments[`item_${id}`] = commentInput ? commentInput.value.toUpperCase() : "";
+            }
+        });
+
+        if(!respondidas) {
+            alert("❌ Error: Todos los elementos de la lista deben ser verificados antes de guardar.");
+            return;
+        }
+
+        const radioResultado = document.querySelector('input[name="resultado_final"]:checked');
+        const resultadoFinal = radioResultado ? radioResultado.value : "LIBERADO";
+
+        const canvasCond = document.getElementById('canvas_conductor');
+        const canvasSup = document.getElementById('canvas_supervisor');
+        const canvasSeg = document.getElementById('canvas_seguridad');
+
+        let conductorSig = canvasCond ? canvasCond.toDataURL() : "";
+        let supervisorSig = canvasSup ? canvasSup.toDataURL() : "";
+        let seguridadSig = canvasSeg ? canvasSeg.toDataURL() : "";
+
+        let checklistData = {
+            id_interno: Date.now().toString(),
+            equipo: equipoSeleccionado,
+            patente: patente.toUpperCase(),
+            fecha: document.getElementById('v_fecha').value,
+            inspector: inspector.toUpperCase(), // Nome injetado direto no arquivo
+            empresa: document.getElementById('v_empresa').value.toUpperCase(),
+            anio: document.getElementById('v_anio').value.toUpperCase(),
+            km_horometro: document.getElementById('v_km').value.toUpperCase(),
+            respuestas: payloadAnswers,
+            comentarios: payloadComments,
+            observaciones_generales: document.getElementById('obs_generales').value.toUpperCase(),
+            medidas_correctivas: document.getElementById('medidas_correctivas').value.toUpperCase(),
+            resultado_final: resultadoFinal,
+            fotos: bancoImagensFotos, 
+            assinatura_conductor: conductorSig,
+            assinatura_supervisor: supervisorSig,
+            assinatura_seguridad: seguridadSig
+        };
+
+        let locais = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
+        locais.push(checklistData);
+        localStorage.setItem('inspecoes_offline', JSON.stringify(locais));
+
+        alert("✅ ¡Inspección Guardada de forma Exitosa!");
+        fecharFormularioNativo();
+        
+        sincronizarDadosPendentes();
+    }
+
+    async function sincronizarDadosPendentes() {
+        if (!navigator.onLine) return;
+
+        let locais = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
+        if (locais.length === 0) return;
+
+        console.log("Conexão detectada. Sincronizando relatórios pendentes...");
+
+        const btn = document.getElementById('btn-save-main');
+        if(btn) btn.disabled = true;
+
+        for (let i = 0; i < locais.length; i++) {
+            const item = locais[i];
+            
+            // O NOME DO ARQUIVO PDF AGORA LEVA O NOME DO INSPETOR NA DESCRIÇÃO DO ARQUIVO!
+            const nomeDoArquivo = `Checklist_${item.equipo}_${item.patente}_RealizadoPor_${item.inspector}_${item.fecha}.pdf`;
+            
+            const formData = new FormData();
+            formData.append("name", nomeDoArquivo);
+            formData.append("metadata", JSON.stringify(item));
+
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                locais.splice(i, 1);
+                i--;
+                localStorage.setItem('inspecoes_offline', JSON.stringify(locais));
+                console.log(`Relatório ${nomeDoArquivo} enviado com sucesso ao Google Drive.`);
+            } catch (err) {
+                console.error("Erro crítico ao enviar dados para o Drive: ", err);
+                break;
+            }
+        }
+
+        if(btn) btn.disabled = false;
+    }
+
+    window.addEventListener('online', () => {
+        atualizarStatusRede();
+        sincronizarDadosPendentes();
+    });
+    window.addEventListener('offline', atualizarStatusRede);
+
+    atualizarStatusRede();
+    sincronizarDadosPendentes();
+
+    let eventoInstalacaoPWA = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault(); eventoInstalacaoPWA = e;
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) { banner.style.display = 'block'; }
+    });
+
+    function dispararInstalacaoPWA() {
+        if (eventoInstalacaoPWA) {
+            eventoInstalacaoPWA.prompt();
+            eventoInstalacaoPWA.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    document.getElementById('pwa-install-banner').style.display = 'none';
+                }
+                eventoInstalacaoPWA = null;
+            });
+        }
+    }
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); });
+    }
+</script>
 </body>
 </html>

@@ -9,13 +9,13 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/inspex.png",
+      "src": "/static/inspex.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/inspex.png",
+      "src": "/static/inspex.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"

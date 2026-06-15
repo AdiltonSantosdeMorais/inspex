@@ -261,6 +261,8 @@
 </div>
 
 <script>
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
+
     let equipoSeleccionado = "";
     let bancoImagensFotos = {}; 
     const BANCO_PERGUNTAS = {
@@ -503,19 +505,17 @@
         return null;
     }
 
-    // CORREÇÃO DA SIMETRIA E DA GRADE DOS METADADOS DIREITOS
+    // DESENHA A GRADE DE METADADOS DIREITOS SIMÉTRICA EM TODOS OS TOPO
     function desenharTabelaMetadadosSST(doc, paginaAtual, totalPaginas) {
         const startX = 150;
         const startY = 10;
         const totalWidth = 50;
-        const rowHeight = 4.166; // 25mm totais divididos por 6 linhas exatas
+        const rowHeight = 4.166;
 
-        // Grade limite externa da tabela direita
         doc.setDrawColor(0);
         doc.setLineWidth(0.4);
         doc.rect(startX, startY, totalWidth, 25);
 
-        // Divisão vertical interna estrita: Títulos (17mm) | Valores (33mm)
         const colSplitX = startX + 17; 
         doc.line(colSplitX, startY, colSplitX, startY + 25);
 
@@ -530,25 +530,19 @@
 
         dadosMetadados.forEach((item, index) => {
             const currentLineY = startY + (index * rowHeight);
-            
-            // Desenha as linhas horizontais divisórias internas da grade
             if (index > 0) {
                 doc.line(startX, currentLineY, startX + totalWidth, currentLineY);
             }
-
-            // Alinhamento simétrico dos títulos
             doc.setFont("helvetica", "bold");
             doc.setFontSize(6.5);
             doc.text(item.label, startX + 1.5, currentLineY + 3);
 
-            // Alinhamento simétrico dos valores à direita
             doc.setFont("helvetica", "normal");
             doc.setFontSize(6.5);
             doc.text(item.value, colSplitX + 1.5, currentLineY + 3);
         });
     }
 
-    // CONSTRUTOR CORRIGIDO PARA IMPRIMIR DINAMICAMENTE O TÍTULO EM DUAS LINHAS NAS 3 PÁGINAS
     async function salvarEMontarPDF_Original_SST() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
@@ -572,22 +566,45 @@
         // FOLHA 1: CABEÇALHO COMPLETO, VEÍCULO E ITENS
         // ==========================================
         doc.setLineWidth(0.4); 
-        doc.rect(10, 10, 140, 25); // Limita o bloco esquerdo em 140mm para encaixe perfeito da grade
+        doc.rect(10, 10, 140, 25); 
         doc.line(50, 10, 50, 35); 
         
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
 
-        // Duas linhas de título dinâmicas obrigatórias na Folha 1
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
         doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
 
-        // Tabela de metadados direita da folha 1
         desenharTabelaMetadadosSST(doc, 1, 3);
 
-        doc.rect(10, 35, 190, 20); doc.line(73, 35, 73, 55); doc.line(140, 35, 140, 55);
-        doc.setFontSize(8); doc.text("EQUIPO / MODELO: " + equipoSeleccionado, 12, 42); doc.text("PATENTE / IDENT.: " + patente.toUpperCase(), 75, 42); doc.text("FECHA INSP.: " + document.getElementById('v_fecha').value, 142, 42);
-        doc.text("EMPRESA: ELECNOR", 12, 52); doc.text("AÑO: " + document.getElementById('v_anio').value.toUpperCase(), 75, 52); doc.text("KM / HORÓMETRO: " + document.getElementById('v_km').value.toUpperCase(), 142, 52);
+        // TABELA VEÍCULO: Retângulo total e linhas verticais divisórias
+        doc.rect(10, 35, 190, 20); 
+        doc.line(73, 35, 73, 55); 
+        doc.line(140, 35, 140, 55);
+        
+        // ADICIONADA: Linha horizontal simétrica exata que divide a linha superior da linha inferior conforme imagem
+        doc.line(10, 45, 200, 45);
+
+        // Preenchimento de textos respeitando os espaços das linhas horizontais e verticais
+        doc.setFontSize(7.5);
+        doc.setFont("helvetica", "bold"); doc.text("EQUIPO / MODELO: ", 12, 39);
+        doc.setFont("helvetica", "normal"); doc.text(equipoSeleccionado, 38, 39);
+        
+        doc.setFont("helvetica", "bold"); doc.text("PATENTE / IDENT.: ", 75, 39);
+        doc.setFont("helvetica", "normal"); doc.text(patente.toUpperCase(), 102, 39);
+        
+        doc.setFont("helvetica", "bold"); doc.text("FECHA INSP.: ", 142, 39);
+        doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_fecha').value, 162, 39);
+
+        // Dados da linha inferior da tabela do veículo
+        doc.setFont("helvetica", "bold"); doc.text("EMPRESA: ", 12, 49);
+        doc.setFont("helvetica", "normal"); doc.text("ELECNOR", 28, 49);
+        
+        doc.setFont("helvetica", "bold"); doc.text("AÑO: ", 75, 49);
+        doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_anio').value.toUpperCase(), 84, 49);
+        
+        doc.setFont("helvetica", "bold"); doc.text("KM / HORÓMETRO: ", 142, 49);
+        doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_km').value.toUpperCase(), 169, 49);
 
         doc.setFillColor(68, 114, 196); doc.rect(10, 55, 190, 7, 'F');
         doc.setTextColor(255); doc.setFontSize(8); doc.text("C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO", 100, 59.5, { align: 'center' });
@@ -622,20 +639,17 @@
         });
 
         // ==========================================
-        // FOLHA 2: DUAS LINHAS DE TÍTULO DA ENGENHARIA E GRADE DIREITA CORRIGIDA
+        // FOLHA 2: CABEÇALHO DUPLO UNIFICADO E HISTÓRICO
         // ==========================================
         doc.addPage();
-        doc.setLineWidth(0.4); 
-        doc.rect(10, 10, 140, 25); // Alinha o retângulo esquerdo com 140mm na folha 2
-        doc.line(50, 10, 50, 35);
+        doc.setLineWidth(0.4); doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35);
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
         
-        // Duas linhas de título dinâmicas obrigatórias na Folha 2
+        // Título de engenharia unificado em duas linhas na folha 2
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
         doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
 
-        // Tabela de metadados direita da folha 2
         desenharTabelaMetadadosSST(doc, 2, 3);
 
         let yFolha2 = 40;
@@ -676,20 +690,17 @@
         doc.text("SEGURIDAD DO TRABAJO", 168, yFolha2 + 45, {align:'center'});
 
         // ==========================================
-        // FOLHA 3: DUAS LINHAS DE TÍTULO DA ENGENHARIA Y GRID COMPLETO DAS FOTOS
+        // FOLHA 3: CABEÇALHO DUPLO UNIFICADO E GRID DE FOTOS
         // ==========================================
         doc.addPage();
-        doc.setLineWidth(0.4); 
-        doc.rect(10, 10, 140, 25); // Alinha o retângulo esquerdo com 140mm na folha 3
-        doc.line(50, 10, 50, 35);
+        doc.setLineWidth(0.4); doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35);
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
         
-        // Duas linhas de título dinâmicas obrigatórias na Folha 3
+        // Título de engenharia unificado em duas linhas na folha 3
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
         doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
 
-        // Tabela de metadados direita da folha 3
         desenharTabelaMetadadosSST(doc, 3, 3);
 
         doc.rect(10, 38, 190, 240);

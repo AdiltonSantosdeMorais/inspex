@@ -30,7 +30,7 @@
     .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
     .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
 
-    /* ESTILOS DO FORMULÁRIO SST DA AMBULÂNCIA */
+    /* ESTILOS DO FORMULÁRIO SST COMPLETO */
     .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -46,7 +46,7 @@
     .vehicle-data-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
     .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; }
     .vehicle-data-table input { width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; }
-    .col-1 { width: 45%; } .col-2 { width: 30%; } .col-3 { width: 25%; }
+    .col-1 { width: 40%; } .col-2 { width: 30%; } .col-3 { width: 30%; }
     .legend-row { background-color: #4472c4; color: #ffffff; text-align: center; font-weight: bold; font-size: 12px; height: 28px; letter-spacing: 0.5px; padding: 6px 0 !important; }
     
     .checklist-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: -1px; }
@@ -164,9 +164,13 @@
                     <td class="col-3">FECHA DE INSPECCIÓN: <input type="date" id="v_fecha"></td>
                 </tr>
                 <tr>
-                    <td class="col-1">INSPECTOR / REALIZADO POR: <input type="text" id="v_inspector" placeholder="NOMBRE COMPLETO DO INSPECTOR"></td>
+                    <td class="col-1">INSPECTOR / REALIZADO POR: <input type="text" id="v_inspector" placeholder="NOMBRE COMPLETO DEL INSPECTOR"></td>
                     <td class="col-2">AÑO: <input type="text" id="v_anio" placeholder="Ex: 2024"></td>
-                    <td class="col-3">KM / HORÓMETRO: <input type="text" id="v_km" placeholder="Ex: 45000"></td>
+                    <td class="col-3">EMPRESA: <input type="text" id="v_empresa" placeholder="Ex: ELECNOR" value="ELECNOR"></td>
+                </tr>
+                <tr>
+                    <td colspan="2">KM / HORÓMETRO: <input type="text" id="v_km" placeholder="Ex: 45000"></td>
+                    <td></td>
                 </tr>
                 <tr>
                     <td colspan="3" class="legend-row">C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO</td>
@@ -180,7 +184,7 @@
                         <th class="center">C</th>
                         <th class="center">NC</th>
                         <th class="center">NA</th>
-                        <th class="comment-col">COMENTARIOS</th>
+                        <th>COMENTARIOS</th>
                     </tr>
                 </thead>
                 <tbody id="checklist-dinamico-rows"></tbody>
@@ -195,7 +199,7 @@
                             <div class="photo-slot"><span>Foto 3</span><input type="file" accept="image/*" id="input_foto_3" onchange="processarFoto(3)"><img id="prev_foto_3" class="photo-preview"></div>
                             <div class="photo-slot"><span>Foto 4</span><input type="file" accept="image/*" id="input_foto_4" onchange="processarFoto(4)"><img id="prev_foto_4" class="photo-preview"></div>
                             <div class="photo-slot"><span>Foto 5</span><input type="file" accept="image/*" id="input_foto_5" onchange="processarFoto(5)"><img id="prev_foto_5" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 6</span><input type="file" accept="image/*" id="input_foto_6" onchange="change" onchange="processarFoto(6)"><img id="prev_foto_6" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 6</span><input type="file" accept="image/*" id="input_foto_6" onchange="processarFoto(6)"><img id="prev_foto_6" class="photo-preview"></div>
                             <div class="photo-slot"><span>Foto 7</span><input type="file" accept="image/*" id="input_foto_7" onchange="processarFoto(7)"><img id="prev_foto_7" class="photo-preview"></div>
                             <div class="photo-slot"><span>Foto 8</span><input type="file" accept="image/*" id="input_foto_8" onchange="processarFoto(8)"><img id="prev_foto_8" class="photo-preview"></div>
                         </div>
@@ -312,7 +316,7 @@
         const cards = document.querySelectorAll('.equip-card');
         cards.forEach(card => {
             const nome = card.getAttribute('data-name');
-            card.style.display = nome.includes(filtro) ? "flex" : "none";
+            card.style.display = nome && nome.includes(filtro) ? "flex" : "none";
         });
     }
 
@@ -327,17 +331,19 @@
     }
 
     function processarFoto(id) {
-        const file = document.getElementById(`input_foto_${id}`).files[0];
-        if (!file) return;
+        const input = document.getElementById(`input_foto_${id}`);
+        if (!input || !input.files[0]) return;
 
         const reader = new FileReader();
         reader.onload = function(e) {
             bancoImagensFotos[`foto_${id}`] = e.target.result;
             const preview = document.getElementById(`prev_foto_${id}`);
-            preview.src = e.target.result;
-            preview.style.display = "block";
+            if(preview) {
+                preview.src = e.target.result;
+                preview.style.display = "block";
+            }
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(input.files[0]);
     }
 
     function abrirFormularioNativo(equip) {
@@ -351,26 +357,32 @@
         document.getElementById('v_patente').value = "";
         document.getElementById('v_inspector').value = "";
         document.getElementById('v_anio').value = "";
+        document.getElementById('v_empresa').value = "ELECNOR";
         document.getElementById('v_km').value = "";
         document.getElementById('obs_generales').value = "";
         document.getElementById('medidas_correctivas').value = "";
 
         for (let idx = 1; idx <= 8; idx++) {
-            document.getElementById(`input_foto_${idx}`).value = "";
-            document.getElementById(`prev_foto_${idx}`).style.display = "none";
-            document.getElementById(`prev_foto_${idx}`).src = "";
+            const input = document.getElementById(`input_foto_${idx}`);
+            const preview = document.getElementById(`prev_foto_${idx}`);
+            if(input) input.value = "";
+            if(preview) { preview.style.display = "none"; preview.src = ""; }
         }
 
-        document.getElementById('res_liberado').checked = false;
-        document.getElementById('res_obs').checked = false;
-        document.getElementById('res_no_liberado').checked = false;
+        const resLiberado = document.getElementById('res_liberado');
+        const resObs = document.getElementById('res_obs');
+        const resNoLiberado = document.getElementById('res_no_liberado');
+        
+        if(resLiberado) resLiberado.checked = false;
+        if(resObs) resObs.checked = false;
+        if(resNoLiberado) resNoLiberado.checked = false;
         
         const itensLayout = [
             document.getElementById('cell_liberado'), document.getElementById('check_liberado'),
             document.getElementById('cell_obs'), document.getElementById('check_obs'),
             document.getElementById('cell_no_liberado'), document.getElementById('check_no_liberado')
         ];
-        itensLayout.forEach(el => el.classList.remove('disabled-option'));
+        itensLayout.forEach(el => { if(el) el.classList.remove('disabled-option'); });
 
         const tbody = document.getElementById('checklist-dinamico-rows');
         tbody.innerHTML = "";
@@ -441,23 +453,29 @@
             document.getElementById('cell_no_liberado'), document.getElementById('check_no_liberado')
         ];
 
-        itensLayout.forEach(el => el.classList.remove('disabled-option'));
-        btnLiberado.disabled = false; btnObs.disabled = false; btnNoLiberado.disabled = false;
+        itensLayout.forEach(el => { if(el) el.classList.remove('disabled-option'); });
+        if(btnLiberado) btnLiberado.disabled = false; 
+        if(btnObs) btnObs.disabled = false; 
+        if(btnNoLiberado) btnNoLiberado.disabled = false;
 
         if (bloqueioImpeditivo) {
-            btnNoLiberado.checked = true;
-            itensLayout.slice(0, 4).forEach(el => el.classList.add('disabled-option'));
-            btnLiberado.disabled = true; btnObs.disabled = true;
+            if(btnNoLiberado) btnNoLiberado.checked = true;
+            itensLayout.slice(0, 4).forEach(el => { if(el) el.classList.add('disabled-option'); });
+            if(btnLiberado) btnLiberado.disabled = true; 
+            if(btnObs) btnObs.disabled = true;
         } 
         else if (falhaComumDetectada) {
-            btnObs.checked = true;
-            itensLayout.slice(0, 2).concat(itensLayout.slice(4, 6)).forEach(el => el.classList.add('disabled-option'));
-            btnLiberado.disabled = true; btnNoLiberado.disabled = true;
+            if(btnObs) btnObs.checked = true;
+            itensLayout.slice(0, 2).concat(itensLayout.slice(4, 6)).forEach(el => { if(el) el.classList.add('disabled-option'); });
+            if(btnLiberado) btnLiberado.disabled = true; 
+            if(btnNoLiberado) btnNoLiberado.disabled = true;
         } 
         else if (todasRespondidas) {
-            btnLiberado.checked = true;
+            if(btnLiberado) btnLiberado.checked = true;
         } else {
-            btnLiberado.checked = false; btnObs.checked = false; btnNoLiberado.checked = false;
+            if(btnLiberado) btnLiberado.checked = false; 
+            if(btnObs) btnObs.checked = false; 
+            if(btnNoLiberado) btnNoLiberado.checked = false;
         }
     }
 
@@ -465,6 +483,7 @@
         const canvases = ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'];
         canvases.forEach(id => {
             const canvas = document.getElementById(id);
+            if(!canvas) return;
             const clone = canvas.cloneNode(true);
             canvas.parentNode.replaceChild(clone, canvas);
             
@@ -497,8 +516,11 @@
     function salvarChecklistOffline() {
         const patente = document.getElementById('v_patente').value;
         const inspector = document.getElementById('v_inspector').value;
+        const empresaField = document.getElementById('v_empresa');
+        const empresa = empresaField ? empresaField.value : "ELECNOR";
+        
         if (!patente) { alert("❌ Error: O preenchimento da PATENTE é obrigatório!"); return; }
-        if (!inspector) { alert("❌ Error: El nombre do INSPECTOR é obrigatório!"); return; }
+        if (!inspector) { alert("❌ Error: El nombre del INSPECTOR é obrigatório!"); return; }
         
         const perguntas = BANCO_PERGUNTAS[equipoSeleccionado] || BANCO_PERGUNTAS["DEFAULT"];
         let respondidas = true;
@@ -512,7 +534,8 @@
                 respondidas = false;
             } else {
                 payloadAnswers[`item_${id}`] = radio.value;
-                payloadComments[`item_${id}`] = document.getElementById(`comment_${id}`).value.toUpperCase();
+                const commentInput = document.getElementById(`comment_${id}`);
+                payloadComments[`item_${id}`] = commentInput ? commentInput.value.toUpperCase() : "";
             }
         });
 
@@ -524,9 +547,13 @@
         const radioResultado = document.querySelector('input[name="resultado_final"]:checked');
         const resultadoFinal = radioResultado ? radioResultado.value : "LIBERADO";
 
-        let conductorSig = document.getElementById('canvas_conductor').toDataURL();
-        let supervisorSig = document.getElementById('canvas_supervisor').toDataURL();
-        let seguridadSig = document.getElementById('canvas_seguridad').toDataURL();
+        const canvasCond = document.getElementById('canvas_conductor');
+        const canvasSup = document.getElementById('canvas_supervisor');
+        const canvasSeg = document.getElementById('canvas_seguridad');
+
+        let conductorSig = canvasCond ? canvasCond.toDataURL() : "";
+        let supervisorSig = canvasSup ? canvasSup.toDataURL() : "";
+        let seguridadSig = canvasSeg ? canvasSeg.toDataURL() : "";
 
         let checklistData = {
             id_interno: Date.now().toString(),
@@ -534,7 +561,7 @@
             patente: patente.toUpperCase(),
             fecha: document.getElementById('v_fecha').value,
             inspector: inspector.toUpperCase(),
-            empresa: document.getElementById('v_empresa').value.toUpperCase(),
+            empresa: empresa.toUpperCase(),
             anio: document.getElementById('v_anio').value.toUpperCase(),
             km_horometro: document.getElementById('v_km').value.toUpperCase(),
             respuestas: payloadAnswers,

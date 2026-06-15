@@ -11,7 +11,7 @@
     
     .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; transition: max-width 0.2s; }
     
-    /* Cabeçalho Superior Branco */
+    /* Cabeçalho Superior Branco Original */
     .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; }
     .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
     .logo-elecnor { max-height: 25px; object-fit: contain; }
@@ -217,7 +217,7 @@
                 </tr>
                 <tr>
                     <td>MEDIDAS CORRECTIVAS ADOPTADAS:
-                        <textarea id="medidas_correctivas" placeholder="Descreva acciones tomadas..."></textarea>
+                        <textarea id="medidas_correctivas" placeholder="Descreva ações tomadas..."></textarea>
                     </td>
                 </tr>
             </table>
@@ -369,9 +369,9 @@
             tbody.innerHTML += `
                 <tr>
                     <td><strong>${id}.</strong> ${pregunta}</td>
-                    <td class="center"><input type="radio" name="item_${id}" value="C"></td>
-                    <td class="center"><input type="radio" name="item_${id}" value="NC"></td>
-                    <td class="center"><input type="radio" name="item_${id}" value="NA"></td>
+                    <td class="center"><input type="radio" name="item_${id}" value="C" onchange="verificarReglasResultados()"></td>
+                    <td class="center"><input type="radio" name="item_${id}" value="NC" onchange="verificarReglasResultados()"></td>
+                    <td class="center"><input type="radio" name="item_${id}" value="NA" onchange="verificarReglasResultados()"></td>
                     <td class="comment-col"><input type="text" id="comment_${id}" placeholder="Nota..."></td>
                 </tr>
             `;
@@ -454,7 +454,6 @@
         localStorage.setItem('hse_queue', JSON.stringify(queue));
     }
 
-    // DISPARADOR DE ENVIO DO REPORTE EM BYTES (COMPATÍVEL DE PRIMEIRA COM O SEU SCRIPT)
     async function syncQueue() {
         if (!navigator.onLine) return;
         let queue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
@@ -462,12 +461,7 @@
 
         for (let i = 0; i < queue.length; i++) {
             try {
-                // Envia exatamente o formato estruturado stringificado esperado pelo script
-                await fetch(GOOGLE_SCRIPT_URL, { 
-                    method: 'POST', 
-                    mode: 'no-cors', 
-                    body: JSON.stringify(queue[i]) 
-                });
+                await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(queue[i]) });
                 queue.splice(i, 1);
                 i--;
             } catch (e) { break; }
@@ -477,7 +471,7 @@
 
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
 
-    // NOVA FUNÇÃO: GERA O PDF COMO CÓPIA FIEL EM VETOR SEM QUEBRAR O LAYOUT
+    // FUNÇÃO MASTER COM DISTRIBUIÇÃO DE PÁGINAS E PARSE AUTOMÁTICO EM BASE64
     async function gerarCopiaFielPDF_SST() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
@@ -489,40 +483,52 @@
         const btn = document.getElementById('btn-save-main');
         
         btn.disabled = true;
-        status.style.display = "block"; status.style.color = "orange"; status.innerText = "⏳ PROCESANDO REPORTE COPIA FIEL...";
+        status.style.display = "block"; status.style.color = "orange"; status.innerText = "⏳ PROCESANDO REPORTE E ADAPTANDO PÁGINAS...";
 
         const folhaElemento = document.getElementById('area-folha-pdf');
+        const larguraOriginal = folhaElemento.style.width;
+        folhaElemento.style.width = "1024px"; // Garante estabilidade na captura dos elementos
 
-        // Captura o HTML como uma imagem em alta definição (Vetor nativo)
         html2canvas(folhaElemento, {
-            scale: 2, // Garante que as letras fiquem nítidas no PDF
+            scale: 2, 
             useCORS: true,
+            allowTaint: true,
             logging: false
         }).then(async (canvas) => {
-            const imgData = canvas.toDataURL('image/jpeg', 0.9);
-            
+            folhaElemento.style.width = larguraOriginal;
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             
-            const imgWidth = 190; 
-            const pageHeight = 285;  
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            let heightLeft = imgHeight;
-            let position = 10;
+            const pdfWidth = doc.internal.pageSize.getWidth();
+            const pdfHeight = doc.internal.pageSize.getHeight();
+            
+            const marginX = 10;
+            const marginY = 10;
+            const larguraUtil = pdfWidth - (marginX * 2);
+            const alturaUtil = pdfHeight - (marginY * 2);
 
-            // Insere a folha exata desenhada na página
-            doc.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
+            const imgWidthMm = larguraUtil;
+            const imgHeightMm = (canvas.height * imgWidthMm) / canvas.width;
 
-            // Se o checklist for muito longo, quebra a página perfeitamente
-            while (heightLeft >= 0) {
-                position = heightLeft - imgHeight + 10;
+            let alturaRestante = imgHeightMm;
+            let posicaoY = marginY;
+            let paginaAtual = 1;
+
+            // Renderiza primeira página
+            doc.addImage(imgData, 'JPEG', marginX, posicaoY, imgWidthMm, imgHeightMm);
+            alturaRestante -= alturaUtil;
+
+            // Adiciona novas páginas se houver estouro vertical de forma elástica
+            while (alturaRestante > 0) {
                 doc.addPage();
-                doc.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
+                paginaAtual++;
+                posicaoY = marginY - (paginaAtual - 1) * alturaUtil;
+                doc.addImage(imgData, 'JPEG', marginX, posicaoY, imgWidthMm, imgHeightMm);
+                alturaRestante -= alturaUtil;
             }
 
-            // Compacta os bytes do PDF em Base64 idêntico ao AlertaFlota
             const pdfBase64 = doc.output('datauristring').split(',')[1];
             const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
             
@@ -530,22 +536,30 @@
 
             if (navigator.onLine) {
                 try {
-                    await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                    status.innerText = "🚀 SUBINDO ARQUIVO AL GOOGLE DRIVE...";
+                    await fetch(GOOGLE_SCRIPT_URL, { 
+                        method: 'POST', 
+                        mode: 'no-cors', 
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload) 
+                    });
                     status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
                 } catch (err) {
                     saveToQueue(payload);
-                    status.innerText = "⚠️ REPORTE GUARDADO LOCALMENTE NO DISPOSITIVO."; status.style.color = "orange";
+                    status.innerText = "⚠️ GUARDADO NO APARELHO PARA SINCRONIZAÇÃO AUTOMÁTICA."; status.style.color = "orange";
                 }
             } else {
                 saveToQueue(payload);
-                status.innerText = "☁️ MODO OFFLINE: REPORTE SALVO PARA ENVIAR LOGO."; status.style.color = "blue";
+                status.innerText = "☁️ MODO OFFLINE: REPORTE SALVO NO DISPOSITIVO."; status.style.color = "blue";
             }
 
             doc.save(nomeDoFicheiroPDF);
             btn.disabled = false;
-            setTimeout(() => { status.style.display = 'none'; fecharFormularioNativo(); }, 3000);
+            if (navigator.onLine) { setTimeout(syncQueue, 1000); }
+            setTimeout(() => { status.style.display = 'none'; fecharFormularioNativo(); }, 3500);
+            
         }).catch((error) => {
-            console.error("Erro na conversão da cópia fiel: ", error);
+            console.error(error);
             btn.disabled = false;
             status.style.display = 'none';
         });

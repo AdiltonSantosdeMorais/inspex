@@ -11,11 +11,11 @@
     {
       "src": "static/logo-elecnor.png",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any"
     },
     {
-      "src": "static/logo-elecnor.png",
+      "src": "https://i.postimg.cc/mD4X7fW2/inspex-logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

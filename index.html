@@ -266,32 +266,6 @@
     let bancoImagensFotos = {}; 
     let perguntasAtuais = []; 
 
-    const BACKUP_OFFLINE_AMBULANCIA = [
-        "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
-        "FRENO DE LAS RUEDAS FUNCIONANDO CORRECTAMENTE - IMP",
-        "FRENO DE ESTACIONAMIENTO",
-        "AGUA DEL RADIADOR CON NIVEL ADECUADO",
-        "LIMPIAPARABRISAS FUNCIONANDO CORRECTAMENTE",
-        "KIT DE HERRAMIENTAS (LLAVE DE RUEDAS, CRIQUE, GATO, TRIANGULO)",
-        "TUERCA DE FIJACIÓN DE LAS RUEDAS",
-        "SISTEMA ELÉCTRICO FUNCIONANDO CORRECTAMENTE",
-        "FAROS Y LUCES FUNCIONANDO CORRECTAMENTE",
-        "CLAXON/CAMARA DE MARCHA ATRÁS Y ALARMA SONORA DE MARCHA ATRÁS - IMP",
-        "RUEDAS SIN JUEGO EN EL VOLANTE",
-        "VELOCÍMETRO/TACOGRAFO",
-        "PUERTAS Y VENTANAS FUNCIONANDO CORRECTAMENTE",
-        "ASIENTOS EN BUEN ESTADO",
-        "ESPEJOS RETROVISORES - IMP",
-        "CINTURONES DE SEGURIDAD CONSERVADOS EN TODOS OS ASIENTOS - IMP",
-        "EXTINTOR DE INCENDIO VALIDO Y ADECUADO",
-        "VENTILACIÓN NATURAL OR ARTIFICIAL",
-        "NEUMATICOS CALIBRADOS Y EN BUEN ESTADO DE USO - IMP",
-        "ALARMA Y SIRENA DE EMERGENCIA FUNCIONANDO - IMP",
-        "CUÑA PARA RUEDAS",
-        "CONSERVACIÓN DEL INTERIOR DEL VEHÍCULO",
-        "IDENTIFICACIÓN DEL VEHÍCULO DE EMBARQUE - IMP"
-    ];
-
     function filtrarEquipamentos() {
         const filtro = document.getElementById('search-input').value.toUpperCase();
         const cards = document.querySelectorAll('.equip-card');
@@ -322,59 +296,51 @@
         reader.readAsDataURL(input.files[0]);
     }
 
-    // 🔒 EXTRATOR ATUALIZADO: Descarta cabeçalhos repetidos e rodapés do HTML original
+    // 🔒 NOVO EXTRATOR COM REGEX COMPILADO: Ignora tabelas institucionais e limpa as perguntas perfeitamente
     async function extrairPerguntasDoHtmlFisico(nomeArquivo) {
         try {
             const resposta = await fetch(`/checklist/${nomeArquivo}.html`);
             if (resposta.ok) {
                 const htmlTexto = await resposta.text();
-                const parser = new DOMParser();
-                const docVirtual = parser.parseFromString(htmlTexto, 'text/html');
                 
+                // Regex avançada que captura apenas os textos dentro das primeiras células (td) de cada linha
+                const regexLinhas = /<tr[^>]*>\s*<td[^>]*>([\s\S]*?)<\/td>/gi;
+                let correspondencia;
                 let linhasPerguntas = [];
-                const celulas = docVirtual.querySelectorAll('table tr td:first-child, .pergunta-item, p.item');
-                
-                if (celulas.length > 0) {
-                    for (let celula of celulas) {
-                        let textoLimpo = celula.textContent.trim();
-                        let upper = textoLimpo.toUpperCase();
-                        
-                        // 🛑 FILTRO DE SEGURANÇA 1: Se encontrar qualquer metadado do cabeçalho original, ignora
-                        if (upper.includes("CÓDIGO:") || 
-                            upper.includes("FECHA REF:") || 
-                            upper.includes("PÁGINA:") || 
-                            upper.includes("REVISIÓN:") || 
-                            upper.includes("CATEGORIA:") || 
-                            upper.includes("SECTOR:") || 
-                            upper.includes("EQUIPO / MODELO:") || 
-                            upper.includes("EMPRESA:") || 
-                            upper.includes("AÑO:") || 
-                            upper.includes("KM / HORÓMETRO:") ||
-                            upper.includes("C = CONFORME")) {
-                            continue; // Pula essa célula de metadado do cabeçalho
-                        }
-                        
-                        // 🛑 FILTRO DE SEGURANÇA 2: Se atingir o bloco de observações do rodapé, encerra imediatamente
-                        if (upper.includes("COMENTARIOS Y OBSERVACIONES") || 
-                            upper.includes("MEDIDAS CORRECTIVAS") || 
-                            upper.includes("EVIDENCIAS FOTOGRÁFICAS") || 
-                            upper.includes("F_COUNT") || 
-                            upper.includes("RESULTADO") || 
-                            upper.includes("OPERADOR") || 
-                            upper.includes("CONDUCTOR")) {
-                            break; // Encerra a leitura
-                        }
-                        
-                        if (textoLimpo.length > 3 && !upper.includes("ELEMENTOS VERIFICADOS")) {
-                            textoLimpo = textoLimpo.replace(/^\d+[\s.\-_]+/g, ""); // Limpa numeração
-                            linhasPerguntas.push(textoLimpo);
-                        }
+
+                while ((correspondencia = regexLinhas.exec(htmlTexto)) !== null) {
+                    let textoCru = correspondencia[1];
+                    
+                    // Limpa tags html internas (links, spans, inputs) para pegar apenas o texto limpo
+                    let textoLimpo = textoCru.replace(/<\/?[^>]+(>|$)/g, "").trim();
+                    let upper = textoLimpo.toUpperCase();
+
+                    // 🛑 REGRA DE CORTE DO CABEÇALHO: Pula metadados repetidos
+                    if (upper.includes("CÓDIGO:") || upper.includes("FECHA REF:") || upper.includes("PÁGINA:") || 
+                        upper.includes("REVISIÓN:") || upper.includes("CATEGORIA:") || upper.includes("SECTOR:") || 
+                        upper.includes("EQUIPO / MODELO:") || upper.includes("EMPRESA:") || upper.includes("AÑO:") || 
+                        upper.includes("KM / HORÓMETRO:") || upper.includes("C = CONFORME") || upper.includes("ELEMENTOS VERIFICADOS")) {
+                        continue;
+                    }
+
+                    // 🛑 REGRA DE CORTE DO RODAPÉ: Interrompe a varredura assim que chega no fim do grid
+                    if (upper.includes("COMENTARIOS Y OBSERVACIONES") || upper.includes("MEDIDAS CORRECTIVAS") || 
+                        upper.includes("EVIDENCIAS FOTOGRÁFICAS") || upper.includes("F_COUNT") || 
+                        upper.includes("RESULTADO") || upper.includes("OPERADOR") || upper.includes("CONDUCTOR")) {
+                        break;
+                    }
+
+                    if (textoLimpo.length > 3) {
+                        // Remove numeração antiga (Ex: "1. Freno" vira "Freno")
+                        textoLimpo = textoLimpo.replace(/^\d+[\s.\-_]+/g, "");
+                        linhasPerguntas.push(textoLimpo);
                     }
                 }
+
                 if (linhasPerguntas.length > 0) return linhasPerguntas;
             }
         } catch (e) {
-            console.warn("Erro carregando arquivo HTML dinâmico, usando contingência.", e);
+            console.error("Erro na leitura bruta por regex:", e);
         }
         return BACKUP_OFFLINE_AMBULANCIA;
     }
@@ -399,6 +365,7 @@
             if(preview) { preview.style.display = "none"; preview.src = ""; }
         }
 
+        // Carregamento dinâmico instantâneo via Regex limpo
         perguntasAtuais = await extrairPerguntasDoHtmlFisico(nomeArquivo);
 
         const tbody = document.getElementById('checklist-dinamico-rows');
@@ -536,18 +503,6 @@
     }
 
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
-
-    function extrairLogoDaTela() {
-        let logoCanvas = document.createElement('canvas');
-        let logoImgElement = document.getElementById('imagem-logo-tela');
-        if (logoImgElement) {
-            logoCanvas.width = logoImgElement.naturalWidth || 200;
-            logoCanvas.height = logoImgElement.naturalHeight || 80;
-            logoCanvas.getContext('2d').drawImage(logoImgElement, 0, 0);
-            return logoCanvas.toDataURL('image/png');
-        }
-        return null;
-    }
 
     function desenharTabelaMetadadosSST(doc, paginaAtual, totalPaginas) {
         const startX_pos = 150;

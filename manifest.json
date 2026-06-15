@@ -10,12 +10,12 @@
     {
       "src": "/static/logo-elecnor.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/jpeg"
     },
     {
       "src": "/static/logo-elecnor.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg"
     }
   ]
 }

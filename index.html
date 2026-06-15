@@ -261,8 +261,6 @@
 </div>
 
 <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
-
     let equipoSeleccionado = "";
     let bancoImagensFotos = {}; 
     const BANCO_PERGUNTAS = {
@@ -493,8 +491,6 @@
         localStorage.setItem('hse_queue', JSON.stringify(queue));
     }
 
-    window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
-
     function extrairLogoDaTela() {
         let logoCanvas = document.createElement('canvas');
         let logoImgElement = document.getElementById('imagem-logo-tela');
@@ -507,20 +503,20 @@
         return null;
     }
 
-    // FUNÇÃO QUE DESENHA A TABELA DE METADADOS PERFEITA NO CANTO SUPERIOR DIREITO
+    // FUNÇÃO UNIFICADA: DESENHA A GRADE DE METADADOS PERFEITA CONFORME A IMAGEM 03
     function desenharTabelaMetadadosSST(doc, paginaAtual, totalPaginas) {
         const startX = 150;
         const startY = 10;
         const totalWidth = 50;
-        const rowHeight = 4.166; // 25mm totais divididos por 6 linhas exatas
+        const rowHeight = 4.166; // 25mm de altura total divididos por 6 linhas exatas
 
-        // Retângulo externo delimitador da tabela direita
+        // Grade limite externa
         doc.setDrawColor(0);
         doc.setLineWidth(0.4);
         doc.rect(startX, startY, totalWidth, 25);
 
-        // Divisão vertical interna exata: Títulos (20mm) | Valores (30mm)
-        const colSplitX = startX + 20; 
+        // Linha divisória vertical interna simétrica
+        const colSplitX = startX + 17; // 17mm para títulos à esquerda, sobram 33mm para valores à direita
         doc.line(colSplitX, startY, colSplitX, startY + 25);
 
         const dadosMetadados = [
@@ -535,22 +531,24 @@
         dadosMetadados.forEach((item, index) => {
             const currentLineY = startY + (index * rowHeight);
             
-            // Ignora a linha divisória inferior apenas no último item para fechar perfeitamente com o retângulo
+            // Desenha as linhas horizontais divisórias internas da grade
             if (index > 0) {
                 doc.line(startX, currentLineY, startX + totalWidth, currentLineY);
             }
 
-            // Renderização do Texto Alinhado e Perfeitamente Simétrico
+            // Alinhamento simétrico dos títulos
             doc.setFont("helvetica", "bold");
             doc.setFontSize(6.5);
-            doc.text(item.label, startX + 2, currentLineY + 3);
+            doc.text(item.label, startX + 1.5, currentLineY + 3);
 
+            // Alinhamento simétrico dos valores à direita
             doc.setFont("helvetica", "normal");
             doc.setFontSize(6.5);
-            doc.text(item.value, colSplitX + 2, currentLineY + 3);
+            doc.text(item.value, colSplitX + 1.5, currentLineY + 3);
         });
     }
 
+    // CONSTRUTOR NATIVO DE 3 PÁGINAS COM CABEÇALHOS SIMÉTRICOS EM TODAS AS FOLHAS
     async function salvarEMontarPDF_Original_SST() {
         const patente = document.getElementById('v_patente').value;
         if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
@@ -574,7 +572,7 @@
         // FOLHA 1: CABEÇALHO COMPLETO, VEÍCULO E ITENS
         // ==========================================
         doc.setLineWidth(0.4); 
-        doc.rect(10, 10, 140, 25); // Retângulo do título e logo ocupando os 140mm restantes
+        doc.rect(10, 10, 140, 25); // Limita o bloco esquerdo em 140mm para encaixe perfeito da grade
         doc.line(50, 10, 50, 35); 
         
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
@@ -583,7 +581,7 @@
         doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
         doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
 
-        // Chamada da tabela corrigida no canto superior direito
+        // Grade de metadados da folha 1
         desenharTabelaMetadadosSST(doc, 1, 3);
 
         doc.rect(10, 35, 190, 20); doc.line(73, 35, 73, 55); doc.line(140, 35, 140, 55);
@@ -623,16 +621,18 @@
         });
 
         // ==========================================
-        // FOLHA 2: COMENTÁRIOS, MEDIDAS, RESULTADO E 3 FIRMAS
+        // FOLHA 2: CABEÇALHO CORRIGIDO, RESULTADOS E FIRMAS
         // ==========================================
         doc.addPage();
-        doc.setLineWidth(0.4); doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35);
+        doc.setLineWidth(0.4); 
+        doc.rect(10, 10, 140, 25); // Alinha o retângulo esquerdo com 140mm na folha 2
+        doc.line(50, 10, 50, 35);
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
         
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("RESULTADOS Y FIRMAS DE CONFORMIDAD", 100, 22, { align: 'center' });
 
-        // Chamada da tabela corrigida na folha 2
+        // Grade de metadados idêntica na folha 2
         desenharTabelaMetadadosSST(doc, 2, 3);
 
         let yFolha2 = 40;
@@ -673,16 +673,18 @@
         doc.text("SEGURIDAD DO TRABAJO", 168, yFolha2 + 45, {align:'center'});
 
         // ==========================================
-        // FOLHA 3: GRID COMPLETO DAS 08 FOTOS
+        // FOLHA 3: CABEÇALHO CORRIGIDO E REGISTRO FOTOGRÁFICO
         // ==========================================
         doc.addPage();
-        doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35);
+        doc.setLineWidth(0.4); 
+        doc.rect(10, 10, 140, 25); // Alinha o retângulo esquerdo com 140mm na folha 3
+        doc.line(50, 10, 50, 35);
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
         
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("REGISTRO FOTOGRÁFICO DE EVIDENCIAS", 100, 22, { align: 'center' });
 
-        // Chamada da tabela corrigida na folha 3
+        // Grade de metadados idêntica na folha 3
         desenharTabelaMetadadosSST(doc, 3, 3);
 
         doc.rect(10, 38, 190, 240);
@@ -715,19 +717,16 @@
 
         if (navigator.onLine) {
             try {
-                status.innerText = "🚀 ENVIANDO ARQUIVO AO GOOGLE DRIVE...";
-                
+                status.innerText = "🚀 SUBINDO ARQUIVO AL GOOGLE DRIVE...";
                 await fetch(GOOGLE_SCRIPT_URL, { 
                     method: 'POST', 
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload) 
                 });
-                
                 status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
             } catch (err) {
-                console.error("Falha no transporte de rede, mantido na fila:", err);
-                status.innerText = "⚠️ REPORTE GUARDADO EN DISPOSITIVO (SINCRONIZACIÓN PENDIENTE)."; status.style.color = "orange";
+                status.innerText = "⚠️ REPORTE REGUARDADO NA FILA LOCAL (FALHA DE REDE)."; status.style.color = "orange";
             }
         } else {
             status.innerText = "☁️ MODO OFFLINE: REPORTE SALVO NO DISPOSITIVO."; status.style.color = "blue";
@@ -738,22 +737,6 @@
             fecharFormularioNativo();
             if (navigator.onLine) { syncQueue(); }
         }, 1500);
-    }
-
-    let eventoInstalacaoPWA = null;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault(); eventoInstalacaoPWA = e;
-        const banner = document.getElementById('pwa-install-banner');
-        if (banner) banner.style.display = 'block';
-    });
-
-    function dispararInstalacaoPWA() {
-        if (eventoInstalacaoPWA) {
-            eventoInstalacaoPWA.prompt();
-            eventoInstalacaoPWA.userChoice.then(() => {
-                document.getElementById('pwa-install-banner').style.display = 'none';
-            });
-        }
     }
 
     if ('serviceWorker' in navigator) {

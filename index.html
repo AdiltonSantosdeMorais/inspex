@@ -322,18 +322,16 @@
         reader.readAsDataURL(input.files[0]);
     }
 
-    // 🔒 NOVO EXTRATOR ULTRA SEGURO: Captura o array literal "preguntas" diretamente do código dos arquivos .html da pasta!
+    // 🔒 EXTRATOR ULTRA SEGURO REPARADO: Busca e processa as perguntas reais da tag script do html carregado da pasta
     async function extrairPerguntasDoHtmlFisico(nomeArquivo) {
         try {
             const resposta = await fetch(`/checklist/${nomeArquivo}.html`);
             if (resposta.ok) {
                 const htmlTexto = await resposta.text();
                 
-                // Procura cirurgicamente o bloco "const preguntas = [ ... ];" dentro da tag script do arquivo
                 const matchRegex = /const\s+preguntas\s*=\s*\[([\s\S]*?)\]\s*;/i.exec(htmlTexto);
                 
                 if (matchRegex && matchRegex[1]) {
-                    // Divide o bloco de texto pelas aspas das strings para isolar apenas as perguntas limpas
                     const blocoPerguntasTexto = matchRegex[1];
                     const regexItens = /["'`]([\s\S]*?)["'`]/g;
                     let itemMatch;
@@ -377,7 +375,6 @@
             if(preview) { preview.style.display = "none"; preview.src = ""; }
         }
 
-        // Carrega o array de perguntas nativas sem risco de trazer tags ou tabelas de rodapé
         perguntasAtuais = await extrairPerguntasDoHtmlFisico(nomeArquivo);
 
         const tbody = document.getElementById('checklist-dinamico-rows');

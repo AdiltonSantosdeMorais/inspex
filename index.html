@@ -11,23 +11,27 @@
     
     .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; transition: max-width 0.2s; }
     
+    /* Cabeçalho Superior Branco Original */
     .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; }
     .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
     .logo-elecnor { max-height: 25px; object-fit: contain; }
     .status-badge { background: #e8f5e9; color: #2ecc71; font-weight: bold; font-size: 11px; padding: 5px 12px; border-radius: 20px; }
     .logo-inspex { max-height: 140px; margin: 15px 0 5px 0; object-fit: contain; }
     
+    /* Barra de Busca */
     .search-box { position: relative; width: 100%; }
     .search-box input { width: 100%; padding: 13px 15px 13px 40px; border-radius: 10px; border: 1px solid #d0d5dd; background: #fff; font-size: 14px; outline: none; }
     .search-box input:focus { border-color: #0055a5; }
     .search-box::before { content: "🔍"; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.5; }
     
+    /* Lista de Equipamentos */
     .equip-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     .equip-card { background: #fff; border-radius: 6px; padding: 18px 15px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border-left: 4px solid #0055a5; cursor: pointer; transition: transform 0.1s; }
     .equip-card:active { transform: scale(0.99); }
     .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
     .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
 
+    /* ESTILOS DO FORMULÁRIO ORIGINAL DA ELECNOR */
     .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -87,6 +91,10 @@
     .btn-clear { background: #e74c3c; color: white; border: none; padding: 2px 6px; font-size: 9px; border-radius: 2px; cursor: pointer; margin-top: 4px; display: inline-block; }
 
     #statusMsg { font-size: 14px; text-align: center; padding: 12px; display: none; font-weight: bold; background: #fff; border-radius: 6px; border: 1px solid #ccc; margin-top: 10px; }
+    
+    /* Alerta visual na home se houver fila pendente */
+    .sync-alert-banner { display: none; background: #f39c12; color: #fff; font-weight: bold; text-align: center; padding: 10px; font-size: 12px; border-radius: 6px; margin-bottom: 5px; }
+
     .btn-container { display: flex; justify-content: center; gap: 15px; margin: 20px auto; width: 100%; padding: 0 10px; }
     .btn-salvar { background: #4472c4; color: white; border: none; padding: 16px 45px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     .btn-salvar:hover { background: #355a9c; }
@@ -106,6 +114,8 @@
             </div>
             <img class="logo-inspex" src="/static/inspex.png" alt="InspeX">
         </div>
+
+        <div id="sync-banner" class="sync-alert-banner">⏳ Guardados inspecciones offline. Sincronizando en segundo plano...</div>
 
         <div class="search-box">
             <input type="text" id="search-input" placeholder="Buscar equipamento..." oninput="filtrarEquipamentos()">
@@ -266,7 +276,8 @@
 
     let equipoSeleccionado = "";
     let bancoImagensFotos = {}; 
-    let preguntasAtuais = []; 
+    let perguntasAtuais = []; 
+    let isSyncing = false;
 
     const DICIONARIO_PERGUNTAS = {
         "ambulancia": [
@@ -308,7 +319,7 @@
             "ESTADO DE BALDE, CUCHILLA O IMPLEMENTO DE CORTE",
             "PUNTOS DE ENGRASE Y ARTICULACIONES",
             "ESTADO DE LAS BALIZAS LUMINOSAS",
-            "CUNAS DE BLOQUEO DE RUEDAS PRESENTES"
+            "CUNAS DE BLOCKEO DE RUEDAS PRESENTES"
         ]
     };
 
@@ -324,9 +335,12 @@
     function atualizarStatusRede() {
         const badge = document.getElementById('net-status');
         if (!badge) return;
-        badge.innerText = navigator.onLine ? "Online" : "Offline";
-        badge.style.background = navigator.onLine ? "#e8f5e9" : "#ffebee";
-        badge.style.color = navigator.onLine ? "#2ecc71" : "#e74c3c";
+        const online = navigator.onLine;
+        badge.innerText = online ? "Online" : "Offline";
+        badge.style.background = online ? "#e8f5e9" : "#ffebee";
+        badge.style.color = online ? "#2ecc71" : "#e74c3c";
+        
+        if (online) { syncQueue(); }
     }
 
     function processarFoto(id) {
@@ -423,6 +437,7 @@
         document.getElementById('section-formulario').style.display = "none";
         document.getElementById('section-lista').style.display = "block";
         window.scrollTo(0,0);
+        checkFilaVisualIndicator();
     }
 
     function verificarReglasResultados(rowIdMudado = null) {
@@ -516,38 +531,65 @@
         localStorage.setItem('hse_queue', JSON.stringify(queue));
     }
 
-    // 🔄 SINCRONIZAÇÃO OFFLINE INTELIGENTE CORRIGIDA
-    async function syncQueue() {
-        if (!navigator.onLine) return;
+    function checkFilaVisualIndicator() {
+        const banner = document.getElementById('sync-banner');
+        if(!banner) return;
         let queue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
-        if (queue.length === 0) return;
+        if(queue.length > 0 && navigator.onLine) {
+            banner.style.display = "block";
+            banner.innerText = `⏳ Hay ${queue.length} inspección(es) pendiente(s) de sincronizar. Procesando...`;
+            banner.style.background = "#f39c12";
+        } else if (queue.length > 0 && !navigator.onLine) {
+            banner.style.display = "block";
+            banner.innerText = `☁️ Modo Offline: ${queue.length} inspección(es) guardada(s) en el equipo.`;
+            banner.style.background = "#7f8c8d";
+        } else {
+            banner.style.display = "none";
+        }
+    }
 
-        console.log(`🔄 Sincronizando fila local... ${queue.length} item(ns) pendente(s).`);
-        
-        // Processa do primeiro ao último item de maneira assíncrona robusta
+    // 🔄 SINCRONIZAÇÃO AUTOMÁTICA IMEDIATA AO RECONECTAR OU ABRIR APP
+    async function syncQueue() {
+        if (!navigator.onLine || isSyncing) return;
+        let queue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
+        if (queue.length === 0) {
+            checkFilaVisualIndicator();
+            return;
+        }
+
+        isSyncing = true;
+        checkFilaVisualIndicator();
+
         while(queue.length > 0) {
+            if (!navigator.onLine) {
+                isSyncing = false;
+                checkFilaVisualIndicator();
+                return;
+            }
             let itemAtual = queue[0];
             try {
-                // Envia pacote via método POST nativo estável
-                let response = await fetch(GOOGLE_SCRIPT_URL, { 
+                await fetch(GOOGLE_SCRIPT_URL, { 
                     method: 'POST', 
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(itemAtual) 
                 });
                 
-                // Remove da fila apenas se a requisição não estourar catch
                 queue.shift();
                 localStorage.setItem('hse_queue', JSON.stringify(queue));
-                console.log("✅ Item offline sincronizado com sucesso no Google Drive!");
+                console.log("✅ Registro offline sincronizado e removido da fila local.");
+                checkFilaVisualIndicator();
             } catch (e) { 
-                console.error("❌ Falha temporária de rede ao sincronizar item da fila.", e);
-                break; // Interrompe o loop caso a conexão caia no meio do processo
+                console.error("❌ Erro temporário de rede na sincronia da fila.", e);
+                break; 
             }
         }
+        isSyncing = false;
+        checkFilaVisualIndicator();
     }
 
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
+    window.addEventListener('offline', () => { atualizarStatusRede(); });
     window.addEventListener('load', () => { atualizarStatusRede(); syncQueue(); });
 
     function extrairLogoDaTela() {
@@ -593,7 +635,7 @@
         document.getElementById('box_km').classList.remove('required-field');
         document.getElementById('box_fecha').classList.remove('required-field');
 
-        // 🚨 VALIDAÇÃO 1: Campos Cadastrais Obrigatórios Corrigida
+        // 🚨 VALIDAÇÃO 1: Campos Cadastrais Obrigatórios (Obriga Patente, Equipo e KM)
         let errosCampos = [];
         if (!patente) { errosCampos.push("Patente / Ident."); document.getElementById('box_patente').classList.add('required-field'); }
         if (!km) { errosCampos.push("KM / Horómetro"); document.getElementById('box_km').classList.add('required-field'); }
@@ -604,7 +646,7 @@
             return;
         }
 
-        // 🚨 VALIDAÇÃO 2: Itens Verificados Totalmente Obrigatórios (Sem exceção)
+        // 🚨 VALIDAÇÃO 2: Elementos Verificados Obrigatórios (Todos respondidos obrigatoriamente)
         let itensNaoRespondidos = [];
         preguntasAtuais.forEach((p, index) => {
             const id = index + 1;
@@ -779,7 +821,6 @@
         
         const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
         
-        // Sempre salva na fila local para assegurar cópia de contingência
         saveToQueue(payload);
         doc.save(nomeDoFicheiroPDF);
 
@@ -793,7 +834,6 @@
                     body: JSON.stringify(payload) 
                 });
                 
-                // Transmitiu com sucesso? Remove este item específico da fila para não duplicar
                 let currentQueue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
                 currentQueue.pop(); 
                 localStorage.setItem('hse_queue', JSON.stringify(currentQueue));
@@ -811,7 +851,7 @@
             status.style.display = 'none';
             btn.disabled = false;
             fecharFormularioNativo();
-            if (navigator.onLine) { syncQueue(); }
+            syncQueue(); 
         }, 1500);
     }
 

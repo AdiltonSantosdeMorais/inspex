@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>InspeX - Elecnor</title>
-<link lang="manifest" href="/manifest.json">
+<link rel="manifest" href="/manifest.json">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
     body { background: #f5f7fa; padding: 20px; color: #333; display: flex; justify-content: center; }
@@ -340,7 +340,7 @@
                     while ((itemMatch = regexItens.exec(blocoPerguntasTexto)) !== null) {
                         let textoPergunta = itemMatch[1].trim();
                         if (textoPergunta.length > 2) {
-                            perguntasLimpas.push(textoPergunta);
+                            preguntasLimpas.push(textoPergunta);
                         }
                     }
                     
@@ -596,29 +596,38 @@
 
         desenharTabelaMetadadosSST(doc, 1, 3);
 
+        // ==========================================
+        // CONFIGURAÇÃO DA TABELA VEÍCULO SEM SOBREPOSIÇÃO (ONLINE / OFFLINE)
+        // ==========================================
         doc.rect(10, 35, 190, 20); 
-        doc.line(73, 35, 73, 55); 
-        doc.line(140, 35, 140, 55);
-        doc.line(10, 45, 200, 45);
+        doc.line(72, 35, 72, 55);  // Divisória vertical ajustada 1
+        doc.line(138, 35, 138, 55); // Divisória vertical ajustada 2
+        doc.line(10, 45, 200, 45);  // Linha horizontal central
 
-        doc.setFontSize(7.5);
+        doc.setFontSize(7); 
+        
+        // Coluna 1: Equipo e Empresa (Alinhados à esquerda)
         doc.setFont("helvetica", "bold"); doc.text("EQUIPO / MODELO: ", 12, 39);
-        doc.setFont("helvetica", "normal"); doc.text(equipoSeleccionado, 38, 39);
+        doc.setFont("helvetica", "normal"); 
+        // Força o nome do equipamento a quebrar em duas linhas se ultrapassar 58mm
+        doc.text(doc.splitTextToSize(equipoSeleccionado, 58), 12, 42); 
         
-        doc.setFont("helvetica", "bold"); doc.text("PATENTE / IDENT.: ", 75, 39);
-        doc.setFont("helvetica", "normal"); doc.text(patente.toUpperCase(), 102, 39);
-        
-        doc.setFont("helvetica", "bold"); doc.text("FECHA INSP.: ", 142, 39);
-        doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_fecha').value, 162, 39);
-
         doc.setFont("helvetica", "bold"); doc.text("EMPRESA: ", 12, 49);
-        doc.setFont("helvetica", "normal"); doc.text("ELECNOR", 28, 49);
+        doc.setFont("helvetica", "normal"); doc.text("ELECNOR", 12, 53);
+
+        // Coluna 2: Patente e Año (Afastados para abrir área confortável)
+        doc.setFont("helvetica", "bold"); doc.text("PATENTE / IDENT.: ", 75, 39);
+        doc.setFont("helvetica", "normal"); doc.text(patente.toUpperCase(), 75, 43);
         
         doc.setFont("helvetica", "bold"); doc.text("AÑO: ", 75, 49);
         doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_anio').value.toUpperCase(), 84, 49);
         
-        doc.setFont("helvetica", "bold"); doc.text("KM / HORÓMETRO: ", 142, 49);
-        doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_km').value.toUpperCase(), 169, 49);
+        // Coluna 3: Fecha e KM/Horómetro
+        doc.setFont("helvetica", "bold"); doc.text("FECHA INSP.: ", 141, 39);
+        doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_fecha').value, 141, 43);
+        
+        doc.setFont("helvetica", "bold"); doc.text("KM / HORÓMETRO: ", 141, 49);
+        doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_km').value.toUpperCase(), 168, 49);
 
         doc.setFillColor(68, 114, 196); doc.rect(10, 55, 190, 7, 'F');
         doc.setTextColor(255); doc.setFontSize(8); doc.text("C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO", 100, 59.5, { align: 'center' });

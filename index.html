@@ -11,27 +11,23 @@
     
     .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; transition: max-width 0.2s; }
     
-    /* Cabeçalho Superior Branco Original */
     .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; }
     .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
     .logo-elecnor { max-height: 25px; object-fit: contain; }
     .status-badge { background: #e8f5e9; color: #2ecc71; font-weight: bold; font-size: 11px; padding: 5px 12px; border-radius: 20px; }
     .logo-inspex { max-height: 140px; margin: 15px 0 5px 0; object-fit: contain; }
     
-    /* Barra de Busca */
     .search-box { position: relative; width: 100%; }
     .search-box input { width: 100%; padding: 13px 15px 13px 40px; border-radius: 10px; border: 1px solid #d0d5dd; background: #fff; font-size: 14px; outline: none; }
     .search-box input:focus { border-color: #0055a5; }
     .search-box::before { content: "🔍"; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.5; }
     
-    /* Lista de Equipamentos */
     .equip-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     .equip-card { background: #fff; border-radius: 6px; padding: 18px 15px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border-left: 4px solid #0055a5; cursor: pointer; transition: transform 0.1s; }
     .equip-card:active { transform: scale(0.99); }
     .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
     .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
 
-    /* ESTILOS DO FORMULÁRIO ORIGINAL DA ELECNOR */
     .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -47,6 +43,10 @@
     .vehicle-data-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
     .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; }
     .vehicle-data-table input { width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; }
+    
+    /* Destaque visual para campos obrigatórios vazios */
+    .required-field { border-left: 3px solid #e74c3c !important; background-color: #fff6f6; }
+    
     .col-1 { width: 45%; } .col-2 { width: 30%; } .col-3 { width: 25%; }
     .legend-row { background-color: #4472c4; color: #ffffff; text-align: center; font-weight: bold; font-size: 12px; height: 28px; letter-spacing: 0.5px; padding: 6px 0 !important; }
     
@@ -58,7 +58,9 @@
     .comment-col { width: 25%; }
     .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #eee; text-transform: uppercase; }
     
-    /* ÁREA DE FOTOS */
+    /* Linha incompleta ganha tom sutil de alerta */
+    .row-incomplete { background-color: #fff9e6; }
+    
     .photos-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
     .photos-table td { border: 1px solid #000; padding: 12px; font-size: 11px; font-weight: bold; background: #fafafa; }
     .photos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 8px; }
@@ -88,7 +90,7 @@
     .btn-container { display: flex; justify-content: center; gap: 15px; margin: 20px auto; width: 100%; padding: 0 10px; }
     .btn-salvar { background: #4472c4; color: white; border: none; padding: 16px 45px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     .btn-salvar:hover { background: #355a9c; }
-    .btn-voltar { background: #95a5a6; color: white; border: none; padding: 16px 25px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: center; text-align: center; }
+    .btn-voltar { background: #95a5a6; color: white; border: none; padding: 16px 25px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; text-align: center; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -158,14 +160,14 @@
 
             <table class="vehicle-data-table">
                 <tr>
-                    <td class="col-1">EQUIPO / MODELO: <input type="text" id="v_equipo" readonly></td>
-                    <td class="col-2">PATENTE / IDENT.: <input type="text" id="v_patente" placeholder="DIGITE AQUÍ LA PATENTE"></td>
-                    <td class="col-3">FECHA DE INSPECCIÓN: <input type="date" id="v_fecha"></td>
+                    <td class="col-1" id="box_equipo">EQUIPO / MODELO: <input type="text" id="v_equipo" readonly></td>
+                    <td class="col-2" id="box_patente">PATENTE / IDENT.: * <input type="text" id="v_patente" placeholder="DIGITE AQUÍ LA PATENTE"></td>
+                    <td class="col-3" id="box_fecha">FECHA DE INSPECCIÓN: * <input type="date" id="v_fecha"></td>
                 </tr>
                 <tr>
                     <td class="col-1">EMPRESA: <input type="text" id="v_empresa" value="ELECNOR"></td>
                     <td class="col-2">AÑO: <input type="text" id="v_anio" placeholder="Ex: 2024"></td>
-                    <td class="col-3">KM / HORÓMETRO: <input type="text" id="v_km" placeholder="Ex: 45000"></td>
+                    <td class="col-3" id="box_km">KM / HORÓMETRO: * <input type="text" id="v_km" placeholder="Ex: 45000"></td>
                 </tr>
                 <tr>
                     <td colspan="3" class="legend-row">C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO</td>
@@ -264,33 +266,52 @@
 
     let equipoSeleccionado = "";
     let bancoImagensFotos = {}; 
-    let perguntasAtuais = []; 
+    let preguntasAtuais = []; 
 
-    const BACKUP_OFFLINE_AMBULANCIA = [
-        "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
-        "FRENO DE LAS RUEDAS FUNCIONANDO CORRECTAMENTE - IMP",
-        "FRENO DE ESTACIONAMIENTO",
-        "AGUA DEL RADIADOR CON NIVEL ADECUADO",
-        "LIMPIAPARABRISAS FUNCIONANDO CORRECTAMENTE",
-        "KIT DE HERRAMIENTAS (LLAVE DE RUEDAS, CRIQUE, GATO, TRIANGULO)",
-        "TUERCA DE FIJACIÓN DE LAS RUEDAS",
-        "SISTEMA ELÉCTRICO FUNCIONANDO CORRECTAMENTE",
-        "FAROS Y LUCES FUNCIONANDO CORRECTAMENTE",
-        "CLAXON/CAMARA DE MARCHA ATRÁS Y ALARMA SONORA DE MARCHA ATRÁS - IMP",
-        "RUEDAS SIN JUEGO EN EL VOLANTE",
-        "VELOCÍMETRO/TACOGRAFO",
-        "PUERTAS Y VENTANAS FUNCIONANDO CORRECTAMENTE",
-        "ASIENTOS EN BUEN ESTADO",
-        "ESPEJOS RETROVISORES - IMP",
-        "CINTURONES DE SEGURIDAD CONSERVADOS EN TODOS OS ASIENTOS - IMP",
-        "EXTINTOR DE INCENDIO VALIDO Y ADECUADO",
-        "VENTILACIÓN NATURAL OR ARTIFICIAL",
-        "NEUMATICOS CALIBRADOS Y EN BUEN ESTADO DE USO - IMP",
-        "ALARMA Y SIRENA DE EMERGENCIA FUNCIONANDO - IMP",
-        "CUÑA PARA RUEDAS",
-        "CONSERVACIÓN DEL INTERIOR DEL VEHÍCULO",
-        "IDENTIFICACIÓN DEL VEHÍCULO DE EMBARQUE - IMP"
-    ];
+    // Base Unificada Robusta nativa para rodar 100% independente e sem falhas de carregamento
+    const DICIONARIO_PERGUNTAS = {
+        "ambulancia": [
+            "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
+            "FRENO DE LAS RUEDAS FUNCIONANDO CORRECTAMENTE - IMP",
+            "FRENO DE ESTACIONAMIENTO",
+            "AGUA DEL RADIADOR CON NIVEL ADECUADO",
+            "LIMPIAPARABRISAS FUNCIONANDO CORRECTAMENTE",
+            "KIT DE HERRAMIENTAS (LLAVE DE RUEDAS, CRIQUE, GATO, TRIANGULO)",
+            "TUERCA DE FIJACIÓN DE LAS RUEDAS",
+            "SISTEMA ELÉCTRICO FUNCIONANDO CORRECTAMENTE",
+            "FAROS Y LUCES FUNCIONANDO CORRECTAMENTE",
+            "CLAXON/CAMARA DE MARCHA ATRÁS Y ALARMA SONORA DE MARCHA ATRÁS - IMP",
+            "RUEDAS SIN JUEGO EN EL VOLANTE",
+            "VELOCÍMETRO/TACOGRAFO",
+            "PUERTAS Y VENTANAS FUNCIONANDO CORRECTAMENTE",
+            "ASIENTOS EN BUEN ESTADO",
+            "ESPEJOS RETROVISORES - IMP",
+            "CINTURONES DE SEGURIDAD CONSERVADOS EN TODOS OS ASIENTOS - IMP",
+            "EXTINTOR DE INCENDIO VALIDO Y ADECUADO",
+            "VENTILACIÓN NATURAL OR ARTIFICIAL",
+            "NEUMATICOS CALIBRADOS Y EN BUEN ESTADO DE USO - IMP",
+            "ALARMA Y SIRENA DE EMERGENCIA FUNCIONANDO - IMP",
+            "CUÑA PARA RUEDAS",
+            "CONSERVACIÓN DEL INTERIOR DEL VEHÍCULO",
+            "IDENTIFICACIÓN DEL VEHÍCULO DE EMBARQUE - IMP"
+        ],
+        "general_maquinaria": [
+            "ESTADO DE LOS NEUMÁTICOS / ORUGAS Y AJUSTE DE PERNOS - IMP",
+            "NIVEL DE ACEITE DE MOTOR, HIDRÁULICO Y TRANSMISIÓN",
+            "SISTEMA DE FRENOS DE SERVICIO Y ESTACIONAMIENTO - IMP",
+            "LUCES DE TRABAJO, DELANTERAS, TRASERAS Y DE RETROCESO",
+            "ALARMA DE MARCHA ATRÁS Y BOCINA DE ALERTA - IMP",
+            "ESTADO DE ESPEJOS RETROVISORES Y PARABRISAS - IMP",
+            "CINTURÓN DE SEGURIDAD DE LA CABINA - IMP",
+            "SISTEMA HIDRÁULICO (MANGUERAS, CILINDROS, SIN FUGAS)",
+            "EXTINTOR DE INCENDIO DE REGLA CARGADO Y VIGENTE",
+            "ESTADO E HIGIENE GENERAL DE LA CABINA",
+            "ESTADO DE BALDE, CUCHILLA O IMPLEMENTO DE CORTE",
+            "PUNTOS DE ENGRASE Y ARTICULACIONES",
+            "ESTADO DE LAS BALIZAS LUMINOSAS",
+            "CUNAS DE BLOQUEO DE RUEDAS PRESENTES"
+        ]
+    };
 
     function filtrarEquipamentos() {
         const filtro = document.getElementById('search-input').value.toUpperCase();
@@ -322,37 +343,30 @@
         reader.readAsDataURL(input.files[0]);
     }
 
-    // 🔒 EXTRATOR ULTRA SEGURO REPARADO: Busca e processa as perguntas reais da tag script do html carregado da pasta
-    async function extrairPerguntasDoHtmlFisico(nomeArquivo) {
+    // CARREGADOR SEGURO: Evita erros de fetch externos. Caso não ache o arquivo específico, carrega uma base robusta estruturada
+    async function carregarListaDePerguntasEstavel(nomeArquivo) {
+        if (DICIONARIO_PERGUNTAS[nomeArquivo]) {
+            return DICIONARIO_PERGUNTAS[nomeArquivo];
+        }
         try {
             const resposta = await fetch(`/checklist/${nomeArquivo}.html`);
             if (resposta.ok) {
                 const htmlTexto = await resposta.text();
-                
                 const matchRegex = /const\s+preguntas\s*=\s*\[([\s\S]*?)\]\s*;/i.exec(htmlTexto);
-                
                 if (matchRegex && matchRegex[1]) {
-                    const blocoPerguntasTexto = matchRegex[1];
+                    const bloco = matchRegex[1];
                     const regexItens = /["'`]([\s\S]*?)["'`]/g;
-                    let itemMatch;
-                    let perguntasLimpas = [];
-                    
-                    while ((itemMatch = regexItens.exec(blocoPerguntasTexto)) !== null) {
-                        let textoPergunta = itemMatch[1].trim();
-                        if (textoPergunta.length > 2) {
-                            preguntasLimpas.push(textoPergunta);
-                        }
+                    let itemMatch; let l = [];
+                    while ((itemMatch = regexItens.exec(bloco)) !== null) {
+                        let txt = itemMatch[1].trim();
+                        if (txt.length > 2) l.push(txt);
                     }
-                    
-                    if (perguntasLimpas.length > 0) {
-                        return perguntasLimpas;
-                    }
+                    if (l.length > 0) return l;
                 }
             }
-        } catch (e) {
-            console.error("Erro na varredura literal do script:", e);
-        }
-        return BACKUP_OFFLINE_AMBULANCIA;
+        } catch (e) { console.error("Falha ao ler html físico:", e); }
+        
+        return DICIONARIO_PERGUNTAS["general_maquinaria"];
     }
 
     async function abrirFormularioNativo(nomeVisual, nomeArquivo) {
@@ -368,6 +382,11 @@
         document.getElementById('obs_generales').value = "";
         document.getElementById('medidas_correctivas').value = "";
 
+        // Reseta destaques de obrigatoriedade
+        document.getElementById('box_patente').classList.remove('required-field');
+        document.getElementById('box_km').classList.remove('required-field');
+        document.getElementById('box_fecha').classList.remove('required-field');
+
         for (let idx = 1; idx <= 8; idx++) {
             const input = document.getElementById(`input_foto_${idx}`);
             const preview = document.getElementById(`prev_foto_${idx}`);
@@ -375,19 +394,19 @@
             if(preview) { preview.style.display = "none"; preview.src = ""; }
         }
 
-        perguntasAtuais = await extrairPerguntasDoHtmlFisico(nomeArquivo);
+        preguntasAtuais = await carregarListaDePerguntasEstavel(nomeArquivo);
 
         const tbody = document.getElementById('checklist-dinamico-rows');
         tbody.innerHTML = "";
         
-        perguntasAtuais.forEach((pregunta, index) => {
+        preguntasAtuais.forEach((pregunta, index) => {
             const id = index + 1;
             tbody.innerHTML += `
-                <tr>
+                <tr id="row_item_${id}">
                     <td><strong>${id}.</strong> ${pregunta}</td>
-                    <td class="center"><input type="radio" name="item_${id}" value="C" onchange="verificarReglasResultados()"></td>
-                    <td class="center"><input type="radio" name="item_${id}" value="NC" onchange="verificarReglasResultados()"></td>
-                    <td class="center"><input type="radio" name="item_${id}" value="NA" onchange="verificarReglasResultados()"></td>
+                    <td class="center"><input type="radio" name="item_${id}" value="C" onchange="verificarReglasResultados(${id})"></td>
+                    <td class="center"><input type="radio" name="item_${id}" value="NC" onchange="verificarReglasResultados(${id})"></td>
+                    <td class="center"><input type="radio" name="item_${id}" value="NA" onchange="verificarReglasResultados(${id})"></td>
                     <td class="comment-col"><input type="text" id="comment_${id}" placeholder="Nota..."></td>
                 </tr>
             `;
@@ -409,12 +428,16 @@
         window.scrollTo(0,0);
     }
 
-    function verificarReglasResultados() {
+    function verificarReglasResultados(rowIdMudado = null) {
         let bloqueioImpeditivo = false;
         let falhaComumDetectada = false;
         let todasRespondidas = true;
 
-        perguntasAtuais.forEach((pregunta, index) => {
+        if(rowIdMudado) {
+            document.getElementById(`row_item_${rowIdMudado}`).classList.remove('row-incomplete');
+        }
+
+        preguntasAtuais.forEach((pregunta, index) => {
             const id = index + 1;
             const marcado = document.querySelector(`input[name="item_${id}"]:checked`);
             if (!marcado) {
@@ -526,17 +549,9 @@
     }
 
     function desenharTabelaMetadadosSST(doc, paginaAtual, totalPaginas) {
-        const startX_pos = 150;
-        const startY = 10;
-        const totalWidth = 50;
-        const rowHeight = 4.166;
-
-        doc.setDrawColor(0);
-        doc.setLineWidth(0.4);
-        doc.rect(startX_pos, startY, totalWidth, 25);
-
-        const colSplitX = startX_pos + 17; 
-        doc.line(colSplitX, startY, colSplitX, startY + 25);
+        const startX_pos = 150; const startY = 10; const totalWidth = 50; const rowHeight = 4.166;
+        doc.setDrawColor(0); doc.setLineWidth(0.4); doc.rect(startX_pos, startY, totalWidth, 25);
+        const colSplitX = startX_pos + 17; doc.line(colSplitX, startY, colSplitX, startY + 25);
 
         const dadosMetadados = [
             { label: "Código:", value: "20.0009-SST-FL-0036" },
@@ -549,22 +564,48 @@
 
         dadosMetadados.forEach((item, index) => {
             const currentLineY = startY + (index * rowHeight);
-            if (index > 0) {
-                doc.line(startX_pos, currentLineY, startX_pos + totalWidth, currentLineY);
-            }
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(6.5);
-            doc.text(item.label, startX_pos + 1.5, currentLineY + 3);
-
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(6.5);
-            doc.text(item.value, colSplitX + 1.5, currentLineY + 3);
+            if (index > 0) doc.line(startX_pos, currentLineY, startX_pos + totalWidth, currentLineY);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(6.5); doc.text(item.label, startX_pos + 1.5, currentLineY + 3);
+            doc.setFont("helvetica", "normal"); doc.setFontSize(6.5); doc.text(item.value, colSplitX + 1.5, currentLineY + 3);
         });
     }
 
     async function salvarEMontarPDF_Original_SST() {
-        const patente = document.getElementById('v_patente').value;
-        if (!patente) { alert("❌ Error: La PATENTE é obrigatória!"); return; }
+        const patente = document.getElementById('v_patente').value.trim();
+        const km = document.getElementById('v_km').value.trim();
+        const fecha = document.getElementById('v_fecha').value;
+
+        // Reset visual dos campos cadastrais obrigatórios
+        document.getElementById('box_patente').classList.remove('required-field');
+        document.getElementById('box_km').classList.remove('required-field');
+        document.getElementById('box_fecha').classList.remove('required-field');
+
+        // 🚨 VALIDAÇÃO 1: Campos Cadastrais Obrigatórios
+        let errosCampos = [];
+        if (!patente) { errosCampos.push("Patente / Ident."); document.getElementById('box_patente').add('required-field'); }
+        if (!km) { errosCampos.push("KM / Horómetro"); document.getElementById('box_km').classList.add('required-field'); }
+        if (!fecha) { errosCampos.push("Fecha de Inspección"); document.getElementById('box_fecha').classList.add('required-field'); }
+
+        if (errosCampos.length > 0) {
+            alert(`❌ Error: Los siguientes campos de cabecera son obligatorios:\n- ${errosCampos.join('\n- ')}`);
+            return;
+        }
+
+        // 🚨 VALIDAÇÃO 2: Itens Verificados Obrigatórios (Todos respondidos)
+        let itensNaoRespondidos = [];
+        preguntasAtuais.forEach((p, index) => {
+            const id = index + 1;
+            const verificado = document.querySelector(`input[name="item_${id}"]:checked`);
+            if (!verificado) {
+                itensNaoRespondidos.push(id);
+                document.getElementById(`row_item_${id}`).classList.add('row-incomplete');
+            }
+        });
+
+        if (itensNaoRespondidos.length > 0) {
+            alert(`❌ Error: ¡Todos los elementos verificados son obligatorios!\nFalta responder el/los ítem(s): ${itensNaoRespondidos.join(', ')}`);
+            return;
+        }
 
         const inspectorNome = prompt("Por favor, ingrese o NOME COMPLETO do inspetor:");
         if (!inspectorNome || inspectorNome.trim() === "") { alert("❌ O nome do inspetor é obrigatório!"); return; }
@@ -578,16 +619,12 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         const corDeFundo = [240, 240, 240];
-
         const logoDataUrl = extrairLogoDaTela();
 
         // ==========================================
         // FOLHA 1: CABEÇALHO COMPLETO, VEÍCULO E ITENS
         // ==========================================
-        doc.setLineWidth(0.4); 
-        doc.rect(10, 10, 140, 25); 
-        doc.line(50, 10, 50, 35); 
-        
+        doc.setLineWidth(0.4); doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35); 
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
 
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
@@ -596,38 +633,26 @@
 
         desenharTabelaMetadadosSST(doc, 1, 3);
 
-        // ==========================================
-        // CONFIGURAÇÃO DA TABELA VEÍCULO SEM SOBREPOSIÇÃO (ONLINE / OFFLINE)
-        // ==========================================
-        doc.rect(10, 35, 190, 20); 
-        doc.line(72, 35, 72, 55);  // Divisória vertical ajustada 1
-        doc.line(138, 35, 138, 55); // Divisória vertical ajustada 2
-        doc.line(10, 45, 200, 45);  // Linha horizontal central
-
+        doc.rect(10, 35, 190, 20); doc.line(72, 35, 72, 55); doc.line(138, 35, 138, 55); doc.line(10, 45, 200, 45);
         doc.setFontSize(7); 
         
-        // Coluna 1: Equipo e Empresa (Alinhados à esquerda)
         doc.setFont("helvetica", "bold"); doc.text("EQUIPO / MODELO: ", 12, 39);
-        doc.setFont("helvetica", "normal"); 
-        // Força o nome do equipamento a quebrar em duas linhas se ultrapassar 58mm
-        doc.text(doc.splitTextToSize(equipoSeleccionado, 58), 12, 42); 
+        doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(equipoSeleccionado, 58), 12, 42); 
         
         doc.setFont("helvetica", "bold"); doc.text("EMPRESA: ", 12, 49);
         doc.setFont("helvetica", "normal"); doc.text("ELECNOR", 12, 53);
 
-        // Coluna 2: Patente e Año (Afastados para abrir área confortável)
         doc.setFont("helvetica", "bold"); doc.text("PATENTE / IDENT.: ", 75, 39);
         doc.setFont("helvetica", "normal"); doc.text(patente.toUpperCase(), 75, 43);
         
         doc.setFont("helvetica", "bold"); doc.text("AÑO: ", 75, 49);
         doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_anio').value.toUpperCase(), 84, 49);
         
-        // Coluna 3: Fecha e KM/Horómetro
         doc.setFont("helvetica", "bold"); doc.text("FECHA INSP.: ", 141, 39);
-        doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_fecha').value, 141, 43);
+        doc.setFont("helvetica", "normal"); doc.text(fecha, 141, 43);
         
         doc.setFont("helvetica", "bold"); doc.text("KM / HORÓMETRO: ", 141, 49);
-        doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_km').value.toUpperCase(), 168, 49);
+        doc.setFont("helvetica", "normal"); doc.text(km.toUpperCase(), 168, 49);
 
         doc.setFillColor(68, 114, 196); doc.rect(10, 55, 190, 7, 'F');
         doc.setTextColor(255); doc.setFontSize(8); doc.text("C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO", 100, 59.5, { align: 'center' });
@@ -640,14 +665,13 @@
 
         currentY += 6;
         
-        perguntasAtuais.forEach((p, idx) => {
+        preguntasAtuais.forEach((p, idx) => {
             doc.setFont("helvetica", "normal"); doc.setFontSize(7.5);
             doc.rect(10, currentY, 190, 8); doc.line(135, currentY, 135, currentY + 8); doc.line(145, currentY, 145, currentY + 8); doc.line(155, currentY, 155, currentY + 8); doc.line(165, currentY, 165, currentY + 8);
             
             doc.text(`${idx+1}. ${p.substring(0, 72)}`, 12, currentY + 5);
             
-            const checkedRadio = document.querySelector(`input[name="item_${idx+1}"]:checked`);
-            const val = checkedRadio ? checkedRadio.value : "";
+            const val = document.querySelector(`input[name="item_${idx+1}"]:checked`).value;
             const comment = document.getElementById(`comment_${idx+1}`).value.toUpperCase();
 
             doc.setFont("helvetica", "bold");
@@ -661,7 +685,7 @@
         });
 
         // ==========================================
-        // FOLHA 2: CABEÇALHO DUPLO UNIFICADO E HISTÓRICO
+        // FOLHA 2: CABEÇALHO DUPLO E HISTÓRICO
         // ==========================================
         doc.addPage();
         doc.setLineWidth(0.4); doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35);
@@ -711,7 +735,7 @@
         doc.text("SEGURIDAD DO TRABAJO", 168, yFolha2 + 45, {align:'center'});
 
         // ==========================================
-        // FOLHA 3: CABEÇALHO DUPLO UNIFICADO E GRID DE FOTOS
+        // FOLHA 3: GRID DE FOTOS
         // ==========================================
         doc.addPage();
         doc.setLineWidth(0.4); doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35);
@@ -727,7 +751,6 @@
         doc.setFontSize(9.5); doc.text("EVIDENCIAS REGISTRADAS (MÁXIMO 8 FOTOS):", 14, 46);
 
         let imgX = 15, imgY = 52, contadorGrid = 0;
-        
         for (let keyIdx = 1; keyIdx <= 8; keyIdx++) {
             const dataBase64Imagem = bancoImagensFotos[`foto_${keyIdx}`];
             if (dataBase64Imagem && dataBase64Imagem.trim() !== "") {
@@ -738,16 +761,14 @@
                 doc.setFontSize(7); doc.text(`[ SIN FOTO ${keyIdx} ]`, imgX + 21, imgY + 18, {align:'center'});
                 doc.setDrawColor(0);
             }
-            contadorGrid++;
-            imgX += 46;
+            contadorGrid++; imgX += 46;
             if(contadorGrid === 4) { imgX = 15; imgY += 45; } 
         }
 
         const pdfBase64 = doc.output('datauristring').split(',')[1];
-        const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${document.getElementById('v_fecha').value}.pdf`;
+        const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${fecha}.pdf`;
         
         const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
-
         saveToQueue(payload);
         doc.save(nomeDoFicheiroPDF);
 
@@ -779,7 +800,6 @@
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); });
     }
-    
     atualizarStatusRede();
 </script>
 </body>

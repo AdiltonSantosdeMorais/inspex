@@ -45,7 +45,7 @@
     .vehicle-data-table input { width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; }
     
     /* Destaque visual para campos obrigatórios vazios */
-    .required-field { border-left: 3px solid #e74c3c !important; background-color: #fff6f6; }
+    .required-field { border-left: 4px solid #e74c3c !important; background-color: #fff6f6 !important; }
     
     .col-1 { width: 45%; } .col-2 { width: 30%; } .col-3 { width: 25%; }
     .legend-row { background-color: #4472c4; color: #ffffff; text-align: center; font-weight: bold; font-size: 12px; height: 28px; letter-spacing: 0.5px; padding: 6px 0 !important; }
@@ -58,8 +58,8 @@
     .comment-col { width: 25%; }
     .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #eee; text-transform: uppercase; }
     
-    /* Linha incompleta ganha tom sutil de alerta */
-    .row-incomplete { background-color: #fff9e6; }
+    /* Alerta visual forte para perguntas obrigatórias não respondidas */
+    .row-incomplete { background-color: #fce4d6 !important; border-left: 4px solid #e74c3c !important; }
     
     .photos-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
     .photos-table td { border: 1px solid #000; padding: 12px; font-size: 11px; font-weight: bold; background: #fafafa; }
@@ -268,7 +268,6 @@
     let bancoImagensFotos = {}; 
     let preguntasAtuais = []; 
 
-    // Base Unificada Robusta nativa para rodar 100% independente e sem falhas de carregamento
     const DICIONARIO_PERGUNTAS = {
         "ambulancia": [
             "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
@@ -343,7 +342,6 @@
         reader.readAsDataURL(input.files[0]);
     }
 
-    // CARREGADOR SEGURO: Evita erros de fetch externos. Caso não ache o arquivo específico, carrega uma base robusta estruturada
     async function carregarListaDePerguntasEstavel(nomeArquivo) {
         if (DICIONARIO_PERGUNTAS[nomeArquivo]) {
             return DICIONARIO_PERGUNTAS[nomeArquivo];
@@ -382,7 +380,6 @@
         document.getElementById('obs_generales').value = "";
         document.getElementById('medidas_correctivas').value = "";
 
-        // Reseta destaques de obrigatoriedade
         document.getElementById('box_patente').classList.remove('required-field');
         document.getElementById('box_km').classList.remove('required-field');
         document.getElementById('box_fecha').classList.remove('required-field');
@@ -519,22 +516,39 @@
         localStorage.setItem('hse_queue', JSON.stringify(queue));
     }
 
+    // 🔄 SINCRONIZAÇÃO OFFLINE INTELIGENTE CORRIGIDA
     async function syncQueue() {
         if (!navigator.onLine) return;
         let queue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
         if (queue.length === 0) return;
 
-        for (let i = 0; i < queue.length; i++) {
+        console.log(`🔄 Sincronizando fila local... ${queue.length} item(ns) pendente(s).`);
+        
+        // Processa do primeiro ao último item de maneira assíncrona robusta
+        while(queue.length > 0) {
+            let itemAtual = queue[0];
             try {
-                await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(queue[i]) });
-                queue.splice(i, 1);
-                i--;
-            } catch (e) { break; }
+                // Envia pacote via método POST nativo estável
+                let response = await fetch(GOOGLE_SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(itemAtual) 
+                });
+                
+                // Remove da fila apenas se a requisição não estourar catch
+                queue.shift();
+                localStorage.setItem('hse_queue', JSON.stringify(queue));
+                console.log("✅ Item offline sincronizado com sucesso no Google Drive!");
+            } catch (e) { 
+                console.error("❌ Falha temporária de rede ao sincronizar item da fila.", e);
+                break; // Interrompe o loop caso a conexão caia no meio do processo
+            }
         }
-        localStorage.setItem('hse_queue', JSON.stringify(queue));
     }
 
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
+    window.addEventListener('load', () => { atualizarStatusRede(); syncQueue(); });
 
     function extrairLogoDaTela() {
         let logoCanvas = document.createElement('canvas');
@@ -575,14 +589,13 @@
         const km = document.getElementById('v_km').value.trim();
         const fecha = document.getElementById('v_fecha').value;
 
-        // Reset visual dos campos cadastrais obrigatórios
         document.getElementById('box_patente').classList.remove('required-field');
         document.getElementById('box_km').classList.remove('required-field');
         document.getElementById('box_fecha').classList.remove('required-field');
 
-        // 🚨 VALIDAÇÃO 1: Campos Cadastrais Obrigatórios
+        // 🚨 VALIDAÇÃO 1: Campos Cadastrais Obrigatórios Corrigida
         let errosCampos = [];
-        if (!patente) { errosCampos.push("Patente / Ident."); document.getElementById('box_patente').add('required-field'); }
+        if (!patente) { errosCampos.push("Patente / Ident."); document.getElementById('box_patente').classList.add('required-field'); }
         if (!km) { errosCampos.push("KM / Horómetro"); document.getElementById('box_km').classList.add('required-field'); }
         if (!fecha) { errosCampos.push("Fecha de Inspección"); document.getElementById('box_fecha').classList.add('required-field'); }
 
@@ -591,7 +604,7 @@
             return;
         }
 
-        // 🚨 VALIDAÇÃO 2: Itens Verificados Obrigatórios (Todos respondidos)
+        // 🚨 VALIDAÇÃO 2: Itens Verificados Totalmente Obrigatórios (Sem exceção)
         let itensNaoRespondidos = [];
         preguntasAtuais.forEach((p, index) => {
             const id = index + 1;
@@ -599,11 +612,13 @@
             if (!verificado) {
                 itensNaoRespondidos.push(id);
                 document.getElementById(`row_item_${id}`).classList.add('row-incomplete');
+            } else {
+                document.getElementById(`row_item_${id}`).classList.remove('row-incomplete');
             }
         });
 
         if (itensNaoRespondidos.length > 0) {
-            alert(`❌ Error: ¡Todos los elementos verificados son obligatorios!\nFalta responder el/los ítem(s): ${itensNaoRespondidos.join(', ')}`);
+            alert(`❌ Error: ¡Todos los ELEMENTOS VERIFICADOS são de resposta obrigatória!\nFalta responder o(s) ítem(ns): ${itensNaoRespondidos.join(', ')}`);
             return;
         }
 
@@ -621,9 +636,7 @@
         const corDeFundo = [240, 240, 240];
         const logoDataUrl = extrairLogoDaTela();
 
-        // ==========================================
-        // FOLHA 1: CABEÇALHO COMPLETO, VEÍCULO E ITENS
-        // ==========================================
+        // FOLHA 1
         doc.setLineWidth(0.4); doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35); 
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
 
@@ -684,9 +697,7 @@
             currentY += 8;
         });
 
-        // ==========================================
-        // FOLHA 2: CABEÇALHO DUPLO E HISTÓRICO
-        // ==========================================
+        // FOLHA 2
         doc.addPage();
         doc.setLineWidth(0.4); doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35);
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
@@ -734,9 +745,7 @@
         doc.text("SUPERVISOR / ENCARGADO", 104, yFolha2 + 45, {align:'center'});
         doc.text("SEGURIDAD DO TRABAJO", 168, yFolha2 + 45, {align:'center'});
 
-        // ==========================================
-        // FOLHA 3: GRID DE FOTOS
-        // ==========================================
+        // FOLHA 3
         doc.addPage();
         doc.setLineWidth(0.4); doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35);
         if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
@@ -769,6 +778,8 @@
         const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${fecha}.pdf`;
         
         const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
+        
+        // Sempre salva na fila local para assegurar cópia de contingência
         saveToQueue(payload);
         doc.save(nomeDoFicheiroPDF);
 
@@ -781,17 +792,24 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload) 
                 });
+                
+                // Transmitiu com sucesso? Remove este item específico da fila para não duplicar
+                let currentQueue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
+                currentQueue.pop(); 
+                localStorage.setItem('hse_queue', JSON.stringify(currentQueue));
+                
                 status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
             } catch (err) {
                 console.error(err);
-                status.innerText = "⚠️ REPORTE REGUARDADO NA FILA LOCAL (FALHA DE REDE)."; status.style.color = "orange";
+                status.innerText = "⚠️ REPORTE GUARDADO EN LA COLA LOCAL (ERROR DE RED)."; status.style.color = "orange";
             }
         } else {
-            status.innerText = "☁️ MODO OFFLINE: REPORTE SALVO NO DISPOSITIVO."; status.style.color = "blue";
+            status.innerText = "☁️ MODO OFFLINE: REPORTE GUARDADO EN DISPOSITIVO."; status.style.color = "blue";
         }
 
         setTimeout(() => {
             status.style.display = 'none';
+            btn.disabled = false;
             fecharFormularioNativo();
             if (navigator.onLine) { syncQueue(); }
         }, 1500);
@@ -800,7 +818,6 @@
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); });
     }
-    atualizarStatusRede();
 </script>
 </body>
 </html>

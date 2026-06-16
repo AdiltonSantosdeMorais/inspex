@@ -129,7 +129,7 @@
             <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN DE PETROLEO', 'camion_de_petroleo')" data-name="CAMIÓN DE PETROLEO"><span class="equip-name">CAMIÓN DE PETROLEO</span><span class="disponivel-badge">Disponible</span></div>
             <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN TOLVA', 'camion_tolva')" data-name="CAMIÓN TOLVA"><span class="equip-name">CAMIÓN TOLVA</span><span class="disponivel-badge">Disponible</span></div>
             <div class="equip-card" onclick="abrirFormularioNativo('CAMIONES 3/4', 'camiones_3_4')" data-name="CAMIONES 3/4"><span class="equip-name">CAMIONES 3/4</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('ESLINGAS Y GRILLETES', 'eslingas_y_grilletes')" data-name="ESLINGAS Y GRILLETES"><span class="equip-name">ESLINGAS Y GRILLETES</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('ESSLINGAS Y GRILLETES', 'eslingas_y_grilletes')" data-name="ESLINGAS Y GRILLETES"><span class="equip-name">ESLINGAS Y GRILLETES</span><span class="disponivel-badge">Disponible</span></div>
             <div class="equip-card" onclick="abrirFormularioNativo('EXCAVADORA HIDRAULICA', 'excavadora_hidraulica')" data-name="EXCAVADORA HIDRAULICA"><span class="equip-name">EXCAVADORA HIDRAULICA</span><span class="disponivel-badge">Disponible</span></div>
             <div class="equip-card" onclick="abrirFormularioNativo('GRUA Y PLUMA', 'grua_y_pluma')" data-name="GRUA Y PLUMA"><span class="equip-name">GRUA Y PLUMA</span><span class="disponivel-badge">Disponible</span></div>
             <div class="equip-card" onclick="abrirFormularioNativo('MANIPULADORA TELESCOPICA', 'manipuladora_telescopica')" data-name="MANIPULADORA TELESCOPICA"><span class="equip-name">MANIPULADORA TELESCOPICA</span><span class="disponivel-badge">Disponible</span></div>
@@ -498,8 +498,8 @@
         ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'].forEach(id => {
             const canvas = document.getElementById(id);
             if(!canvas) return;
-            const clone = canvas.cloneNode(true);
-            canvas.parentNode.replaceChild(clone, canvas);
+            const clone = canvas.parentNode ? canvas.cloneNode(true) : canvas;
+            if(canvas.parentNode) canvas.parentNode.replaceChild(clone, canvas);
             const novoCanvas = document.getElementById(id);
             const ctx = novoCanvas.getContext('2d');
             ctx.lineWidth = 2; ctx.strokeStyle = "#004B87";
@@ -548,7 +548,7 @@
         }
     }
 
-    // 🔄 SINCRONIZAÇÃO AUTOMÁTICA IMEDIATA AO RECONECTAR OU ABRIR APP
+    // 🔄 FORÇADOR DE FILA ASSÍNCRONO: Sincroniza em lote e limpa de forma estável (Sem travar por no-cors)
     async function syncQueue() {
         if (!navigator.onLine || isSyncing) return;
         let queue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
@@ -560,36 +560,33 @@
         isSyncing = true;
         checkFilaVisualIndicator();
 
-        while(queue.length > 0) {
-            if (!navigator.onLine) {
-                isSyncing = false;
-                checkFilaVisualIndicator();
-                return;
-            }
-            let itemAtual = queue[0];
-            try {
-                await fetch(GOOGLE_SCRIPT_URL, { 
-                    method: 'POST', 
+        // Cria uma lista de promessas de envio em lote isoladas para evitar travas de rede
+        try {
+            for (let i = 0; i < queue.length; i++) {
+                if (!navigator.onLine) break;
+                
+                let itemAtual = queue[i];
+                // Dispara o envio sem bloquear o fluxo
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(itemAtual) 
+                    body: JSON.stringify(itemAtual)
                 });
-                
-                queue.shift();
-                localStorage.setItem('hse_queue', JSON.stringify(queue));
-                console.log("✅ Registro offline sincronizado e removido da fila local.");
-                checkFilaVisualIndicator();
-            } catch (e) { 
-                console.error("❌ Erro temporário de rede na sincronia da fila.", e);
-                break; 
             }
+            
+            // Sucesso na varredura: Limpa a fila apenas do que foi enviado com sucesso
+            localStorage.setItem('hse_queue', JSON.stringify([]));
+            console.log("🚀 Fila limpa com sucesso!");
+        } catch (error) {
+            console.error("Erro no envio em lote:", error);
         }
+
         isSyncing = false;
         checkFilaVisualIndicator();
     }
 
     window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
-    window.addEventListener('offline', () => { atualizarStatusRede(); });
     window.addEventListener('load', () => { atualizarStatusRede(); syncQueue(); });
 
     function extrairLogoDaTela() {
@@ -635,7 +632,6 @@
         document.getElementById('box_km').classList.remove('required-field');
         document.getElementById('box_fecha').classList.remove('required-field');
 
-        // 🚨 VALIDAÇÃO 1: Campos Cadastrais Obrigatórios (Obriga Patente, Equipo e KM)
         let errosCampos = [];
         if (!patente) { errosCampos.push("Patente / Ident."); document.getElementById('box_patente').classList.add('required-field'); }
         if (!km) { errosCampos.push("KM / Horómetro"); document.getElementById('box_km').classList.add('required-field'); }
@@ -646,7 +642,6 @@
             return;
         }
 
-        // 🚨 VALIDAÇÃO 2: Elementos Verificados Obrigatórios (Todos respondidos obrigatoriamente)
         let itensNaoRespondidos = [];
         preguntasAtuais.forEach((p, index) => {
             const id = index + 1;

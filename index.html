@@ -281,7 +281,7 @@
     let perguntasAtuais = []; 
     let isSyncing = false;
 
-    // BANCO DE PERGUNTAS COMPLETO INTEGRADO DIRETAMENTE (Ideal para funcionamento Offline)
+    // BANCO DE PERGUNTAS COMPLETO INTEGRADO DIRETAMENTE (Garante funcionamento estável Offline)
     const DICIONARIO_PERGUNTAS = {
         "ambulancia": [
             "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
@@ -308,10 +308,31 @@
             "CONSERVACIÓN DEL INTERIOR DEL VEHÍCULO",
             "IDENTIFICACIÓN DEL VEHÍCULO DE EMBARQUE - IMP"
         ],
+        "vehiculos_ligeros_camionetas": [
+            "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
+            "FRENO DE LAS RUEDAS FUNCIONANDO CORRECTAMENTE - IMP",
+            "FRENO DE ESTACIONAMIENTO",
+            "AGUA DEL RADIADOR CON NIVEL ADECUADO",
+            "LIMPIAPARABRISAS FUNCIONANDO CORRECTAMENTE",
+            "KIT DE HERRAMIENTAS (LLAVE DE RUEDAS, CRIQUE, GATO, TRIANGULO)",
+            "TUERCA DE FIJACIÓN DE LAS RUEDAS",
+            "SISTEMA ELÉCTRICO FUNCIONANDO CORRECTAMENTE",
+            "FAROS Y LUCES FUNCIONANDO CORRECTAMENTE",
+            "CLAXON/CAMARA DE MARCHA ATRÁS Y ALARMA SONORA DE MARCHA ATRÁS - IMP",
+            "RUEDAS SIN JUEGO EN EL VOLANTE",
+            "VELOCÍMETRO/TACOGRAFO",
+            "PUERTAS Y VENTANAS FUNCIONANDO CORRECTAMENTE",
+            "ASIENTOS EN BUEN ESTADO",
+            "ESPEJOS RETROVISORES - IMP",
+            "CINTURONES DE SEGURIDAD CONSERVADOS EN TODOS OS ASIENTOS - IMP",
+            "EXTINTOR DE INCENDIO VALIDO Y ADECUADO",
+            "NEUMATICOS CALIBRADOS Y EN BUEN ESTADO DE USO - IMP",
+            "CUÑA PARA RUEDAS"
+        ],
         "transporte_colectivo_furgonetas": [
             "ESTADO DE NEUMÁTICOS Y REVISIÓN DE PRESION - IMP",
             "CINTURONES DE SEGURIDAD EN TODOS LOS ASIENTOS - IMP",
-            "ESTADO DE PARABRISAS Y ESPEJOS RETROVISORES - IMP",
+            "ESTADO DE PARABRISAS AND ESPEJOS RETROVISORES - IMP",
             "SISTEMA DE DIRECCIÓN Y LUCES COMPLETAS",
             "EXTINTOR DE INCENDIO REGLAMENTARIO CARGADO Y VIGENTE",
             "DOCUMENTACIÓN DEL VEHÍCULO AL DÍA",
@@ -335,6 +356,34 @@
             "ESTADO DE LAS BALIZAS LUMINOSAS",
             "CUNAS DE BLOCKEO DE RUEDAS PRESENTES"
         ]
+    };
+
+    // MAPEADOR OFFLINE: Relaciona a string recebida pela chamada com a chave correta do dicionário local
+    const MAPA_IDENTIFICADORES = {
+        "ambulancia": "ambulancia",
+        "transporte_colectivo_furgonetas": "transporte_colectivo_furgonetas",
+        "vehiculos_ligeros_camionetas": "vehiculos_ligeros_camionetas",
+        "camion_aljibe": "general_maquinaria",
+        "camion_betonera": "general_maquinaria",
+        "camion_cama_baja": "general_maquinaria",
+        "camion_de_petroleo": "general_maquinaria",
+        "camion_tolva": "general_maquinaria",
+        "camiones_3_4": "general_maquinaria",
+        "eslingas_y_grilletes": "general_maquinaria",
+        "excavadora_hidraulica": "general_maquinaria",
+        "grua_y_pluma": "general_maquinaria",
+        "manipuladora_telescopica": "general_maquinaria",
+        "maquina_perforadora": "general_maquinaria",
+        "mini_rodillo_compactador": "general_maquinaria",
+        "miniexcavadora_mini_carregadora": "general_maquinaria",
+        "motor_generador": "general_maquinaria",
+        "plataforma_pta": "general_maquinaria",
+        "remolque_tanque_de_petroleo": "general_maquinaria",
+        "retroexcavadora": "general_maquinaria",
+        "rodillo_compactador": "general_maquinaria",
+        "taladro_de_roca": "general_maquinaria",
+        "tractor_de_neumaticos": "general_maquinaria",
+        "tractor_orugas_motoniveladora": "general_maquinaria"
     };
 
     function filtrarEquipamentos() {
@@ -370,11 +419,8 @@
         reader.readAsDataURL(input.files[0]);
     }
 
+    // CORREÇÃO CRÍTICA AQUI: Adicionado tratamento Try/Catch completo para evitar que o Fetch quebre o fluxo Offline
     async function carregarListaDePerguntasEstavel(nomeArquivo) {
-        if (DICIONARIO_PERGUNTAS[nomeArquivo]) {
-            return DICIONARIO_PERGUNTAS[nomeArquivo];
-        }
-        
         if (navigator.onLine) {
             try {
                 const resposta = await fetch(`/checklist/${nomeArquivo}.html`);
@@ -393,11 +439,13 @@
                     }
                 }
             } catch (e) { 
-                console.error("Falha ao ler html físico remoto, mudando para contingência:", e); 
+                console.error("Falha ao ler html físico remoto, mudando para contingência local:", e); 
             }
         }
         
-        return DICIONARIO_PERGUNTAS["general_maquinaria"];
+        // Fluxo de Contingência local se estiver offline ou se a requisição falhar
+        const chaveDicionario = MAPA_IDENTIFICADORES[nomeArquivo] || "general_maquinaria";
+        return DICIONARIO_PERGUNTAS[chaveDicionario] || DICIONARIO_PERGUNTAS["general_maquinaria"];
     }
 
     async function abrirFormularioNativo(nomeVisual, nomeArquivo) {
@@ -810,7 +858,6 @@
         
         doc.rect(10, yFolhaForm, 190, 55); doc.line(73, yFolhaForm, 73, yFolhaForm + 55); doc.line(136, yFolhaForm, 136, yFolhaForm + 55);
         
-        // Bloque de captura segura para firmas en Base64
         let condBytes = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
         let supBytes = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
         let segBytes = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";

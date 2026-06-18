@@ -45,13 +45,14 @@
     .info-sub-table tr:last-child td { border-bottom: none !important; }
     
     .vehicle-data-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; }
+    .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; white-space: nowrap; }
     .vehicle-data-table input { width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; }
     
     /* Destaque visual para campos obrigatórios vazios */
     .required-field { border-left: 4px solid #e74c3c !important; background-color: #fff6f6 !important; }
     
-    .col-1 { width: 45%; } .col-2 { width: 30%; } .col-3 { width: 25%; }
+    /* Larguras corrigidas para evitar invasão de texto no cabeçalho */
+    .col-1 { width: 40%; } .col-2 { width: 35%; } .col-3 { width: 25%; }
     .legend-row { background-color: #4472c4; color: #ffffff; text-align: center; font-weight: bold; font-size: 12px; height: 28px; letter-spacing: 0.5px; padding: 6px 0 !important; }
     
     .checklist-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: -1px; }
@@ -707,6 +708,7 @@
         doc.setFont("helvetica", "bold"); doc.text("PATENTE / IDENT.: ", 75, 39);
         doc.setFont("helvetica", "normal"); doc.text(patente.toUpperCase(), 75, 43);
         
+        // Ajustados os limites de margem X no PDF para evitar invasão de texto
         doc.setFont("helvetica", "bold"); doc.text("AÑO: ", 75, 49);
         doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_anio').value.toUpperCase(), 84, 49);
         

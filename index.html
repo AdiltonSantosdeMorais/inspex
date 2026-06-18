@@ -172,7 +172,7 @@
 
             <table class="vehicle-data-table">
                 <tr>
-                    <td class="col-1" id="box_equipo">EQUIPO / MODELO: <input type="text" id="v_equipo" placeholder="INGRESE EQUIPO / MODELO" oninput="equipoSeleccionado = this.value"></td>
+                    <td class="col-1" id="box_equipo">EQUIPO / MODELO: <input type="text" id="v_equipo" placeholder="INGRESE EQUIPO / MODELO" oninput="atualizarEquipoTexto(this.value)"></td>
                     <td class="col-2" id="box_patente">PATENTE / IDENT.: * <input type="text" id="v_patente" placeholder="DIGITE AQUÍ LA PATENTE"></td>
                     <td class="col-3" id="box_fecha">FECHA DE INSPECCIÓN: * <input type="date" id="v_fecha"></td>
                 </tr>
@@ -358,7 +358,6 @@
         ]
     };
 
-    // MAPEADOR OFFLINE: Relaciona a string recebida pela chamada com a chave correta do dicionário local
     const MAPA_IDENTIFICADORES = {
         "ambulancia": "ambulancia",
         "transporte_colectivo_furgonetas": "transporte_colectivo_furgonetas",
@@ -406,7 +405,12 @@
         if (online) { syncQueue(); }
     }
 
-    // OTIMIZAÇÃO CRÍTICA AQUI: Compacta as fotos em tempo real para evitar lentidão e travamentos no PDF
+    // Atualiza o texto global capturando o input livre do usuário
+    function atualizarEquipoTexto(valor) {
+        equipoSeleccionado = valor;
+        document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + valor.toUpperCase();
+    }
+
     function processarFoto(id) {
         const input = document.getElementById(`input_foto_${id}`);
         if (!input || !input.files[0]) return;
@@ -415,7 +419,6 @@
         reader.onload = function(e) {
             const img = new Image();
             img.onload = function() {
-                // Configura tamanho máximo inteligente (Reduz megabytes para kilobytes mantendo boa qualidade)
                 const maxDim = 800;
                 let width = img.width;
                 let height = img.height;
@@ -431,7 +434,6 @@
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // Converte para JPEG leve comprimido a 70%
                 const compressedUrl = canvas.toDataURL('image/jpeg', 0.7);
                 bancoImagensFotos[`foto_${id}`] = compressedUrl;
 
@@ -465,7 +467,6 @@
                 console.error("Falha ao ler html físico remoto, mudando para contingência local:", e); 
             }
         }
-        
         const chaveDicionario = MAPA_IDENTIFICADORES[nomeArquivo] || "general_maquinaria";
         return DICIONARIO_PERGUNTAS[chaveDicionario] || DICIONARIO_PERGUNTAS["general_maquinaria"];
     }
@@ -703,7 +704,7 @@
         doc.setFontSize(11); 
         doc.setFont("helvetica", "bold");
         doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
-        doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
+        doc.text(equipoSeleccionado.toUpperCase(), 100, 27, { align: 'center' });
 
         desenharTabelaMetadadosSST(doc, pagina, totalPaginas);
     }
@@ -731,6 +732,12 @@
     }
 
     async function salvarEMontarPDF_Original_SST() {
+        // Força a leitura direta do input de texto na hora do envio
+        const equipoInputVal = document.getElementById('v_equipo').value.trim();
+        if(equipoInputVal !== "") {
+            equipoSeleccionado = equipoInputVal;
+        }
+
         const patente = document.getElementById('v_patente').value.trim();
         const km = document.getElementById('v_km').value.trim();
         const fecha = document.getElementById('v_fecha').value;
@@ -790,7 +797,7 @@
         doc.setFontSize(7); 
         
         doc.setFont("helvetica", "bold"); doc.text("EQUIPO / MODELO: ", 12, 39);
-        doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(equipoSeleccionado, 58), 12, 42); 
+        doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(equipoSeleccionado.toUpperCase(), 58), 12, 42); 
         
         doc.setFont("helvetica", "bold"); doc.text("EMPRESA: ", 12, 49);
         doc.setFont("helvetica", "normal"); doc.text("ELECNOR", 12, 53);
@@ -925,7 +932,7 @@
         }
 
         const pdfBase64 = doc.output('datauristring').split(',')[1];
-        const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${fecha}.pdf`;
+        const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado.toUpperCase()}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${fecha}.pdf`;
         
         const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
         

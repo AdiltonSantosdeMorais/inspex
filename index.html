@@ -172,7 +172,7 @@
 
             <table class="vehicle-data-table">
                 <tr>
-                    <td class="col-1" id="box_equipo">EQUIPO / MODELO: <input type="text" id="v_equipo" readonly></td>
+                    <td class="col-1" id="box_equipo">EQUIPO / MODELO: <input type="text" id="v_equipo" placeholder="INGRESE EQUIPO / MODELO" oninput="equipoSeleccionado = this.value"></td>
                     <td class="col-2" id="box_patente">PATENTE / IDENT.: * <input type="text" id="v_patente" placeholder="DIGITE AQUÍ LA PATENTE"></td>
                     <td class="col-3" id="box_fecha">FECHA DE INSPECCIÓN: * <input type="date" id="v_fecha"></td>
                 </tr>
@@ -406,20 +406,43 @@
         if (online) { syncQueue(); }
     }
 
+    // OTIMIZAÇÃO CRÍTICA AQUI: Compacta as fotos em tempo real para evitar lentidão e travamentos no PDF
     function processarFoto(id) {
         const input = document.getElementById(`input_foto_${id}`);
         if (!input || !input.files[0]) return;
 
         const reader = new FileReader();
         reader.onload = function(e) {
-            bancoImagensFotos[`foto_${id}`] = e.target.result;
-            const preview = document.getElementById(`prev_foto_${id}`);
-            if(preview) { preview.src = e.target.result; preview.style.display = "block"; }
+            const img = new Image();
+            img.onload = function() {
+                // Configura tamanho máximo inteligente (Reduz megabytes para kilobytes mantendo boa qualidade)
+                const maxDim = 800;
+                let width = img.width;
+                let height = img.height;
+                if (width > height) {
+                    if (width > maxDim) { height *= maxDim / width; width = maxDim; }
+                } else {
+                    if (height > maxDim) { width *= maxDim / height; height = maxDim; }
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Converte para JPEG leve comprimido a 70%
+                const compressedUrl = canvas.toDataURL('image/jpeg', 0.7);
+                bancoImagensFotos[`foto_${id}`] = compressedUrl;
+
+                const preview = document.getElementById(`prev_foto_${id}`);
+                if(preview) { preview.src = compressedUrl; preview.style.display = "block"; }
+            };
+            img.src = e.target.result;
         };
         reader.readAsDataURL(input.files[0]);
     }
 
-    // CORREÇÃO CRÍTICA AQUI: Adicionado tratamento Try/Catch completo para evitar que o Fetch quebre o fluxo Offline
     async function carregarListaDePerguntasEstavel(nomeArquivo) {
         if (navigator.onLine) {
             try {
@@ -443,7 +466,6 @@
             }
         }
         
-        // Fluxo de Contingência local se estiver offline ou se a requisição falhar
         const chaveDicionario = MAPA_IDENTIFICADORES[nomeArquivo] || "general_maquinaria";
         return DICIONARIO_PERGUNTAS[chaveDicionario] || DICIONARIO_PERGUNTAS["general_maquinaria"];
     }

@@ -548,7 +548,7 @@
         }
     }
 
-    // 🔄 FORÇADOR DE FILA ASSÍNCRONO: Sincroniza em lote e limpa de forma estável (Sem travar por no-cors)
+    // 🔄 SOLUÇÃO DO TRAVAMENTO OFFLINE: Sincroniza um por um limpando a fila dinamicamente
     async function syncQueue() {
         if (!navigator.onLine || isSyncing) return;
         let queue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
@@ -560,26 +560,29 @@
         isSyncing = true;
         checkFilaVisualIndicator();
 
-        // Cria uma lista de promessas de envio em lote isoladas para evitar travas de rede
         try {
-            for (let i = 0; i < queue.length; i++) {
-                if (!navigator.onLine) break;
+            while (queue.length > 0 && navigator.onLine) {
+                let itemAtual = queue[0];
                 
-                let itemAtual = queue[i];
-                // Dispara o envio sem bloquear o fluxo
-                await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(itemAtual)
-                });
+                try {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(itemAtual)
+                    });
+                    
+                    // Remove apenas o item enviado com sucesso
+                    queue.shift();
+                    localStorage.setItem('hse_queue', JSON.stringify(queue));
+                } catch (singleError) {
+                    console.error("Erro ao enviar item específico da fila:", singleError);
+                    break; // Interrompe para tentar novamente mais tarde se a rede cair no meio
+                }
             }
-            
-            // Sucesso na varredura: Limpa a fila apenas do que foi enviado com sucesso
-            localStorage.setItem('hse_queue', JSON.stringify([]));
-            console.log("🚀 Fila limpa com sucesso!");
+            console.log("🚀 Sincronização em segundo plano processada!");
         } catch (error) {
-            console.error("Erro no envio em lote:", error);
+            console.error("Erro geral no envio em lote:", error);
         }
 
         isSyncing = false;
@@ -595,8 +598,12 @@
         if (logoImgElement) {
             logoCanvas.width = logoImgElement.naturalWidth || 200;
             logoCanvas.height = logoImgElement.naturalHeight || 80;
-            logoCanvas.getContext('2d').drawImage(logoImgElement, 0, 0);
-            return logoCanvas.toDataURL('image/png');
+            try {
+                logoCanvas.getContext('2d').drawImage(logoImgElement, 0, 0);
+                return logoCanvas.toDataURL('image/png');
+            } catch(e) {
+                return null;
+            }
         }
         return null;
     }
@@ -623,6 +630,7 @@
         });
     }
 
+    // 🔒 CORREÇÃO INTERMITENTE DO BOTÃO: Tratamento assíncrono para renderizar o PDF sem congelar os botões
     async function salvarEMontarPDF_Original_SST() {
         const patente = document.getElementById('v_patente').value.trim();
         const km = document.getElementById('v_km').value.trim();
@@ -667,6 +675,9 @@
         
         btn.disabled = true;
         status.style.display = "block"; status.style.color = "orange"; status.innerText = "⏳ PROCESANDO REPORTE EM 3 PÁGINAS...";
+
+        // Pequena pausa assíncrona para desimpedir o clique do botão na UI
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
@@ -830,8 +841,10 @@
                 });
                 
                 let currentQueue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
-                currentQueue.pop(); 
-                localStorage.setItem('hse_queue', JSON.stringify(currentQueue));
+                if(currentQueue.length > 0) {
+                    currentQueue.pop(); 
+                    localStorage.setItem('hse_queue', JSON.stringify(currentQueue));
+                }
                 
                 status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
             } catch (err) {

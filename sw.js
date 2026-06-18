@@ -1,52 +1,56 @@
-const CACHE_NAME = 'inspex-cache-v1';
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = 'inspex-cache-v2'; // Mudando o nome da versão o tablet é forçado a atualizar
+
+// Arquivos para carregar inicialmente
+const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
   '/static/logo-elecnor.png',
-  '/static/inspex.png',
-  
-  // 🔥 ADICIONE ESTAS LINHAS ABAIXO NO SEU sw.js PARA ARMAZENAR OS CHECKLISTS NO TABLET:
-  '/checklist/ambulancia.html',
-  '/checklist/camion_aljibe.html',
-  '/checklist/camion_betonera.html',
-  '/checklist/camion_cama_baja.html',
-  '/checklist/camion_de_petroleo.html',
-  '/checklist/camion_tolva.html',
-  '/checklist/camiones_3_4.html',
-  '/checklist/eslingas_y_grilletes.html',
-  '/checklist/excavadora_hidraulica.html',
-  '/checklist/grua_y_pluma.html',
-  '/checklist/manipuladora_telescopica.html',
-  '/checklist/maquina_perforadora.html',
-  '/checklist/mini_rodillo_compactador.html',
-  '/checklist/miniexcavadora_mini_carregadora.html',
-  '/checklist/motor_generador.html',
-  '/checklist/plataforma_pta.html',
-  '/checklist/remolque_tanque_de_petroleo.html',
-  '/checklist/retroexcavadora.html',
-  '/checklist/rodillo_compactador.html',
-  '/checklist/taladro_de_roca.html',
-  '/checklist/tractor_de_neumaticos.html',
-  '/checklist/tractor_orugas_motoniveladora.html',
-  '/checklist/transporte_colectivo_furgonetas.html',
-  '/checklist/vehiculos_ligeros_camionetas.html'
+  '/static/inspex.png'
 ];
 
-// Evento de Instalação: Guarda tudo no dispositivo
-self.addEventListener('install', (event) => {
+// Instalação e ativação imediata (ignora esperas)
+self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(urlsToCache);
     })
   );
 });
 
-// Evento de Busca: Serve os arquivos direto do cache local (mesmo sem internet)
-self.addEventListener('fetch', (event) => {
+// LIMPEZA CRÍTICA: Deleta absolutamente todos os caches velhos que estão travando o tablet
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cache => {
+          if (cache !== CACHE_NAME) {
+            console.log('Deletando cache antigo travado:', cache);
+            return caches.delete(cache);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
+  );
+});
+
+// Estratégia Network-First: Sempre tenta buscar a versão nova do servidor primeiro. 
+// Se estiver offline, aí sim ele usa o cache. Isso impede o erro de travar novamente.
+self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+    fetch(event.request).then(response => {
+      // Se a rede responder, atualiza o cache com a versão nova
+      if (response && response.status === 200 && event.request.method === 'GET') {
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, responseToCache);
+        });
+      }
+      return response;
+    }).catch(() => {
+      // Se estiver totalmente sem internet (Offline), usa o cache
+      return caches.match(event.request);
     })
   );
 });

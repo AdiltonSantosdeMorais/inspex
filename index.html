@@ -30,7 +30,6 @@
 
     .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     
-    /* TRAVA DE LAYOUT DO CABEÇALHO SUPERIOR - Impede deformação visual */
     .header-table { table-layout: fixed; width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; overflow: hidden; }
     .logo-box { width: 20%; height: 100px; text-align: center; padding: 5px; }
@@ -149,6 +148,7 @@
             <table class="header-table">
                 <tr>
                     <td class="logo-box"><img src="/static/logo-elecnor.png" alt="Logo Elecnor"></td>
+                    <!-- TÍTULO GRANDE PROTEGIDO: Fica fixado e não se altera ao digitar -->
                     <td class="title-box" id="dinamico-titulo-equip">LISTA DE VERIFICACIÓN MENSUAL</td>
                     <td class="info-box-cell">
                         <table class="info-sub-table">
@@ -165,7 +165,7 @@
 
             <table class="vehicle-data-table">
                 <tr>
-                    <td class="col-1" id="box_equipo">EQUIPO / MODELO: <input type="text" id="v_equipo" placeholder="INGRESE EQUIPO / MODELO" oninput="atualizarEquipoTexto(this.value)"></td>
+                    <td class="col-1" id="box_equipo">EQUIPO / MODELO: <input type="text" id="v_equipo" placeholder="INGRESE EQUIPO / MODELO" oninput="equipoSeleccionado = this.value"></td>
                     <td class="col-2" id="box_patente">PATENTE / IDENT.: * <input type="text" id="v_patente" placeholder="DIGITE AQUÍ LA PATENTE"></td>
                     <td class="col-3" id="box_fecha">FECHA DE INSPECCIÓN: * <input type="date" id="v_fecha"></td>
                 </tr>
@@ -331,7 +331,7 @@
             "DOCUMENTACIÓN DEL VEHÍCULO AL DÍA",
             "SISTEMA DE FRENOS DE TRABAJO Y ESTACIONAMIENTO - IMP",
             "ALARMA DE RETROCESO Y BOCINA OPERATIVAS - IMP",
-            "BOTIQUÍN DE PRIMEROS AUXILIOS Y KIT DE EMERGENCIA"
+            "BOTIQUÍN DE PRIMEROS AUXILIOS Y KIT DE EMERGENCY"
         ],
         "general_maquinaria": [
             "ESTADO DE LOS NEUMÁTICOS / ORUGAS Y AJUSTE DE PERNOS - IMP",
@@ -396,15 +396,6 @@
         badge.style.color = online ? "#2ecc71" : "#e74c3c";
         
         if (online) { syncQueue(); }
-    }
-
-    function atualizarEquipoTexto(valor) {
-        equipoSeleccionado = valor;
-        if (valor.toUpperCase().includes(equipoBaseSeleccionado)) {
-            document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + valor.toUpperCase();
-        } else {
-            document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + equipoBaseSeleccionado + " (" + valor.toUpperCase() + ")";
-        }
     }
 
     function processarFoto(id) {
@@ -473,7 +464,8 @@
         bancoImagensFotos = {}; 
         
         document.getElementById('v_equipo').value = nomeVisual;
-        document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + nomeVisual;
+        // DEFINIÇÃO FIXA: Mantém estável o título da tabela sem misturar com digitações futuras
+        document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + nomeVisual.toUpperCase();
         document.getElementById('v_fecha').valueAsDate = new Date();
         document.getElementById('v_patente').value = "";
         document.getElementById('v_anio').value = "";
@@ -711,7 +703,7 @@
         doc.setFontSize(11); 
         doc.setFont("helvetica", "bold");
         doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
-        doc.text(equipoSeleccionado.toUpperCase(), 100, 27, { align: 'center' });
+        doc.text(equipoBaseSeleccionado.toUpperCase(), 100, 27, { align: 'center' });
 
         desenharTabelaMetadadosSST(doc, pagina, totalPaginas);
     }
@@ -727,7 +719,7 @@
             { label: "Página:", value: `${paginaAtual} de ${totalPaginas}` },
             { label: "Revisión:", value: "00" },
             { label: "Categoria:", value: "General" },
-            { label: "Sector:", value: "Seguridad" }
+            { label: "Sector:", value: "Securidad" }
         ];
 
         dadosMetadados.forEach((item, index) => {

@@ -11,27 +11,23 @@
     
     .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; transition: max-width 0.2s; }
     
-    /* Cabeçalho Superior Branco Original */
     .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; }
     .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
     .logo-elecnor { max-height: 25px; object-fit: contain; }
     .status-badge { background: #e8f5e9; color: #2ecc71; font-weight: bold; font-size: 11px; padding: 5px 12px; border-radius: 20px; }
     .logo-inspex { max-height: 140px; margin: 15px 0 5px 0; object-fit: contain; }
     
-    /* Barra de Busca */
     .search-box { position: relative; width: 100%; }
     .search-box input { width: 100%; padding: 13px 15px 13px 40px; border-radius: 10px; border: 1px solid #d0d5dd; background: #fff; font-size: 14px; outline: none; }
     .search-box input:focus { border-color: #0055a5; }
     .search-box::before { content: "🔍"; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.5; }
     
-    /* Lista de Equipamentos */
     .equip-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     .equip-card { background: #fff; border-radius: 6px; padding: 18px 15px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border-left: 4px solid #0055a5; cursor: pointer; transition: transform 0.1s; }
     .equip-card:active { transform: scale(0.99); }
     .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
     .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
 
-    /* ESTILOS DO FORMULÁRIO ORIGINAL DA ELECNOR */
     .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; }
@@ -48,10 +44,8 @@
     .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; white-space: nowrap; }
     .vehicle-data-table input { width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; }
     
-    /* Destaque visual para campos obrigatórios vazios */
     .required-field { border-left: 4px solid #e74c3c !important; background-color: #fff6f6 !important; }
     
-    /* Larguras corrigidas para evitar invasão de texto no cabeçalho */
     .col-1 { width: 40%; } .col-2 { width: 35%; } .col-3 { width: 25%; }
     .legend-row { background-color: #4472c4; color: #ffffff; text-align: center; font-weight: bold; font-size: 12px; height: 28px; letter-spacing: 0.5px; padding: 6px 0 !important; }
     
@@ -63,7 +57,6 @@
     .comment-col { width: 25%; }
     .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #eee; text-transform: uppercase; }
     
-    /* Alerta visual forte para perguntas obrigatórias não respondidas */
     .row-incomplete { background-color: #fce4d6 !important; border-left: 4px solid #e74c3c !important; }
     
     .photos-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
@@ -92,8 +85,6 @@
     .btn-clear { background: #e74c3c; color: white; border: none; padding: 2px 6px; font-size: 9px; border-radius: 2px; cursor: pointer; margin-top: 4px; display: inline-block; }
 
     #statusMsg { font-size: 14px; text-align: center; padding: 12px; display: none; font-weight: bold; background: #fff; border-radius: 6px; border: 1px solid #ccc; margin-top: 10px; }
-    
-    /* Alerta visual na home se houver fila pendente */
     .sync-alert-banner { display: none; background: #f39c12; color: #fff; font-weight: bold; text-align: center; padding: 10px; font-size: 12px; border-radius: 6px; margin-bottom: 5px; }
 
     .btn-container { display: flex; justify-content: center; gap: 15px; margin: 20px auto; width: 100%; padding: 0 10px; }
@@ -178,8 +169,8 @@
                 </tr>
                 <tr>
                     <td class="col-1">EMPRESA: <input type="text" id="v_empresa" value="ELECNOR"></td>
-                    <td class="col-2">AÑO: <input type="text" id="v_anio" placeholder="Ex: 2024"></td>
-                    <td class="col-3" id="box_km">KM / HORÓMETRO: * <input type="text" id="v_km" placeholder="Ex: 45000"></td>
+                    <td class="col-2">AÑO: <input type="text" id="v_anio" placeholder="Ex: 2024" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></td>
+                    <td class="col-3" id="box_km">KM / HORÓMETRO: * <input type="text" id="v_km" placeholder="Ex: 45000" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></td>
                 </tr>
                 <tr>
                     <td colspan="3" class="legend-row">C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO</td>
@@ -281,7 +272,6 @@
     let perguntasAtuais = []; 
     let isSyncing = false;
 
-    // BANCO DE PERGUNTAS COMPLETO INTEGRADO DIRETAMENTE (Garante funcionamento estável Offline)
     const DICIONARIO_PERGUNTAS = {
         "ambulancia": [
             "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
@@ -405,7 +395,6 @@
         if (online) { syncQueue(); }
     }
 
-    // Atualiza o texto global capturando o input livre do usuário
     function atualizarEquipoTexto(valor) {
         equipoSeleccionado = valor;
         document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + valor.toUpperCase();
@@ -448,6 +437,7 @@
     async function carregarListaDePerguntasEstavel(nomeArquivo) {
         if (navigator.onLine) {
             try {
+                // Caminho ajustado para a pasta /checklist conforme a sua árvore de arquivos
                 const resposta = await fetch(`/checklist/${nomeArquivo}.html`);
                 if (resposta.ok) {
                     const htmlTexto = await resposta.text();
@@ -586,6 +576,7 @@
         }
     }
 
+    // CORREÇÃO CRÍTICA AQUI: Removido preventDefault global que bloqueava o foco do teclado no Tablet
     function inicializarCanvases() {
         ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'].forEach(id => {
             const canvas = document.getElementById(id);
@@ -606,8 +597,19 @@
             novoCanvas.onmousedown = (e) => { drawing = true; ctx.beginPath(); const p = pos(e); ctx.moveTo(p.x, p.y); };
             novoCanvas.onmousemove = (e) => { if (drawing) { const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); } };
             window.addEventListener('mouseup', () => drawing = false);
-            novoCanvas.ontouchstart = (e) => { drawing = true; ctx.beginPath(); const p = pos(e); ctx.moveTo(p.x, p.y); };
-            novoCanvas.ontouchmove = (e) => { if (drawing) { e.preventDefault(); const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); } };
+            
+            // Tratamento nativo de toque sem travar a rolagem ou inputs externos do tablet
+            novoCanvas.ontouchstart = (e) => { 
+                if (e.target === novoCanvas) {
+                    drawing = true; ctx.beginPath(); const p = pos(e); ctx.moveTo(p.x, p.y); 
+                }
+            };
+            novoCanvas.ontouchmove = (e) => { 
+                if (drawing && e.target === novoCanvas) { 
+                    e.preventDefault(); // Trava a tela apenas se estiver riscando dentro do canvas
+                    const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); 
+                } 
+            };
             window.addEventListener('touchend', () => drawing = false);
         });
     }
@@ -732,7 +734,6 @@
     }
 
     async function salvarEMontarPDF_Original_SST() {
-        // Força a leitura direta do input de texto na hora do envio
         const equipoInputVal = document.getElementById('v_equipo').value.trim();
         if(equipoInputVal !== "") {
             equipoSeleccionado = equipoInputVal;
@@ -790,7 +791,6 @@
         const perguntasPorPaginaDireta = 22; 
         const totalPaginasCalculadas = preguntasAtuais.length > perguntasPorPaginaDireta ? 4 : 3;
 
-        // --- FOLHA 1: Montagem Inicial ---
         desenharCabecalhoEstaticoSST(doc, 1, totalPaginasCalculadas, logoDataUrl);
 
         doc.rect(10, 35, 190, 20); doc.line(72, 35, 72, 55); doc.line(138, 35, 138, 55); doc.line(10, 45, 190, 45);
@@ -858,7 +858,6 @@
             currentY += 8;
         });
 
-        // --- FOLHA SEGUINTE: COMENTÁRIOS, MEDIDAS E FIRMAS ---
         paginaAtualFluxo++;
         doc.addPage();
         desenharCabecalhoEstaticoSST(doc, paginaAtualFluxo, totalPaginasCalculadas, logoDataUrl);
@@ -904,7 +903,6 @@
         doc.text("SUPERVISOR / ENCARGADO", 104, yFolhaForm + 45, {align:'center'});
         doc.text("SEGURIDAD DO TRABAJO", 168, yFolhaForm + 45, {align:'center'});
 
-        // --- FOLHA FINAL: REGISTRO FOTOGRÁFICO ---
         paginaAtualFluxo++;
         doc.addPage();
         desenharCabecalhoEstaticoSST(doc, paginaAtualFluxo, totalPaginasCalculadas, logoDataUrl);

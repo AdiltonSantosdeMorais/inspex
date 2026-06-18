@@ -370,13 +370,11 @@
         reader.readAsDataURL(input.files[0]);
     }
 
-    // Corregido: Si está offline o falla la red, lee directamente de la memoria local sin trabar el flujo.
     async function carregarListaDePerguntasEstavel(nomeArquivo) {
         if (DICIONARIO_PERGUNTAS[nomeArquivo]) {
             return DICIONARIO_PERGUNTAS[nomeArquivo];
         }
         
-        // Intenta buscar el archivo si está Online
         if (navigator.onLine) {
             try {
                 const resposta = await fetch(`/checklist/${nomeArquivo}.html`);
@@ -399,7 +397,6 @@
             }
         }
         
-        // Contingencia robusta para cualquier otro equipo que no esté mapeado arriba en offline
         return DICIONARIO_PERGUNTAS["general_maquinaria"];
     }
 
@@ -496,7 +493,9 @@
         const elNoLib = document.getElementById('cell_no_liberado');
         const chNoLib = document.getElementById('check_no_liberado');
 
-        [elLib, chLib, elObs, chObs, elNoLib, chNoLib].forEach(el => { if(el) el.classList.remove('disabled-option'); });
+        if ([elLib, chLib, elObs, chObs, elNoLib, chNoLib].every(el => el !== null)) {
+            [elLib, chLib, elObs, chObs, elNoLib, chNoLib].forEach(el => { el.classList.remove('disabled-option'); });
+        }
         if(btnLiberado) btnLiberado.disabled = false; 
         if(btnObs) btnObs.disabled = false; 
         if(btnNoLiberado) btnNoLiberado.disabled = false;
@@ -520,7 +519,7 @@
         ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'].forEach(id => {
             const canvas = document.getElementById(id);
             if(!canvas) return;
-            const clone = canvas.parentNode ? canvas.cloneNode(true) : canvas;
+            const clone = canvas.cloneNode(true);
             if(canvas.parentNode) canvas.parentNode.replaceChild(clone, canvas);
             const novoCanvas = document.getElementById(id);
             const ctx = novoCanvas.getContext('2d');
@@ -585,7 +584,6 @@
             while (queue.length > 0 && navigator.onLine) {
                 let itemAtual = queue[0];
                 
-                // Envío seguro de datos mediante POST al AppScript
                 await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -593,7 +591,7 @@
                     body: JSON.stringify(itemAtual)
                 });
                 
-                queue.shift(); // Elimina el elemento enviado con éxito
+                queue.shift(); 
                 localStorage.setItem('hse_queue', JSON.stringify(queue));
             }
             console.log("🚀 Fila sincronizada exitosamente!");
@@ -812,13 +810,18 @@
         
         doc.rect(10, yFolhaForm, 190, 55); doc.line(73, yFolhaForm, 73, yFolhaForm + 55); doc.line(136, yFolhaForm, 136, yFolhaForm + 55);
         
-        const condBytes = document.getElementById('canvas_conductor').toDataURL();
-        const supBytes = document.getElementById('canvas_supervisor').toDataURL();
-        const segBytes = document.getElementById('canvas_seguridad').toDataURL();
+        // Bloque de captura segura para firmas en Base64
+        let condBytes = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+        let supBytes = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+        let segBytes = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
+        try { condBytes = document.getElementById('canvas_conductor').toDataURL(); } catch(e){}
+        try { supBytes = document.getElementById('canvas_supervisor').toDataURL(); } catch(e){}
+        try { segBytes = document.getElementById('canvas_seguridad').toDataURL(); } catch(e){}
         
-        doc.addImage(condBytes, 'PNG', 12, yFolhaForm + 2, 58, 30);
-        doc.addImage(supBytes, 'PNG', 75, yFolhaForm + 2, 58, 30);
-        doc.addImage(segBytes, 'PNG', 138, yFolhaForm + 2, 58, 30);
+        try { doc.addImage(condBytes, 'PNG', 12, yFolhaForm + 2, 58, 30); } catch(e){}
+        try { doc.addImage(supBytes, 'PNG', 75, yFolhaForm + 2, 58, 30); } catch(e){}
+        try { doc.addImage(segBytes, 'PNG', 138, yFolhaForm + 2, 58, 30); } catch(e){}
 
         doc.setFontSize(7.5);
         doc.text("OPERADOR / CONDUCTOR", 41, yFolhaForm + 45, {align:'center'});
@@ -840,7 +843,7 @@
                 try {
                     doc.addImage(dataBase64Imagem, 'JPEG', imgX, imgY, 42, 32);
                 } catch(e) {
-                    doc.addImage(dataBase64Imagem, 'PNG', imgX, imgY, 42, 32);
+                    try { doc.addImage(dataBase64Imagem, 'PNG', imgX, imgY, 42, 32); } catch(err){}
                 }
                 doc.setFontSize(7); doc.text(`FOTO ANEXO ${keyIdx}`, imgX + 21, imgY + 36, {align:'center'});
             } else {
@@ -857,7 +860,6 @@
         
         const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
         
-        // Se guarda localmente siempre para evitar pérdidas
         saveToQueue(payload);
         doc.save(nomeDoFicheiroPDF);
 
@@ -895,7 +897,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); });
+        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(()=>{}); });
     }
 </script>
 </body>

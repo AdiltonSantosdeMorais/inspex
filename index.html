@@ -281,6 +281,7 @@
     let perguntasAtuais = []; 
     let isSyncing = false;
 
+    // BANCO DE PERGUNTAS COMPLETO INTEGRADO DIRETAMENTE (Ideal para funcionamento Offline)
     const DICIONARIO_PERGUNTAS = {
         "ambulancia": [
             "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
@@ -306,6 +307,17 @@
             "CUÑA PARA RUEDAS",
             "CONSERVACIÓN DEL INTERIOR DEL VEHÍCULO",
             "IDENTIFICACIÓN DEL VEHÍCULO DE EMBARQUE - IMP"
+        ],
+        "transporte_colectivo_furgonetas": [
+            "ESTADO DE NEUMÁTICOS Y REVISIÓN DE PRESION - IMP",
+            "CINTURONES DE SEGURIDAD EN TODOS LOS ASIENTOS - IMP",
+            "ESTADO DE PARABRISAS Y ESPEJOS RETROVISORES - IMP",
+            "SISTEMA DE DIRECCIÓN Y LUCES COMPLETAS",
+            "EXTINTOR DE INCENDIO REGLAMENTARIO CARGADO Y VIGENTE",
+            "DOCUMENTACIÓN DEL VEHÍCULO AL DÍA",
+            "SISTEMA DE FRENOS DE TRABAJO Y ESTACIONAMIENTO - IMP",
+            "ALARMA DE RETROCESO Y BOCINA OPERATIVAS - IMP",
+            "BOTIQUÍN DE PRIMEROS AUXILIOS Y KIT DE EMERGENCIA"
         ],
         "general_maquinaria": [
             "ESTADO DE LOS NEUMÁTICOS / ORUGAS Y AJUSTE DE PERNOS - IMP",
@@ -358,28 +370,36 @@
         reader.readAsDataURL(input.files[0]);
     }
 
+    // Corregido: Si está offline o falla la red, lee directamente de la memoria local sin trabar el flujo.
     async function carregarListaDePerguntasEstavel(nomeArquivo) {
         if (DICIONARIO_PERGUNTAS[nomeArquivo]) {
             return DICIONARIO_PERGUNTAS[nomeArquivo];
         }
-        try {
-            const resposta = await fetch(`/checklist/${nomeArquivo}.html`);
-            if (resposta.ok) {
-                const htmlTexto = await resposta.text();
-                const matchRegex = /const\s+preguntas\s*=\s*\[([\s\S]*?)\]\s*;/i.exec(htmlTexto);
-                if (matchRegex && matchRegex[1]) {
-                    const bloco = matchRegex[1];
-                    const regexItens = /["'`]([\s\S]*?)["'`]/g;
-                    let itemMatch; let l = [];
-                    while ((itemMatch = regexItens.exec(bloco)) !== null) {
-                        let txt = itemMatch[1].trim();
-                        if (txt.length > 2) l.push(txt);
-                    }
-                    if (l.length > 0) return l;
-                }
-            }
-        } catch (e) { console.error("Falha ao ler html físico:", e); }
         
+        // Intenta buscar el archivo si está Online
+        if (navigator.onLine) {
+            try {
+                const resposta = await fetch(`/checklist/${nomeArquivo}.html`);
+                if (resposta.ok) {
+                    const htmlTexto = await resposta.text();
+                    const matchRegex = /const\s+preguntas\s*=\s*\[([\s\S]*?)\]\s*;/i.exec(htmlTexto);
+                    if (matchRegex && matchRegex[1]) {
+                        const bloco = matchRegex[1];
+                        const regexItens = /["'`]([\s\S]*?)["'`]/g;
+                        let itemMatch; let l = [];
+                        while ((itemMatch = regexItens.exec(bloco)) !== null) {
+                            let txt = itemMatch[1].trim();
+                            if (txt.length > 2) l.push(txt);
+                        }
+                        if (l.length > 0) return l;
+                    }
+                }
+            } catch (e) { 
+                console.error("Falha ao ler html físico remoto, mudando para contingência:", e); 
+            }
+        }
+        
+        // Contingencia robusta para cualquier otro equipo que no esté mapeado arriba en offline
         return DICIONARIO_PERGUNTAS["general_maquinaria"];
     }
 
@@ -562,20 +582,21 @@
         checkFilaVisualIndicator();
 
         try {
-            for (let i = 0; i < queue.length; i++) {
-                if (!navigator.onLine) break;
+            while (queue.length > 0 && navigator.onLine) {
+                let itemAtual = queue[0];
                 
-                let itemAtual = queue[i];
+                // Envío seguro de datos mediante POST al AppScript
                 await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(itemAtual)
                 });
+                
+                queue.shift(); // Elimina el elemento enviado con éxito
+                localStorage.setItem('hse_queue', JSON.stringify(queue));
             }
-            
-            localStorage.setItem('hse_queue', JSON.stringify([]));
-            console.log("🚀 Fila limpa com sucesso!");
+            console.log("🚀 Fila sincronizada exitosamente!");
         } catch (error) {
             console.error("Erro no envio em lote:", error);
         }
@@ -593,8 +614,10 @@
         if (logoImgElement) {
             logoCanvas.width = logoImgElement.naturalWidth || 200;
             logoCanvas.height = logoImgElement.naturalHeight || 80;
-            logoCanvas.getContext('2d').drawImage(logoImgElement, 0, 0);
-            return logoCanvas.toDataURL('image/png');
+            try {
+                logoCanvas.getContext('2d').drawImage(logoImgElement, 0, 0);
+                return logoCanvas.toDataURL('image/png');
+            } catch(e) { return null; }
         }
         return null;
     }
@@ -689,11 +712,10 @@
         const corDeFundo = [240, 240, 240];
         const logoDataUrl = extrairLogoDaTela();
 
-        // Passamos a calcular dinamicamente o total de páginas com base no número de perguntas
         const perguntasPorPaginaDireta = 22; 
         const totalPaginasCalculadas = preguntasAtuais.length > perguntasPorPaginaDireta ? 4 : 3;
 
-        // --- FOLHA 1: Montagem Inicial dos Metadados Gerais ---
+        // --- FOLHA 1: Montagem Inicial ---
         desenharCabecalhoEstaticoSST(doc, 1, totalPaginasCalculadas, logoDataUrl);
 
         doc.rect(10, 35, 190, 20); doc.line(72, 35, 72, 55); doc.line(138, 35, 138, 55); doc.line(10, 45, 190, 45);
@@ -708,7 +730,6 @@
         doc.setFont("helvetica", "bold"); doc.text("PATENTE / IDENT.: ", 75, 39);
         doc.setFont("helvetica", "normal"); doc.text(patente.toUpperCase(), 75, 43);
         
-        // Ajustados os limites de margem X no PDF para evitar invasão de texto
         doc.setFont("helvetica", "bold"); doc.text("AÑO: ", 75, 49);
         doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_anio').value.toUpperCase(), 84, 49);
         
@@ -732,7 +753,6 @@
         currentY += 6;
         
         preguntasAtuais.forEach((p, idx) => {
-            // Se estourar a margem inferior segura (275mm), cria automaticamente uma nova página estruturada
             if (currentY > 272) {
                 paginaAtualFluxo++;
                 doc.addPage();
@@ -837,6 +857,7 @@
         
         const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
         
+        // Se guarda localmente siempre para evitar pérdidas
         saveToQueue(payload);
         doc.save(nomeDoFicheiroPDF);
 
@@ -851,8 +872,10 @@
                 });
                 
                 let currentQueue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
-                currentQueue.pop(); 
-                localStorage.setItem('hse_queue', JSON.stringify(currentQueue));
+                if (currentQueue.length > 0) {
+                    currentQueue.pop(); 
+                    localStorage.setItem('hse_queue', JSON.stringify(currentQueue));
+                }
                 
                 status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
             } catch (err) {

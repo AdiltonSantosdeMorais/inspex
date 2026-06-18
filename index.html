@@ -1,871 +1,524 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>InspeX - Elecnor</title>
-<link rel="manifest" href="/manifest.json">
-<style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
-    body { background: #f5f7fa; padding: 20px; color: #333; display: flex; justify-content: center; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AlertaFlota</title>
     
-    .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; transition: max-width 0.2s; }
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/static/icon.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/static/icon.png">
     
-    /* Cabeçalho Superior Branco Original */
-    .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; }
-    .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
-    .logo-elecnor { max-height: 25px; object-fit: contain; }
-    .status-badge { background: #e8f5e9; color: #2ecc71; font-weight: bold; font-size: 11px; padding: 5px 12px; border-radius: 20px; }
-    .logo-inspex { max-height: 140px; margin: 15px 0 5px 0; object-fit: contain; }
-    
-    /* Barra de Busca */
-    .search-box { position: relative; width: 100%; }
-    .search-box input { width: 100%; padding: 13px 15px 13px 40px; border-radius: 10px; border: 1px solid #d0d5dd; background: #fff; font-size: 14px; outline: none; }
-    .search-box input:focus { border-color: #0055a5; }
-    .search-box::before { content: "🔍"; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.5; }
-    
-    /* Lista de Equipamentos */
-    .equip-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-    .equip-card { background: #fff; border-radius: 6px; padding: 18px 15px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border-left: 4px solid #0055a5; cursor: pointer; transition: transform 0.1s; }
-    .equip-card:active { transform: scale(0.99); }
-    .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
-    .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root { --blue: #003366; --gray: #cbd5e0; --light-gray: #f0f2f5; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background: var(--light-gray); margin: 0; padding: 0; width: 100%; overflow-x: hidden; }
+        
+        .row { 
+            display: flex; 
+            border-bottom: 1px solid #000; 
+            width: 100%; 
+        }
 
-    /* ESTILOS DO FORMULÁRIO ORIGINAL DA ELECNOR */
-    .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
-    .header-table td { border: 1px solid #000; vertical-align: middle; }
-    .logo-box { width: 20%; height: 100px; text-align: center; padding: 5px; }
-    .logo-box img { max-height: 80px; max-width: 100%; object-fit: contain; }
-    .title-box { width: 55%; text-align: center; font-weight: bold; font-size: 16px; padding: 10px; color: #333; }
-    
-    .info-box-cell { width: 25%; padding: 0 !important; }
-    .info-sub-table { width: 100%; border-collapse: collapse; }
-    .info-sub-table td { border: none !important; border-bottom: 1px solid #000 !important; padding: 3px 8px !important; font-size: 11px; line-height: 1.3; }
-    .info-sub-table tr:last-child td { border-bottom: none !important; }
-    
-    .vehicle-data-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; }
-    .vehicle-data-table input { width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; }
-    
-    /* Destaque visual para campos obrigatórios vazios */
-    .required-field { border-left: 4px solid #e74c3c !important; background-color: #fff6f6 !important; }
-    
-    .col-1 { width: 45%; } .col-2 { width: 30%; } .col-3 { width: 25%; }
-    .legend-row { background-color: #4472c4; color: #ffffff; text-align: center; font-weight: bold; font-size: 12px; height: 28px; letter-spacing: 0.5px; padding: 6px 0 !important; }
-    
-    .checklist-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: -1px; }
-    .checklist-table th, .checklist-table td { border: 1px solid #000; padding: 6px 8px; vertical-align: middle; }
-    .checklist-table th { background:#f2f2f2; font-weight: bold; text-align: center; height: 32px; }
-    .center { text-align: center; width: 55px; }
-    .center input[type="radio"] { transform: scale(1.3); cursor: pointer; width: 18px; height: 18px; }
-    .comment-col { width: 25%; }
-    .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #eee; text-transform: uppercase; }
-    
-    /* Alerta visual forte para perguntas obrigatórias não respondidas */
-    .row-incomplete { background-color: #fce4d6 !important; border-left: 4px solid #e74c3c !important; }
-    
-    .photos-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .photos-table td { border: 1px solid #000; padding: 12px; font-size: 11px; font-weight: bold; background: #fafafa; }
-    .photos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 8px; }
-    .photo-slot { border: 1px dashed #4472c4; background: #fff; padding: 8px; text-align: center; border-radius: 4px; position: relative; }
-    .photo-slot input[type="file"] { width: 100%; font-size: 10px; margin-top: 5px; cursor: pointer; }
-    .photo-preview { max-width: 100%; height: 60px; object-fit: contain; display: none; margin-top: 5px; border-radius: 2px; border: 1px solid #ddd; }
+        .cell { 
+            border-right: 1px solid #000; 
+            padding: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            flex: 1; 
+            width: 50%; 
+            position: relative; 
+            z-index: 1; 
+        }
+        .cell:last-child { border-right: none; }
 
-    .footer-obs-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .footer-obs-table td { border: 1px solid #000; padding: 8px; font-size: 11px; font-weight: bold; vertical-align: top; }
-    .footer-obs-table textarea { width: 100%; height: 60px; border: 1px solid #eee; resize: none; font-size: 11px; outline: none; margin-top: 5px; font-family: Arial; padding: 5px; text-transform: uppercase; }
-    
-    .result-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .result-table td { border: 1px solid #000; padding: 8px; font-size: 11px; font-weight: bold; vertical-align: middle; }
-    .result-title { background-color: #e1e1e1; text-align: center; width: 25%; }
-    .result-option { width: 17%; text-align: center; }
-    .result-checkbox { width: 8%; text-align: center; }
-    .result-checkbox input { transform: scale(1.4); cursor: pointer; }
-    .disabled-option { opacity: 0.4; pointer-events: none; background-color: #f2f2f2; }
-    
-    .signatures-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .signatures-table td { border: 1px solid #000; text-align: center; height: 140px; vertical-align: top; font-weight: bold; font-size: 11px; padding: 6px; width: 33.33%; color: #333; }
-    .canvas-container { margin-top: 5px; background: #fcfcfc; display: inline-block; text-align: center; }
-    .sig-canvas { border: 1px dashed #999; background: #fff; display: block; cursor: crosshair; }
-    .btn-clear { background: #e74c3c; color: white; border: none; padding: 2px 6px; font-size: 9px; border-radius: 2px; cursor: pointer; margin-top: 4px; display: inline-block; }
+        input[type="time"], input[type="date"] {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: #ffffff;
+            border: 1px solid #cbd5e1 !important; 
+            padding: 10px 8px !important;
+            border-radius: 6px;
+            width: 100%;
+            max-width: 100%;
+            display: block;
+            font-size: 14px;
+            font-family: inherit;
+            color: #000000;
+            box-sizing: border-box;
+            min-height: 42px;
+            line-height: normal;
+        }
 
-    #statusMsg { font-size: 14px; text-align: center; padding: 12px; display: none; font-weight: bold; background: #fff; border-radius: 6px; border: 1px solid #ccc; margin-top: 10px; }
-    
-    /* Alerta visual na home se houver fila pendente */
-    .sync-alert-banner { display: none; background: #f39c12; color: #fff; font-weight: bold; text-align: center; padding: 10px; font-size: 12px; border-radius: 6px; margin-bottom: 5px; }
+        .app-container { background: white; width: 100%; max-width: 800px; margin: 0 auto; min-height: 100vh; border: 1px solid #000; display: flex; flex-direction: column; }
+        .header-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .header-table td { border: 1px solid #000; text-align: center; padding: 5px; font-weight: bold; font-size: 10px; overflow: hidden; }
+        .logo-img { width: 60px; height: auto; display: block; margin: 0 auto; }
+        .tech-info { text-align: left !important; font-size: 7px !important; line-height: 1.2; }
 
-    .btn-container { display: flex; justify-content: center; gap: 15px; margin: 20px auto; width: 100%; padding: 0 10px; }
-    .btn-salvar { background: #4472c4; color: white; border: none; padding: 16px 45px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .btn-salvar:hover { background: #355a9c; }
-    .btn-voltar { background: #95a5a6; color: white; border: none; padding: 16px 25px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; text-align: center; }
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        .section-header { background: var(--gray); border: 1px solid #000; padding: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; }
+        
+        label { font-size: 10px; font-weight: bold; margin-bottom: 6px; color: var(--blue); text-transform: uppercase; }
+        input, textarea, select { border: none; outline: none; font-size: 14px; background: transparent; width: 100%; color: #000; }
+        
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%23003366' d='M0 0l5 5 5-5z'/></svg>") no-repeat right 10px center;
+            background-size: 10px 6px;
+            padding-right: 25px;
+        }
+        
+        .area-grid { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+            width: 100%; 
+            padding: 5px 0; 
+        }
+        .check-item { 
+            display: flex; 
+            align-items: center; 
+            font-size: 11px; 
+            font-weight: bold; 
+            text-transform: uppercase;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            min-width: calc(50% - 5px);
+        }
+        .check-item input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        
+        .photo-upload { padding: 25px; border: 2px dashed var(--gray); margin: 15px; text-align: center; cursor: pointer; background: #fafafa; border-radius: 4px; }
+        
+        .preview-container { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 10px; 
+            padding: 15px; 
+            width: 100%;
+        }
+        .preview-thumb { 
+            width: 100%; 
+            height: 130px; 
+            object-fit: contain;
+            background: #e2e8f0;
+            border: 1px solid #000; 
+            border-radius: 4px;
+        }
+
+        .btn-submit { background: var(--blue); color: white; border: none; padding: 20px; width: 100%; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: auto; }
+        .btn-submit:disabled { background: #64748b; cursor: not-allowed; }
+        #statusMsg { font-size: 12px; text-align: center; padding: 15px; display: none; font-weight: bold; }
+
+        @media (max-width: 480px) { 
+            .row.context-row {
+                flex-wrap: nowrap !important;
+            }
+            .row:not(.context-row) {
+                flex-wrap: wrap;
+            }
+            .row:not(.context-row) .cell {
+                min-width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #000;
+            }
+            .row:not(.context-row) .cell:last-child {
+                border-bottom: none;
+            }
+            .preview-container { gap: 6px; padding: 10px; }
+            .preview-thumb { height: 100px; }
+            .check-item { min-width: calc(50% - 5px); }
+        }
+    </style>
 </head>
 <body>
 
-<div class="container" id="main-container">
-    
-    <div id="section-lista" style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
-        <div class="header-card">
-            <div class="header-top">
-                <img id="imagem-logo-tela" class="logo-elecnor" src="/static/logo-elecnor.png" alt="Elecnor">
-                <span class="status-badge" id="net-status">Online</span>
+<div class="app-container">
+    <form id="hSEForm">
+        <table class="header-table">
+            <tr>
+                <td style="width: 20%;"><img id="logoImg" src="/static/logo-elecnor.png" class="logo-img"></td>
+                <td style="width: 50%;">FORMULARIO ALERTAFLOTA<br>PROYECTO COPIAPÓ SOLAR</td>
+                <td style="width: 30%;" class="tech-info">
+                    CÓDIGO: <br> FECHA: <br> PÁGINA: 1 DE 1 <br> REVISIÓN: 05 <br> CATEGORÍA: FLOTAS <br> SECTOR: SEGURIDAD
+                </td>
+            </tr>
+        </table>
+        
+        <div class="section-header">1. CONTEXTO</div>
+        <div class="row context-row">
+            <div class="cell"><label>FECHA:</label><input type="date" id="fecha" required></div>
+            <div class="cell"><label>HORA:</label><input type="time" id="hora" required></div>
+        </div>
+        <div class="row">
+            <div class="cell"><label>LOCALIZACIÓN:</label><input type="text" id="localizacion" placeholder="DIGITE A LOCALIZAÇÃO" required></div>
+        </div>
+        <div class="row">
+            <div class="cell"><label>CÓDIGO DO EQUIPAMENTO:</label><input type="text" id="codigo_equipamento" placeholder="DIGITE O CÓDIGO DO EQUIPAMENTO" required></div>
+        </div>
+        <div class="row">
+            <div class="cell"><label>NOME DO EQUIPAMENTO:</label>
+                <select id="nome_equipamento" required>
+                    <option value="">SELECCIONE A EQUIPE...</option>
+                    <option value="AUTOBÚS">AUTOBÚS</option>
+                    <option value="CAMA BAJA - CAMIÓN">CAMA BAJA - CAMIÓN</option>
+                    <option value="CAMIONETA VEHICULO 4X4">CAMIONETA VEHICULO 4X4</option>
+                    <option value="CAMIÓN 3/4">CAMIÓN 3/4</option>
+                    <option value="CAMIÓN AL JIBE 20000L">CAMIÓN AL JIBE 20000L</option>
+                    <option value="CAMIÓN AL JIBE 25000L">CAMIÓN AL JIBE 25000L</option>
+                    <option value="CAMIÓN AL JIBE 30000L">CAMIÓN AL JIBE 30000L</option>
+                    <option value="CAMIÓN PETROLERO">CAMIÓN PETROLERO</option>
+                    <option value="CAMIÓN PLUMA 10 TO">CAMIÓN PLUMA 10 TO</option>
+                    <option value="CAMIÓN PLUMA 12 TO">CAMIÓN PLUMA 12 TO</option>
+                    <option value="CAMIÓN TOLVA 18M3">CAMIÓN TOLVA 18M3</option>
+                    <option value="EXCAVADORA 20 TO">EXCAVADORA 20 TO</option>
+                    <option value="EXCAVADORA 22 TO">EXCAVADORA 22 TO</option>
+                    <option value="MINI EXCAVADORA">MINI EXCAVADORA</option>
+                    <option value="MINI EXCAVADORA 3,5 TO">MINI EXCAVADORA 3,5 TO</option>
+                    <option value="MINI EXCAVADORA 4 TO">MINI EXCAVADORA 4 TO</option>
+                    <option value="MINICARGADOR 1,2 TO">MINICARGADOR 1,2 TO</option>
+                    <option value="MOTONIVELADORA 21 TO">MOTONIVELADORA 21 TO</option>
+                    <option value="RETRO EXCAVADORA">RETRO EXCAVADORA</option>
+                    <option value="MANIPULADOR T">MANIPULADOR T</option>
+                    <option value="MANIPULADOR T 13 M">MANIPULADOR T 13 M</option>
+                    <option value="MANIPULADOR T 18 M">MANIPULADOR T 18 M</option>
+                    <option value="MINIRODILLO">MINIRODILLO</option>
+                    <option value="PLACA COMPACTADORA">PLACA COMPACTADORA</option>
+                    <option value="RODILLO">RODILLO</option>
+                    <option value="SAPO COMPACTADOR">SAPO COMPACTADOR</option>
+                    <option value="GRÚA">GRÚA</option>
+                </select>
             </div>
-            <img class="logo-inspex" src="/static/inspex.png" alt="InspeX">
+        </div>
+        <div class="row">
+            <div class="cell"><label>PATENTE DO EQUIPAMENTO:</label><input type="text" id="patente_equipamento" placeholder="DIGITE A PATENTE/PLACA DO EQUIPAMENTO" required></div>
+        </div>
+        <div class="row">
+            <div class="cell"><label>ÁREA ESPECÍFICA:</label>
+                <div class="area-grid">
+                    <label class="check-item"><input type="radio" name="area" value="IIFF" required> IIFF</label>
+                    <label class="check-item"><input type="radio" name="area" value="PV"> PV</label>
+                    <label class="check-item"><input type="radio" name="area" value="BESS"> BESS</label>
+                    <label class="check-item"><input type="radio" name="area" value="EXTERNO"> EXTERNO</label>
+                </div>
+            </div>
         </div>
 
-        <div id="sync-banner" class="sync-alert-banner">⏳ Guardados inspecciones offline. Sincronizando en segundo plano...</div>
+        <div class="section-header">2. DESCRIPCIÓN DEL EVENTO / HALLAZGO</div>
+        <div class="row"><div class="cell"><textarea id="desc" rows="4" placeholder="DESCRIBA LO SUCEDIDO..." required></textarea></div></div>
 
-        <div class="search-box">
-            <input type="text" id="search-input" placeholder="Buscar equipamento..." oninput="filtrarEquipamentos()">
+        <div class="section-header">3. REGISTRO FOTOGRÁFICO <span id="photo-count">(0/6)</span></div>
+        <div class="photo-upload" id="upload-trigger">
+            <label style="cursor:pointer">📸 + ANEXAR FOTOS</label>
+            <input type="file" id="foto" accept="image/*" multiple style="display:none;">
         </div>
+        <div class="preview-container" id="preview-container"></div>
 
-        <div class="equip-list" id="lista-container">
-            <div class="equip-card" onclick="abrirFormularioNativo('AMBULANCIA', 'ambulancia')" data-name="AMBULANCIA"><span class="equip-name">AMBULANCIA</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN ALJIBE', 'camion_aljibe')" data-name="CAMIÓN ALJIBE"><span class="equip-name">CAMIÓN ALJIBE</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('CAMION BETONERA', 'camion_betonera')" data-name="CAMION BETONERA"><span class="equip-name">CAMION BETONERA</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN CAMA BAJA', 'camion_cama_baja')" data-name="CAMIÓN CAMA BAJA"><span class="equip-name">CAMIÓN CAMA BAJA</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN DE PETROLEO', 'camion_de_petroleo')" data-name="CAMIÓN DE PETROLEO"><span class="equip-name">CAMIÓN DE PETROLEO</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN TOLVA', 'camion_tolva')" data-name="CAMIÓN TOLVA"><span class="equip-name">CAMIÓN TOLVA</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('CAMIONES 3/4', 'camiones_3_4')" data-name="CAMIONES 3/4"><span class="equip-name">CAMIONES 3/4</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('ESSLINGAS Y GRILLETES', 'eslingas_y_grilletes')" data-name="ESLINGAS Y GRILLETES"><span class="equip-name">ESLINGAS Y GRILLETES</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('EXCAVADORA HIDRAULICA', 'excavadora_hidraulica')" data-name="EXCAVADORA HIDRAULICA"><span class="equip-name">EXCAVADORA HIDRAULICA</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('GRUA Y PLUMA', 'grua_y_pluma')" data-name="GRUA Y PLUMA"><span class="equip-name">GRUA Y PLUMA</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('MANIPULADORA TELESCOPICA', 'manipuladora_telescopica')" data-name="MANIPULADORA TELESCOPICA"><span class="equip-name">MANIPULADORA TELESCOPICA</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('MAQUINA PERFORADORA', 'maquina_perforadora')" data-name="MAQUINA PERFORADORA"><span class="equip-name">MAQUINA PERFORADORA</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('MINI RODILLO COMPACTADOR', 'mini_rodillo_compactador')" data-name="MINI RODILLO COMPACTADOR"><span class="equip-name">MINI RODILLO COMPACTADOR</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('MINIEXCAVADORA MINI CARREGADORA', 'miniexcavadora_mini_carregadora')" data-name="MINIEXCAVADORA MINI CARREGADORA"><span class="equip-name">MINIEXCAVADORA MINI CARREGADORA</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('MOTOR GENERADOR', 'motor_generador')" data-name="MOTOR GENERADOR"><span class="equip-name">MOTOR GENERADOR</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('PLATAFORMA PTA', 'plataforma_pta')" data-name="PLATAFORMA PTA"><span class="equip-name">PLATAFORMA PTA</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('REMOLQUE TANQUE DE PETROLEO', 'remolque_tanque_de_petroleo')" data-name="REMOLQUE TANQUE DE PETROLEO"><span class="equip-name">REMOLQUE TANQUE DE PETROLEO</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('RETROEXCAVADORA', 'retroexcavadora')" data-name="RETROEXCAVADORA"><span class="equip-name">RETROEXCAVADORA</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('RODILLO COMPACTADOR', 'rodillo_compactador')" data-name="RODILLO COMPACTADOR"><span class="equip-name">RODILLO COMPACTADOR</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('TALADRO DE ROCA', 'taladro_de_roca')" data-name="TALADRO DE ROCA"><span class="equip-name">TALADRO DE ROCA</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('TRACTOR DE NEUMATICOS', 'tractor_de_neumaticos')" data-name="TRACTOR DE NEUMATICOS"><span class="equip-name">TRACTOR DE NEUMATICOS</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('TRACTOR DE ORUGAS MOTONIVELADORA', 'tractor_orugas_motoniveladora')" data-name="TRACTOR DE ORUGAS MOTONIVELADORA"><span class="equip-name">TRACTOR DE ORUGAS MOTONIVELADORA</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('TRANSPORTE COLECTIVO FURGONETAS', 'transporte_colectivo_furgonetas')" data-name="TRANSPORTE COLECTIVO FURGONETAS"><span class="equip-name">TRANSPORTE COLECTIVO FURGONETAS</span><span class="disponivel-badge">Disponible</span></div>
-            <div class="equip-card" onclick="abrirFormularioNativo('VEHICULOS LIGEROS CAMIONETAS', 'vehiculos_ligeros_camionetas')" data-name="VEHICULOS LIGEROS CAMIONETAS"><span class="equip-name">VEHICULOS LIGEROS CAMIONETAS</span><span class="disponivel-badge">Disponible</span></div>
-        </div>
-    </div>
-
-    <div id="section-formulario" style="display: none; width: 100%;">
-        <div class="page-sheet" id="area-folha-pdf">
-            <table class="header-table">
-                <tr>
-                    <td class="logo-box"><img src="/static/logo-elecnor.png" alt="Logo Elecnor"></td>
-                    <td class="title-box" id="dinamico-titulo-equip">LISTA DE VERIFICACIÓN MENSUAL</td>
-                    <td class="info-box-cell">
-                        <table class="info-sub-table">
-                            <tr><td><strong>Código:</strong> 20.0009-SST-FL-0036</td></tr>
-                            <tr><td><strong>Fecha Ref:</strong> 15/06/2026</td></tr>
-                            <tr><td><strong>Página:</strong> 1/1</td></tr>
-                            <tr><td><strong>Revisión:</strong> 00</td></tr>
-                            <tr><td><strong>Categoria:</strong> General</td></tr>
-                            <tr><td><strong>Sector:</strong> Seguridad</td></tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-
-            <table class="vehicle-data-table">
-                <tr>
-                    <td class="col-1" id="box_equipo">EQUIPO / MODELO: <input type="text" id="v_equipo" readonly></td>
-                    <td class="col-2" id="box_patente">PATENTE / IDENT.: * <input type="text" id="v_patente" placeholder="DIGITE AQUÍ LA PATENTE"></td>
-                    <td class="col-3" id="box_fecha">FECHA DE INSPECCIÓN: * <input type="date" id="v_fecha"></td>
-                </tr>
-                <tr>
-                    <td class="col-1">EMPRESA: <input type="text" id="v_empresa" value="ELECNOR"></td>
-                    <td class="col-2">AÑO: <input type="text" id="v_anio" placeholder="Ex: 2024"></td>
-                    <td class="col-3" id="box_km">KM / HORÓMETRO: * <input type="text" id="v_km" placeholder="Ex: 45000"></td>
-                </tr>
-                <tr>
-                    <td colspan="3" class="legend-row">C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO</td>
-                </tr>
-            </table>
-
-            <table class="checklist-table">
-                <thead>
-                    <tr>
-                        <th>ELEMENTOS VERIFICADOS</th>
-                        <th class="center">C</th>
-                        <th class="center">NC</th>
-                        <th class="center">NA</th>
-                        <th>COMENTARIOS</th>
-                    </tr>
-                </thead>
-                <tbody id="checklist-dinamico-rows"></tbody>
-            </table>
-
-            <table class="photos-table">
-                <tr>
-                    <td>REGISTRO FOTOGRÁFICO DE EVIDENCIAS (MÁXIMO 8 FOTOS)
-                        <div class="photos-grid">
-                            <div class="photo-slot"><span>Foto 1</span><input type="file" accept="image/*" id="input_foto_1" onchange="processarFoto(1)"><img id="prev_foto_1" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 2</span><input type="file" accept="image/*" id="input_foto_2" onchange="processarFoto(2)"><img id="prev_foto_2" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 3</span><input type="file" accept="image/*" id="input_foto_3" onchange="processarFoto(3)"><img id="prev_foto_3" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 4</span><input type="file" accept="image/*" id="input_foto_4" onchange="processarFoto(4)"><img id="prev_foto_4" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 5</span><input type="file" accept="image/*" id="input_foto_5" onchange="processarFoto(5)"><img id="prev_foto_5" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 6</span><input type="file" accept="image/*" id="input_foto_6" onchange="processarFoto(6)"><img id="prev_foto_6" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 7</span><input type="file" accept="image/*" id="input_foto_7" onchange="processarFoto(7)"><img id="prev_foto_7" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 8</span><input type="file" accept="image/*" id="input_foto_8" onchange="processarFoto(8)"><img id="prev_foto_8" class="photo-preview"></div>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-
-            <table class="footer-obs-table">
-                <tr>
-                    <td>COMENTARIOS Y OBSERVACIONES GENERALES
-                        <textarea id="obs_generales" placeholder="Digite observaciones generales..."></textarea>
-                    </td>
-                </tr>
-                <tr>
-                    <td>MEDIDAS CORRECTIVAS ADOPTADAS:
-                        <textarea id="medidas_correctivas" placeholder="Descreva ações tomadas..."></textarea>
-                    </td>
-                </tr>
-            </table>
-
-            <table class="result-table">
-                <tr>
-                    <td class="result-title">RESULTADO</td>
-                    <td class="result-option" id="cell_liberado">LIBERADO</td>
-                    <td class="result-checkbox" id="check_liberado"><input type="radio" name="resultado_final" id="res_liberado" value="LIBERADO"></td>
-                    <td class="result-option" id="cell_obs">LIBERADO COM OBS.</td>
-                    <td class="result-checkbox" id="check_obs"><input type="radio" name="resultado_final" id="res_obs" value="LIBERADO_OBS"></td>
-                    <td class="result-option" id="cell_no_liberado">NO LIBERADO</td>
-                    <td class="result-checkbox" id="check_no_liberado"><input type="radio" name="resultado_final" id="res_no_liberado" value="NO_LIBERADO"></td>
-                </tr>
-            </table>
-
-            <table class="signatures-table">
-                <tr>
-                    <td>OPERADOR / CONDUCTOR
-                        <div class="canvas-container">
-                            <canvas id="canvas_conductor" class="sig-canvas" width="220" height="75"></canvas>
-                            <button class="btn-clear" onclick="limparCanvas('canvas_conductor')">🗑️ Limpar</button>
-                        </div>
-                    </td>
-                    <td>SUPERVISOR / ENCARGADO / CAPATAZ
-                        <div class="canvas-container">
-                            <canvas id="canvas_supervisor" class="sig-canvas" width="220" height="75"></canvas>
-                            <button class="btn-clear" onclick="limparCanvas('canvas_supervisor')">🗑️ Limpar</button>
-                        </div>
-                    </td>
-                    <td>SEGURIDAD DO TRABAJO
-                        <div class="canvas-container">
-                            <canvas id="canvas_seguridad" class="sig-canvas" width="220" height="75"></canvas>
-                            <button class="btn-clear" onclick="limparCanvas('canvas_seguridad')">🗑️ Limpar</button>
-                        </div>
-                    </td>
-                </tr>
-            </table>
+        <div class="section-header">4. IDENTIFICACIÓN</div>
+        <div class="row">
+            <div class="cell"><label>NOMBRE Y APELLIDO:</label><input type="text" id="relator" placeholder="NOMBRE COMPLETO" required></div>
+            <div class="cell"><label>EMPRESA:</label><input type="text" id="empresa" required placeholder="NOMBRE DE LA EMPRESA"></div>
         </div>
 
         <div id="statusMsg"></div>
-        <div class="btn-container">
-            <button class="btn-voltar" onclick="fecharFormularioNativo()">⬅ Voltar</button>
-            <button type="button" class="btn-salvar" id="btn-save-main" onclick="salvarEMontarPDF_Original_SST()">💾 ENVIAR Y SALVAR CHECKLIST</button>
-        </div>
-    </div>
+        <button type="submit" id="submitBtn" class="btn-submit">ENVIAR Y GENERAR PDF</button>
+    </form>
 </div>
 
 <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzuM3ldBjFInWMtH6xcZVCfmwXX6uknztafkxJjY_S_M32W2ne4Y35cgCgVbMZpBXpAkA/exec';
 
-    let equipoSeleccionado = "";
-    let bancoImagensFotos = {}; 
-    let perguntasAtuais = []; 
-    let isSyncing = false;
-
-    const DICIONARIO_PERGUNTAS = {
-        "ambulancia": [
-            "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
-            "FRENO DE LAS RUEDAS FUNCIONANDO CORRECTAMENTE - IMP",
-            "FRENO DE ESTACIONAMIENTO",
-            "AGUA DEL RADIADOR CON NIVEL ADECUADO",
-            "LIMPIAPARABRISAS FUNCIONANDO CORRECTAMENTE",
-            "KIT DE HERRAMIENTAS (LLAVE DE RUEDAS, CRIQUE, GATO, TRIANGULO)",
-            "TUERCA DE FIJACIÓN DE LAS RUEDAS",
-            "SISTEMA ELÉCTRICO FUNCIONANDO CORRECTAMENTE",
-            "FAROS Y LUCES FUNCIONANDO CORRECTAMENTE",
-            "CLAXON/CAMARA DE MARCHA ATRÁS Y ALARMA SONORA DE MARCHA ATRÁS - IMP",
-            "RUEDAS SIN JUEGO EN EL VOLANTE",
-            "VELOCÍMETRO/TACOGRAFO",
-            "PUERTAS Y VENTANAS FUNCIONANDO CORRECTAMENTE",
-            "ASIENTOS EN BUEN ESTADO",
-            "ESPEJOS RETROVISORES - IMP",
-            "CINTURONES DE SEGURIDAD CONSERVADOS EN TODOS OS ASIENTOS - IMP",
-            "EXTINTOR DE INCENDIO VALIDO Y ADECUADO",
-            "VENTILACIÓN NATURAL OR ARTIFICIAL",
-            "NEUMATICOS CALIBRADOS Y EN BUEN ESTADO DE USO - IMP",
-            "ALARMA Y SIRENA DE EMERGENCIA FUNCIONANDO - IMP",
-            "CUÑA PARA RUEDAS",
-            "CONSERVACIÓN DEL INTERIOR DEL VEHÍCULO",
-            "IDENTIFICACIÓN DEL VEHÍCULO DE EMBARQUE - IMP"
-        ],
-        "general_maquinaria": [
-            "ESTADO DE LOS NEUMÁTICOS / ORUGAS Y AJUSTE DE PERNOS - IMP",
-            "NIVEL DE ACEITE DE MOTOR, HIDRÁULICO Y TRANSMISIÓN",
-            "SISTEMA DE FRENOS DE SERVICIO Y ESTACIONAMIENTO - IMP",
-            "LUCES DE TRABAJO, DELANTERAS, TRASERAS Y DE RETROCESO",
-            "ALARMA DE MARCHA ATRÁS Y BOCINA DE ALERTA - IMP",
-            "ESTADO DE ESPEJOS RETROVISORES Y PARABRISAS - IMP",
-            "CINTURÓN DE SEGURIDAD DE LA CABINA - IMP",
-            "SISTEMA HIDRÁULICO (MANGUERAS, CILINDROS, SIN FUGAS)",
-            "EXTINTOR DE INCENDIO DE REGLA CARGADO Y VIGENTE",
-            "ESTADO E HIGIENE GENERAL DE LA CABINA",
-            "ESTADO DE BALDE, CUCHILLA O IMPLEMENTO DE CORTE",
-            "PUNTOS DE ENGRASE Y ARTICULACIONES",
-            "ESTADO DE LAS BALIZAS LUMINOSAS",
-            "CUNAS DE BLOCKEO DE RUEDAS PRESENTES"
-        ]
-    };
-
-    function filtrarEquipamentos() {
-        const filtro = document.getElementById('search-input').value.toUpperCase();
-        const cards = document.querySelectorAll('.equip-card');
-        cards.forEach(card => {
-            const nome = card.getAttribute('data-name');
-            card.style.display = nome && nome.includes(filtro) ? "flex" : "none";
-        });
-    }
-
-    function atualizarStatusRede() {
-        const badge = document.getElementById('net-status');
-        if (!badge) return;
-        const online = navigator.onLine;
-        badge.innerText = online ? "Online" : "Offline";
-        badge.style.background = online ? "#e8f5e9" : "#ffebee";
-        badge.style.color = online ? "#2ecc71" : "#e74c3c";
-        
-        if (online) { syncQueue(); }
-    }
-
-    function processarFoto(id) {
-        const input = document.getElementById(`input_foto_${id}`);
-        if (!input || !input.files[0]) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            bancoImagensFotos[`foto_${id}`] = e.target.result;
-            const preview = document.getElementById(`prev_foto_${id}`);
-            if(preview) { preview.src = e.target.result; preview.style.display = "block"; }
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-
-    async function carregarListaDePerguntasEstavel(nomeArquivo) {
-        if (DICIONARIO_PERGUNTAS[nomeArquivo]) {
-            return DICIONARIO_PERGUNTAS[nomeArquivo];
-        }
-        try {
-            const resposta = await fetch(`/checklist/${nomeArquivo}.html`);
-            if (resposta.ok) {
-                const htmlTexto = await resposta.text();
-                const matchRegex = /const\s+preguntas\s*=\s*\[([\s\S]*?)\]\s*;/i.exec(htmlTexto);
-                if (matchRegex && matchRegex[1]) {
-                    const bloco = matchRegex[1];
-                    const regexItens = /["'`]([\s\S]*?)["'`]/g;
-                    let itemMatch; let l = [];
-                    while ((itemMatch = regexItens.exec(bloco)) !== null) {
-                        let txt = itemMatch[1].trim();
-                        if (txt.length > 2) l.push(txt);
-                    }
-                    if (l.length > 0) return l;
-                }
-            }
-        } catch (e) { console.error("Falha ao ler html físico:", e); }
-        
-        return DICIONARIO_PERGUNTAS["general_maquinaria"];
-    }
-
-    async function abrirFormularioNativo(nomeVisual, nomeArquivo) {
-        equipoSeleccionado = nomeVisual;
-        bancoImagensFotos = {}; 
-        
-        document.getElementById('v_equipo').value = nomeVisual;
-        document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + nomeVisual;
-        document.getElementById('v_fecha').valueAsDate = new Date();
-        document.getElementById('v_patente').value = "";
-        document.getElementById('v_anio').value = "";
-        document.getElementById('v_km').value = "";
-        document.getElementById('obs_generales').value = "";
-        document.getElementById('medidas_correctivas').value = "";
-
-        document.getElementById('box_patente').classList.remove('required-field');
-        document.getElementById('box_km').classList.remove('required-field');
-        document.getElementById('box_fecha').classList.remove('required-field');
-
-        for (let idx = 1; idx <= 8; idx++) {
-            const input = document.getElementById(`input_foto_${idx}`);
-            const preview = document.getElementById(`prev_foto_${idx}`);
-            if(input) input.value = "";
-            if(preview) { preview.style.display = "none"; preview.src = ""; }
-        }
-
-        preguntasAtuais = await carregarListaDePerguntasEstavel(nomeArquivo);
-
-        const tbody = document.getElementById('checklist-dinamico-rows');
-        tbody.innerHTML = "";
-        
-        preguntasAtuais.forEach((pregunta, index) => {
-            const id = index + 1;
-            tbody.innerHTML += `
-                <tr id="row_item_${id}">
-                    <td><strong>${id}.</strong> ${pregunta}</td>
-                    <td class="center"><input type="radio" name="item_${id}" value="C" onchange="verificarReglasResultados(${id})"></td>
-                    <td class="center"><input type="radio" name="item_${id}" value="NC" onchange="verificarReglasResultados(${id})"></td>
-                    <td class="center"><input type="radio" name="item_${id}" value="NA" onchange="verificarReglasResultados(${id})"></td>
-                    <td class="comment-col"><input type="text" id="comment_${id}" placeholder="Nota..."></td>
-                </tr>
-            `;
+    // Registro do Service Worker e Atualização Automática de Versão
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => {
+                    console.log('Service Worker registrado!');
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('Nova versão detectada! Recarregando app...');
+                                window.location.reload();
+                            }
+                        });
+                    });
+                })
+                .catch(err => console.log('Error al registrar Service Worker:', err));
         });
 
-        document.getElementById('main-container').style.maxWidth = "1050px";
-        document.getElementById('section-lista').style.display = "none";
-        document.getElementById('section-formulario').style.display = "block";
-        window.scrollTo(0,0);
-        
-        inicializarCanvases();
-        verificarReglasResultados();
-    }
-
-    function fecharFormularioNativo() {
-        document.getElementById('main-container').style.maxWidth = "450px";
-        document.getElementById('section-formulario').style.display = "none";
-        document.getElementById('section-lista').style.display = "block";
-        window.scrollTo(0,0);
-        checkFilaVisualIndicator();
-    }
-
-    function verificarReglasResultados(rowIdMudado = null) {
-        let bloqueioImpeditivo = false;
-        let falhaComumDetectada = false;
-        let todasRespondidas = true;
-
-        if(rowIdMudado) {
-            document.getElementById(`row_item_${rowIdMudado}`).classList.remove('row-incomplete');
-        }
-
-        preguntasAtuais.forEach((pregunta, index) => {
-            const id = index + 1;
-            const marcado = document.querySelector(`input[name="item_${id}"]:checked`);
-            if (!marcado) {
-                todasRespondidas = false;
-            } else if (marcado.value === "NC") {
-                if (pregunta.toUpperCase().includes("IMP")) {
-                    bloqueioImpeditivo = true;
-                } else {
-                    falhaComumDetectada = true;
-                }
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+                refreshing = true;
+                window.location.reload();
             }
         });
-
-        const btnLiberado = document.getElementById('res_liberado');
-        const btnObs = document.getElementById('res_obs');
-        const btnNoLiberado = document.getElementById('res_no_liberado');
-
-        const elLib = document.getElementById('cell_liberado');
-        const chLib = document.getElementById('check_liberado');
-        const elObs = document.getElementById('cell_obs');
-        const chObs = document.getElementById('check_obs');
-        const elNoLib = document.getElementById('cell_no_liberado');
-        const chNoLib = document.getElementById('check_no_liberado');
-
-        [elLib, chLib, elObs, chObs, elNoLib, chNoLib].forEach(el => { if(el) el.classList.remove('disabled-option'); });
-        if(btnLiberado) btnLiberado.disabled = false; 
-        if(btnObs) btnObs.disabled = false; 
-        if(btnNoLiberado) btnNoLiberado.disabled = false;
-
-        if (bloqueioImpeditivo) {
-            if(btnNoLiberado) btnNoLiberado.checked = true;
-            [elLib, chLib, elObs, chObs].forEach(el => { if(el) el.classList.add('disabled-option'); });
-            if(btnLiberado) btnLiberado.disabled = true; if(btnObs) btnObs.disabled = true;
-        } 
-        else if (falhaComumDetectada) {
-            if(btnObs) btnObs.checked = true;
-            [elLib, chLib, elNoLib, chNoLib].forEach(el => { if(el) el.classList.add('disabled-option'); });
-            if(btnLiberado) btnLiberado.disabled = true; if(btnNoLiberado) btnNoLiberado.disabled = true;
-        } 
-        else if (todasRespondidas) {
-            if(btnLiberado) btnLiberado.checked = true;
-        }
     }
 
-    function inicializarCanvases() {
-        ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'].forEach(id => {
-            const canvas = document.getElementById(id);
-            if(!canvas) return;
-            const clone = canvas.parentNode ? canvas.cloneNode(true) : canvas;
-            if(canvas.parentNode) canvas.parentNode.replaceChild(clone, canvas);
-            const novoCanvas = document.getElementById(id);
-            const ctx = novoCanvas.getContext('2d');
-            ctx.lineWidth = 2; ctx.strokeStyle = "#004B87";
-            let drawing = false;
+    const form = document.getElementById('hSEForm');
+    const fotoInput = document.getElementById('foto');
+    const previewContainer = document.getElementById('preview-container');
+    const photoCountLabel = document.getElementById('photo-count');
+    let imagensObjetoArray = [];
 
-            function pos(e) {
-                const r = novoCanvas.getBoundingClientRect();
-                const x = e.touches ? e.touches[0].clientX : e.clientX;
-                const y = e.touches ? e.touches[0].clientY : e.clientY;
-                return { x: x - r.left, y: y - r.top };
-            }
-            novoCanvas.onmousedown = (e) => { drawing = true; ctx.beginPath(); const p = pos(e); ctx.moveTo(p.x, p.y); };
-            novoCanvas.onmousemove = (e) => { if (drawing) { const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); } };
-            window.addEventListener('mouseup', () => drawing = false);
-            novoCanvas.ontouchstart = (e) => { drawing = true; ctx.beginPath(); const p = pos(e); ctx.moveTo(p.x, p.y); };
-            novoCanvas.ontouchmove = (e) => { if (drawing) { e.preventDefault(); const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); } };
-            window.addEventListener('touchend', () => drawing = false);
-        });
-    }
-
-    function limparCanvas(id) {
-        const canvas = document.getElementById(id);
-        if(canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-    }
-
+    // --- SISTEMA DE FILA OFFLINE TOTALMENTE AUTOMÁTICO ---
     function saveToQueue(data) {
         let queue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
         queue.push(data);
         localStorage.setItem('hse_queue', JSON.stringify(queue));
+        console.log("Salvo localmente na fila offline. Total pendente: " + queue.length);
     }
 
-    function checkFilaVisualIndicator() {
-        const banner = document.getElementById('sync-banner');
-        if(!banner) return;
-        let queue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
-        if(queue.length > 0 && navigator.onLine) {
-            banner.style.display = "block";
-            banner.innerText = `⏳ Hay ${queue.length} inspección(es) pendiente(s) de sincronizar. Procesando...`;
-            banner.style.background = "#f39c12";
-        } else if (queue.length > 0 && !navigator.onLine) {
-            banner.style.display = "block";
-            banner.innerText = `☁️ Modo Offline: ${queue.length} inspección(es) guardada(s) en el equipo.`;
-            banner.style.background = "#7f8c8d";
-        } else {
-            banner.style.display = "none";
-        }
-    }
-
-    // 🔄 SOLUÇÃO DO TRAVAMENTO OFFLINE: Sincroniza um por um limpando a fila dinamicamente
     async function syncQueue() {
-        if (!navigator.onLine || isSyncing) return;
+        if (!navigator.onLine) {
+            console.log("Dispositivo sem internet. Sincronização automática ignorada.");
+            return;
+        }
+        
         let queue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
         if (queue.length === 0) {
-            checkFilaVisualIndicator();
+            console.log("Fila vazia. Nada para sincronizar.");
             return;
         }
 
-        isSyncing = true;
-        checkFilaVisualIndicator();
+        console.log(`Internet detectada! Enviando automaticamente ${queue.length} item(ns) pendente(s)...`);
 
-        try {
-            while (queue.length > 0 && navigator.onLine) {
-                let itemAtual = queue[0];
-                
-                try {
-                    await fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(itemAtual)
-                    });
-                    
-                    // Remove apenas o item enviado com sucesso
-                    queue.shift();
-                    localStorage.setItem('hse_queue', JSON.stringify(queue));
-                } catch (singleError) {
-                    console.error("Erro ao enviar item específico da fila:", singleError);
-                    break; // Interrompe para tentar novamente mais tarde se a rede cair no meio
-                }
-            }
-            console.log("🚀 Sincronização em segundo plano processada!");
-        } catch (error) {
-            console.error("Erro geral no envio em lote:", error);
-        }
-
-        isSyncing = false;
-        checkFilaVisualIndicator();
-    }
-
-    window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
-    window.addEventListener('load', () => { atualizarStatusRede(); syncQueue(); });
-
-    function extrairLogoDaTela() {
-        let logoCanvas = document.createElement('canvas');
-        let logoImgElement = document.getElementById('imagem-logo-tela');
-        if (logoImgElement) {
-            logoCanvas.width = logoImgElement.naturalWidth || 200;
-            logoCanvas.height = logoImgElement.naturalHeight || 80;
+        for (let i = 0; i < queue.length; i++) {
             try {
-                logoCanvas.getContext('2d').drawImage(logoImgElement, 0, 0);
-                return logoCanvas.toDataURL('image/png');
-            } catch(e) {
-                return null;
-            }
-        }
-        return null;
-    }
-
-    function desenharTabelaMetadadosSST(doc, paginaAtual, totalPaginas) {
-        const startX_pos = 150; const startY = 10; const totalWidth = 50; const rowHeight = 4.166;
-        doc.setDrawColor(0); doc.setLineWidth(0.4); doc.rect(startX_pos, startY, totalWidth, 25);
-        const colSplitX = startX_pos + 17; doc.line(colSplitX, startY, colSplitX, startY + 25);
-
-        const dadosMetadados = [
-            { label: "Código:", value: "20.0009-SST-FL-0036" },
-            { label: "Fecha Ref:", value: "15/06/2026" },
-            { label: "Página:", value: `${paginaAtual} de ${totalPaginas}` },
-            { label: "Revisión:", value: "00" },
-            { label: "Categoria:", value: "General" },
-            { label: "Sector:", value: "Seguridad" }
-        ];
-
-        dadosMetadados.forEach((item, index) => {
-            const currentLineY = startY + (index * rowHeight);
-            if (index > 0) doc.line(startX_pos, currentLineY, startX_pos + totalWidth, currentLineY);
-            doc.setFont("helvetica", "bold"); doc.setFontSize(6.5); doc.text(item.label, startX_pos + 1.5, currentLineY + 3);
-            doc.setFont("helvetica", "normal"); doc.setFontSize(6.5); doc.text(item.value, colSplitX + 1.5, currentLineY + 3);
-        });
-    }
-
-    // 🔒 CORREÇÃO INTERMITENTE DO BOTÃO: Tratamento assíncrono para renderizar o PDF sem congelar os botões
-    async function salvarEMontarPDF_Original_SST() {
-        const patente = document.getElementById('v_patente').value.trim();
-        const km = document.getElementById('v_km').value.trim();
-        const fecha = document.getElementById('v_fecha').value;
-
-        document.getElementById('box_patente').classList.remove('required-field');
-        document.getElementById('box_km').classList.remove('required-field');
-        document.getElementById('box_fecha').classList.remove('required-field');
-
-        let errosCampos = [];
-        if (!patente) { errosCampos.push("Patente / Ident."); document.getElementById('box_patente').classList.add('required-field'); }
-        if (!km) { errosCampos.push("KM / Horómetro"); document.getElementById('box_km').classList.add('required-field'); }
-        if (!fecha) { errosCampos.push("Fecha de Inspección"); document.getElementById('box_fecha').classList.add('required-field'); }
-
-        if (errosCampos.length > 0) {
-            alert(`❌ Error: Los siguientes campos de cabecera son obligatorios:\n- ${errosCampos.join('\n- ')}`);
-            return;
-        }
-
-        let itensNaoRespondidos = [];
-        preguntasAtuais.forEach((p, index) => {
-            const id = index + 1;
-            const verificado = document.querySelector(`input[name="item_${id}"]:checked`);
-            if (!verificado) {
-                itensNaoRespondidos.push(id);
-                document.getElementById(`row_item_${id}`).classList.add('row-incomplete');
-            } else {
-                document.getElementById(`row_item_${id}`).classList.remove('row-incomplete');
-            }
-        });
-
-        if (itensNaoRespondidos.length > 0) {
-            alert(`❌ Error: ¡Todos los ELEMENTOS VERIFICADOS são de resposta obrigatória!\nFalta responder o(s) ítem(ns): ${itensNaoRespondidos.join(', ')}`);
-            return;
-        }
-
-        const inspectorNome = prompt("Por favor, ingrese o NOME COMPLETO do inspetor:");
-        if (!inspectorNome || inspectorNome.trim() === "") { alert("❌ O nome do inspetor é obrigatório!"); return; }
-
-        const status = document.getElementById('statusMsg');
-        const btn = document.getElementById('btn-save-main');
-        
-        btn.disabled = true;
-        status.style.display = "block"; status.style.color = "orange"; status.innerText = "⏳ PROCESANDO REPORTE EM 3 PÁGINAS...";
-
-        // Pequena pausa assíncrona para desimpedir o clique do botão na UI
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        const corDeFundo = [240, 240, 240];
-        const logoDataUrl = extrairLogoDaTela();
-
-        // FOLHA 1
-        doc.setLineWidth(0.4); doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35); 
-        if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
-
-        doc.setFontSize(11); doc.setFont("helvetica", "bold");
-        doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
-        doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
-
-        desenharTabelaMetadadosSST(doc, 1, 3);
-
-        doc.rect(10, 35, 190, 20); doc.line(72, 35, 72, 55); doc.line(138, 35, 138, 55); doc.line(10, 45, 200, 45);
-        doc.setFontSize(7); 
-        
-        doc.setFont("helvetica", "bold"); doc.text("EQUIPO / MODELO: ", 12, 39);
-        doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(equipoSeleccionado, 58), 12, 42); 
-        
-        doc.setFont("helvetica", "bold"); doc.text("EMPRESA: ", 12, 49);
-        doc.setFont("helvetica", "normal"); doc.text("ELECNOR", 12, 53);
-
-        doc.setFont("helvetica", "bold"); doc.text("PATENTE / IDENT.: ", 75, 39);
-        doc.setFont("helvetica", "normal"); doc.text(patente.toUpperCase(), 75, 43);
-        
-        doc.setFont("helvetica", "bold"); doc.text("AÑO: ", 75, 49);
-        doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_anio').value.toUpperCase(), 84, 49);
-        
-        doc.setFont("helvetica", "bold"); doc.text("FECHA INSP.: ", 141, 39);
-        doc.setFont("helvetica", "normal"); doc.text(fecha, 141, 43);
-        
-        doc.setFont("helvetica", "bold"); doc.text("KM / HORÓMETRO: ", 141, 49);
-        doc.setFont("helvetica", "normal"); doc.text(km.toUpperCase(), 168, 49);
-
-        doc.setFillColor(68, 114, 196); doc.rect(10, 55, 190, 7, 'F');
-        doc.setTextColor(255); doc.setFontSize(8); doc.text("C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO", 100, 59.5, { align: 'center' });
-        doc.setTextColor(0);
-
-        let currentY = 62;
-        doc.setFillColor(...corDeFundo); doc.rect(10, currentY, 190, 6, 'F'); doc.rect(10, currentY, 190, 6);
-        doc.setFont("helvetica", "bold"); doc.text("ELEMENTOS VERIFICADOS", 12, currentY + 4.2);
-        doc.text("C", 137, currentY + 4.2); doc.text("NC", 146, currentY + 4.2); doc.text("NA", 156, currentY + 4.2); doc.text("COMENTARIOS", 166, currentY + 4.2);
-
-        currentY += 6;
-        
-        preguntasAtuais.forEach((p, idx) => {
-            doc.setFont("helvetica", "normal"); doc.setFontSize(7.5);
-            doc.rect(10, currentY, 190, 8); doc.line(135, currentY, 135, currentY + 8); doc.line(145, currentY, 145, currentY + 8); doc.line(155, currentY, 155, currentY + 8); doc.line(165, currentY, 165, currentY + 8);
-            
-            doc.text(`${idx+1}. ${p.substring(0, 72)}`, 12, currentY + 5);
-            
-            const val = document.querySelector(`input[name="item_${idx+1}"]:checked`).value;
-            const comment = document.getElementById(`comment_${idx+1}`).value.toUpperCase();
-
-            doc.setFont("helvetica", "bold");
-            if(val === "C") doc.text("C", 138, currentY + 5.2);
-            if(val === "NC") doc.text("NC", 147, currentY + 5.2);
-            if(val === "NA") doc.text("NA", 157, currentY + 5.2);
-            
-            doc.setFont("helvetica", "normal"); doc.setFontSize(6.5);
-            doc.text(comment.substring(0, 16), 166, currentY + 5.2);
-            currentY += 8;
-        });
-
-        // FOLHA 2
-        doc.addPage();
-        doc.setLineWidth(0.4); doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35);
-        if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
-        
-        doc.setFontSize(11); doc.setFont("helvetica", "bold");
-        doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
-        doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
-
-        desenharTabelaMetadadosSST(doc, 2, 3);
-
-        let yFolha2 = 40;
-        doc.rect(10, yFolha2, 190, 25);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.text("COMENTARIOS Y OBSERVACIONES GENERALES:", 12, yFolha2 + 5);
-        doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(document.getElementById('obs_generales').value.toUpperCase(), 180), 12, yFolha2 + 11);
-        yFolha2 += 28;
-
-        doc.rect(10, yFolha2, 190, 25);
-        doc.setFont("helvetica", "bold"); doc.text("MEDIDAS CORRECTIVAS ADOPTADAS:", 12, yFolha2 + 5);
-        doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(document.getElementById('medidas_correctivas').value.toUpperCase(), 180), 12, yFolha2 + 11);
-        yFolha2 += 28;
-
-        doc.rect(10, yFolha2, 190, 12); doc.line(50, yFolha2, 50, yFolha2 + 12); doc.line(100, yFolha2, 100, yFolha2 + 12); doc.line(150, yFolha2, 150, yFolha2 + 12);
-        doc.setFont("helvetica", "bold"); doc.text("RESULTADO:", 12, yFolha2 + 7);
-        const finalRes = document.querySelector('input[name="resultado_final"]:checked')?.value || "";
-        doc.text(finalRes === "LIBERADO" ? "[ X ] LIBERADO" : "[   ] LIBERADO", 55, yFolha2 + 7);
-        doc.text(finalRes === "LIBERADO_OBS" ? "[ X ] LIBERADO C/ OBS." : "[   ] LIBERADO C/ OBS.", 103, yFolha2 + 7);
-        doc.text(finalRes === "NO_LIBERADO" ? "[ X ] NO LIBERADO" : "[   ] NO LIBERADO", 155, yFolha2 + 7);
-        yFolha2 += 18;
-
-        doc.setFont("helvetica", "bold"); doc.text("FIRMAS RESPONSABLES:", 12, yFolha2 + 4);
-        yFolha2 += 6;
-        
-        doc.rect(10, yFolha2, 190, 55); doc.line(73, yFolha2, 73, yFolha2 + 55); doc.line(136, yFolha2, 136, yFolha2 + 55);
-        
-        const condBytes = document.getElementById('canvas_conductor').toDataURL();
-        const supBytes = document.getElementById('canvas_supervisor').toDataURL();
-        const segBytes = document.getElementById('canvas_seguridad').toDataURL();
-        
-        doc.addImage(condBytes, 'PNG', 12, yFolha2 + 2, 58, 30);
-        doc.addImage(supBytes, 'PNG', 75, yFolha2 + 2, 58, 30);
-        doc.addImage(segBytes, 'PNG', 138, yFolha2 + 2, 58, 30);
-
-        doc.setFontSize(7.5);
-        doc.text("OPERADOR / CONDUCTOR", 41, yFolha2 + 45, {align:'center'});
-        doc.text("SUPERVISOR / ENCARGADO", 104, yFolha2 + 45, {align:'center'});
-        doc.text("SEGURIDAD DO TRABAJO", 168, yFolha2 + 45, {align:'center'});
-
-        // FOLHA 3
-        doc.addPage();
-        doc.setLineWidth(0.4); doc.rect(10, 10, 140, 25); doc.line(50, 10, 50, 35);
-        if (logoDataUrl) { try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} }
-        
-        doc.setFontSize(11); doc.setFont("helvetica", "bold");
-        doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
-        doc.text(equipoSeleccionado, 100, 27, { align: 'center' });
-
-        desenharTabelaMetadadosSST(doc, 3, 3);
-
-        doc.rect(10, 38, 190, 240);
-        doc.setFontSize(9.5); doc.text("EVIDENCIAS REGISTRADAS (MÁXIMO 8 FOTOS):", 14, 46);
-
-        let imgX = 15, imgY = 52, contadorGrid = 0;
-        for (let keyIdx = 1; keyIdx <= 8; keyIdx++) {
-            const dataBase64Imagem = bancoImagensFotos[`foto_${keyIdx}`];
-            if (dataBase64Imagem && dataBase64Imagem.trim() !== "") {
-                doc.addImage(dataBase64Imagem, 'JPEG', imgX, imgY, 42, 32);
-                doc.setFontSize(7); doc.text(`FOTO ANEXO ${keyIdx}`, imgX + 21, imgY + 36, {align:'center'});
-            } else {
-                doc.setDrawColor(200); doc.rect(imgX, imgY, 42, 32);
-                doc.setFontSize(7); doc.text(`[ SIN FOTO ${keyIdx} ]`, imgX + 21, imgY + 18, {align:'center'});
-                doc.setDrawColor(0);
-            }
-            contadorGrid++; imgX += 46;
-            if(contadorGrid === 4) { imgX = 15; imgY += 45; } 
-        }
-
-        const pdfBase64 = doc.output('datauristring').split(',')[1];
-        const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${fecha}.pdf`;
-        
-        const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
-        
-        saveToQueue(payload);
-        doc.save(nomeDoFicheiroPDF);
-
-        if (navigator.onLine) {
-            try {
-                status.innerText = "🚀 ENVIANDO ARQUIVO AL GOOGLE DRIVE...";
                 await fetch(GOOGLE_SCRIPT_URL, { 
                     method: 'POST', 
-                    mode: 'no-cors',
+                    mode: 'no-cors', 
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload) 
+                    body: JSON.stringify(queue[i]) 
                 });
                 
-                let currentQueue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
-                if(currentQueue.length > 0) {
-                    currentQueue.pop(); 
-                    localStorage.setItem('hse_queue', JSON.stringify(currentQueue));
-                }
-                
-                status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
-            } catch (err) {
-                console.error(err);
-                status.innerText = "⚠️ REPORTE GUARDADO EN LA COLA LOCAL (ERROR DE RED)."; status.style.color = "orange";
+                console.log(`Item ${i + 1} despachado com sucesso!`);
+                queue.splice(i, 1);
+                i--;
+                localStorage.setItem('hse_queue', JSON.stringify(queue));
+            } catch (e) { 
+                console.error("Erro ao despachar fila automática. Abortando tentativa.", e);
+                break; 
             }
-        } else {
-            status.innerText = "☁️ MODO OFFLINE: REPORTE GUARDADO EN DISPOSITIVO."; status.style.color = "blue";
         }
+    }
 
-        setTimeout(() => {
-            status.style.display = 'none';
+    // Gatilhos de automação para envio em segundo plano
+    window.addEventListener('online', syncQueue);
+    window.addEventListener('load', () => {
+        // Delay estratégico de 2 segundos para o chip de rede fixar o sinal ao abrir o app
+        setTimeout(syncQueue, 2000);
+    });
+
+    // Gerenciador do limite de fotos
+    document.getElementById('upload-trigger').onclick = () => {
+        if (imagensObjetoArray.length >= 6) {
+            alert("Máximo de 6 fotos atingido.");
+            return;
+        }
+        fotoInput.click();
+    };
+
+    fotoInput.addEventListener('change', function(e) {
+        const files = e.target.files;
+        if (!files.length) return;
+
+        Array.from(files).forEach(file => {
+            if (imagensObjetoArray.length >= 6) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64Data = event.target.result;
+
+                const tempImg = new Image();
+                tempImg.onload = function() {
+                    if (imagensObjetoArray.length >= 6) return;
+
+                    imagensObjetoArray.push({
+                        base64: base64Data,
+                        width: tempImg.width,
+                        height: tempImg.height
+                    });
+
+                    const imgElement = document.createElement('img');
+                    imgElement.src = base64Data;
+                    imgElement.classList.add('preview-thumb');
+                    previewContainer.appendChild(imgElement);
+                    
+                    photoCountLabel.innerText = `(${imagensObjetoArray.length}/6)`;
+                };
+                tempImg.src = base64Data;
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        fotoInput.value = "";
+    });
+
+    async function getLogoBase64(url) {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+            });
+        } catch (e) { return null; }
+    }
+
+    // --- PROCESSAMENTO DO FORMULÁRIO COM PROTEÇÃO DE TRAVAMENTO ---
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const status = document.getElementById('statusMsg');
+        const relatorNome = document.getElementById('relator').value.toUpperCase();
+        
+        // Bloqueia cliques duplos durante o processamento
+        btn.disabled = true;
+        status.style.display = "block";
+        status.style.color = "orange";
+        status.innerText = "⏳ PROCESANDO REPORTE...";
+
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const corDeFundo = [203, 213, 224];
+            const corDoRotulo = [0, 51, 102];
+
+            doc.setLineWidth(0.5);
+            doc.rect(10, 10, 190, 25); 
+            doc.line(50, 10, 50, 35); doc.line(150, 10, 150, 35);
+            
+            const logoBase64 = await getLogoBase64('/static/logo-elecnor.png');
+            if (logoBase64) doc.addImage(logoBase64, 'PNG', 12, 12, 35, 15);
+            
+            doc.setFontSize(11); doc.setFont("helvetica", "bold");
+            doc.text("FORMULARIO ALERTAFLOTA", 100, 20, { align: 'center' });
+            doc.text("PROYECTO COPIAPÓ SOLAR", 100, 27, { align: 'center' });
+            doc.setFontSize(7); doc.text("CÓDIGO:", 152, 15); doc.text("FECHA:", 152, 19); doc.text("PÁGINA: 1 DE 1", 152, 23); doc.text("REVISIÓN: 05", 152, 27); doc.text("CATEGORÍA: FLOTAS", 152, 31); doc.text("SECTOR: SEGURIDAD", 152, 34);
+
+            doc.setFillColor(...corDeFundo); doc.rect(10, 35, 190, 8, 'F'); doc.rect(10, 35, 190, 8);
+            doc.setFontSize(10); doc.setTextColor(0); doc.text("1. CONTEXTO", 12, 41);
+            
+            doc.rect(10, 43, 190, 12); doc.line(105, 43, 105, 55);
+            doc.setFontSize(7); doc.setTextColor(...corDoRotulo); doc.text("FECHA:", 12, 46); doc.text("HORA:", 107, 46);
+            doc.setFontSize(10); doc.setTextColor(0); doc.text(document.getElementById('fecha').value, 12, 52); doc.text(document.getElementById('hora').value, 107, 52);
+            
+            doc.rect(10, 55, 190, 12); doc.line(105, 55, 105, 67);
+            doc.setFontSize(7); doc.setTextColor(...corDoRotulo); doc.text("LOCALIZACIÓN:", 12, 59); doc.text("ÁREA ESPECÍFICA:", 107, 59);
+            doc.setFontSize(9); doc.setTextColor(0); doc.text(document.getElementById('localizacion').value.toUpperCase(), 12, 64);
+            const selectedAreaElement = document.querySelector('input[name="area"]:checked');
+            doc.text(selectedAreaElement ? selectedAreaElement.value : '', 107, 64);
+
+            doc.rect(10, 67, 190, 12); doc.line(105, 67, 105, 79);
+            doc.setFontSize(7); doc.setTextColor(...corDoRotulo); doc.text("CÓDIGO DO EQUIPAMENTO:", 12, 71); doc.text("NOME DO EQUIPAMENTO:", 107, 71);
+            doc.setFontSize(9); doc.setTextColor(0); doc.text(document.getElementById('codigo_equipamento').value.toUpperCase(), 12, 76);
+            doc.text(document.getElementById('nome_equipamento').value, 107, 76);
+
+            doc.rect(10, 79, 190, 12);
+            doc.setFontSize(7); doc.setTextColor(...corDoRotulo); doc.text("PATENTE DO EQUIPAMENTO:", 12, 83);
+            doc.setFontSize(9); doc.setTextColor(0); doc.text(document.getElementById('patente_equipamento').value.toUpperCase(), 12, 88);
+
+            doc.setFillColor(...corDeFundo); doc.rect(10, 91, 190, 8, 'F'); doc.rect(10, 91, 190, 8);
+            doc.setFontSize(10); doc.setFont("helvetica", "bold"); doc.setTextColor(0); doc.text("2. DESCRIPCIÓN DEL EVENTO / HALLAZGO", 12, 97);
+            doc.rect(10, 99, 190, 25); doc.setFontSize(10); doc.setFont("helvetica", "normal");
+            const lines = doc.splitTextToSize(document.getElementById('desc').value.toUpperCase(), 180);
+            doc.text(lines, 12, 105);
+
+            doc.setFillColor(...corDeFundo); doc.rect(10, 124, 190, 8, 'F'); doc.rect(10, 124, 190, 8);
+            doc.setFontSize(10); doc.setFont("helvetica", "bold"); doc.text("3. REGISTRO FOTOGRÁFICO", 12, 130);
+            
+            let boxStartY = 132;
+            let boxHeight = 85;
+            doc.rect(10, boxStartY, 190, boxHeight);
+
+            if (imagensObjetoArray.length > 0) {
+                let maxW = 54;
+                let maxH = 36;
+                let startX = 14;
+                let startY = boxStartY + 4;
+                let currentX = startX;
+                let currentY = startY;
+
+                for (let i = 0; i < imagensObjetoArray.length; i++) {
+                    if (currentY + maxH <= boxStartY + boxHeight) {
+                        let img = imagensObjetoArray[i];
+                        
+                        let ratio = Math.min(maxW / img.width, maxH / img.height);
+                        let finalW = img.width * ratio;
+                        let finalH = img.height * ratio;
+
+                        let offsetX = currentX + (maxW - finalW) / 2;
+                        let offsetY = currentY + (maxH - finalH) / 2;
+
+                        doc.addImage(img.base64, 'JPEG', offsetX, offsetY, finalW, finalH);
+                        
+                        currentX += maxW + 6; 
+                        if (currentX + maxW > 195) { 
+                            currentX = startX;
+                            currentY += maxH + 4;
+                        }
+                    }
+                }
+            }
+
+            doc.setFillColor(...corDeFundo); doc.rect(10, 222, 190, 8, 'F'); doc.rect(10, 222, 190, 8);
+            doc.text("4. IDENTIFICACIÓN", 12, 228);
+            doc.rect(10, 230, 190, 15); doc.line(105, 230, 105, 245);
+            doc.setFontSize(8); doc.setTextColor(...corDoRotulo); doc.text("NOMBRE Y APELLIDO:", 12, 234); doc.text("EMPRESA:", 107, 234);
+            doc.setFontSize(10); doc.setTextColor(0); doc.text(relatorNome, 12, 241);
+            doc.text(document.getElementById('empresa').value.toUpperCase(), 107, 241);
+
+            const pdfBase64 = doc.output('datauristring').split(',')[1];
+            const fileName = `${relatorNome}_${document.getElementById('fecha').value}.pdf`;
+            const payload = { name: fileName, bytes: pdfBase64 };
+
+            // Executa a validação de rede para envio direto ou fila offline
+            if (navigator.onLine) {
+                try {
+                    await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                    status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!";
+                    status.style.color = "green";
+                } catch (err) {
+                    saveToQueue(payload);
+                    status.innerText = "⚠️ ERROR DE RED. GUARDADO PARA SYNC AUTOMÁTICO.";
+                    status.style.color = "orange";
+                }
+            } else {
+                saveToQueue(payload);
+                status.innerText = "☁️ MODO OFFLINE: GUARDADO PARA SINCRONIZAR LUEGO.";
+                status.style.color = "blue";
+            }
+
+            doc.save(fileName);
+            form.reset();
+            previewContainer.innerHTML = "";
+            imagensObjetoArray = [];
+            photoCountLabel.innerText = "(0/6)";
+            
+        } catch (error) {
+            console.error("Erro interno do formulário:", error);
+            status.innerText = "❌ OCORREU UM ERRO AO GERAR O ARQUIVO.";
+            status.style.color = "red";
+        } finally {
+            // BLOCO CRUCIAL: Reativa o botão sempre, sem deixar a interface congelada
             btn.disabled = false;
-            fecharFormularioNativo();
-            syncQueue(); 
-        }, 1500);
-    }
-
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); });
-    }
+            setTimeout(() => { status.style.display = 'none'; }, 6000);
+        }
+    });
 </script>
 </body>
 </html>

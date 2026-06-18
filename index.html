@@ -29,18 +29,19 @@
     .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
 
     .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
-    .header-table td { border: 1px solid #000; vertical-align: middle; }
+    
+    /* TRAVA DE LAYOUT DO CABEÇALHO SUPERIOR - Impede deformação visual */
+    .header-table { table-layout: fixed; width: 100%; border-collapse: collapse; margin-bottom: 0; }
+    .header-table td { border: 1px solid #000; vertical-align: middle; overflow: hidden; }
     .logo-box { width: 20%; height: 100px; text-align: center; padding: 5px; }
     .logo-box img { max-height: 80px; max-width: 100%; object-fit: contain; }
-    .title-box { width: 55%; text-align: center; font-weight: bold; font-size: 16px; padding: 10px; color: #333; }
+    .title-box { width: 55%; text-align: center; font-weight: bold; font-size: 16px; padding: 10px; color: #333; word-break: break-word; }
     
     .info-box-cell { width: 25%; padding: 0 !important; }
-    .info-sub-table { width: 100%; border-collapse: collapse; }
-    .info-sub-table td { border: none !important; border-bottom: 1px solid #000 !important; padding: 3px 8px !important; font-size: 11px; line-height: 1.3; }
+    .info-sub-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .info-sub-table td { border: none !important; border-bottom: 1px solid #000 !important; padding: 3px 8px !important; font-size: 11px; line-height: 1.3; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
     .info-sub-table tr:last-child td { border-bottom: none !important; }
     
-    /* FIX DE TOQUE E ANCHO PARA TABLETS */
     .vehicle-data-table { table-layout: fixed; width: 100%; border-collapse: collapse; margin-top: -1px; }
     .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; overflow: hidden; position: relative; }
     .vehicle-data-table input { width: 100%; max-width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; display: block; position: relative; z-index: 10000; -webkit-user-select: text; user-select: text; }
@@ -974,20 +975,16 @@
         }, 1500);
     }
 
-    // --- SCRIPT DE FORÇAR ATUALIZAÇÃO DO APLICATIVO INSTALADO (PWA CACHE BYPASS) ---
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/sw.js').then(reg => {
-                // Checa atualizações no servidor ativamente
                 reg.update();
-                
                 reg.onupdatefound = () => {
                     const installingWorker = reg.installing;
                     if (installingWorker == null) return;
                     installingWorker.onstatechange = () => {
                         if (installingWorker.state === 'installed') {
                             if (navigator.serviceWorker.controller) {
-                                // Força o reload imediato do app para aplicar a correção do input e CSS
                                 console.log('Nueva versión detectada. Limpiando cache y actualizando...');
                                 window.location.reload(true);
                             }

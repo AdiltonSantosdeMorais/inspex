@@ -15,7 +15,8 @@
     .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
     .logo-elecnor { max-height: 25px; object-fit: contain; }
     .status-badge { background: #e8f5e9; color: #2ecc71; font-weight: bold; font-size: 11px; padding: 5px 12px; border-radius: 20px; }
-    .logo-inspex { max-height: 140px; margin: 15px 0 5px 0; object-fit: contain; }
+    
+    .logo-inspex { width: 90%; max-height: 240px; margin: 20px 0 10px 0; object-fit: contain; }
     
     .search-box { position: relative; width: 100%; }
     .search-box input { width: 100%; padding: 13px 15px 13px 40px; border-radius: 10px; border: 1px solid #d0d5dd; background: #fff; font-size: 14px; outline: none; }
@@ -378,11 +379,11 @@
     };
 
     function filtrarEquipamentos() {
-        const filtro = document.getElementById('search-input').value.toUpperCase();
+        const filter = document.getElementById('search-input').value.toUpperCase();
         const cards = document.querySelectorAll('.equip-card');
         cards.forEach(card => {
             const nome = card.getAttribute('data-name');
-            card.style.display = nome && nome.includes(filtro) ? "flex" : "none";
+            card.style.display = nome && nome.includes(filter) ? "flex" : "none";
         });
     }
 
@@ -395,49 +396,6 @@
         badge.style.color = online ? "#2ecc71" : "#e74c3c";
         
         if (online) { syncQueue(); }
-    }
-
-    function atualizarEquipoTexto(valor) {
-        equipoSeleccionado = valor;
-        if (valor.toUpperCase().includes(equipoBaseSeleccionado)) {
-            document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + valor.toUpperCase();
-        } else {
-            document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + equipoBaseSeleccionado + " (" + valor.toUpperCase() + ")";
-        }
-    }
-
-    function processarFoto(id) {
-        const input = document.getElementById(`input_foto_${id}`);
-        if (!input || !input.files[0]) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = new Image();
-            img.onload = function() {
-                const maxDim = 800;
-                let width = img.width;
-                let height = img.height;
-                if (width > height) {
-                    if (width > maxDim) { height *= maxDim / width; width = maxDim; }
-                } else {
-                    if (height > maxDim) { width *= maxDim / height; height = maxDim; }
-                }
-
-                const canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-
-                const compressedUrl = canvas.toDataURL('image/jpeg', 0.7);
-                bancoImagensFotos[`foto_${id}`] = compressedUrl;
-
-                const preview = document.getElementById(`prev_foto_${id}`);
-                if(preview) { preview.src = compressedUrl; preview.style.display = "block"; }
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(input.files[0]);
     }
 
     async function carregarListaDePerguntasEstavel(nomeArquivo) {
@@ -737,7 +695,6 @@
         });
     }
 
-    // LÓGICA DE MONTAGEM CORRIGIDA PARA DEIXAR O FORMULÁRIO COMPLETO EM UMA ÚNICA PÁGINA
     async function salvarEMontarPDF_Original_SST() {
         const equipoInputVal = document.getElementById('v_equipo').value.trim();
         if(equipoInputVal !== "") {
@@ -793,32 +750,30 @@
         const corDeFundo = [240, 240, 240];
         const logoDataUrl = extrairLogoDaTela();
 
-        // CONTEXTO: Total fixado em 2 páginas (Página 1: Formulário Completo / Página 2: Fotos Anexas)
         const totalPaginasCalculadas = 2;
 
-        // --- FOLHA 1: Formulario Geral ---
         desenharCabecalhoEstaticoSST(doc, 1, totalPaginasCalculadas, logoDataUrl);
 
         doc.rect(10, 35, 190, 16); doc.line(72, 35, 72, 51); doc.line(138, 35, 138, 51); doc.line(10, 43, 190, 43);
-        doc.setFontSize(6.5); 
+        doc.setFontSize(7); 
         
-        doc.setFont("helvetica", "bold"); doc.text("EQUIPO / MODELO: ", 12, 38.5);
-        doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(equipoSeleccionado.toUpperCase(), 58), 12, 41.5); 
+        doc.setFont("helvetica", "bold"); doc.text("EQUIPO / MODELO: ", 12, 39);
+        doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(equipoSeleccionado.toUpperCase(), 58), 12, 42); 
         
-        doc.setFont("helvetica", "bold"); doc.text("EMPRESA: ", 12, 46.5);
-        doc.setFont("helvetica", "normal"); doc.text("ELECNOR", 12, 49.5);
+        doc.setFont("helvetica", "bold"); doc.text("EMPRESA: ", 12, 47);
+        doc.setFont("helvetica", "normal"); doc.text("ELECNOR", 12, 50);
 
-        doc.setFont("helvetica", "bold"); doc.text("PATENTE / IDENT.: ", 75, 38.5);
-        doc.setFont("helvetica", "normal"); doc.text(patente.toUpperCase(), 75, 41.5);
+        doc.setFont("helvetica", "bold"); doc.text("PATENTE / IDENT.: ", 75, 39);
+        doc.setFont("helvetica", "normal"); doc.text(patente.toUpperCase(), 75, 42);
         
-        doc.setFont("helvetica", "bold"); doc.text("AÑO: ", 75, 46.5);
-        doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_anio').value.toUpperCase(), 84, 46.5);
+        doc.setFont("helvetica", "bold"); doc.text("AÑO: ", 75, 47);
+        doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_anio').value.toUpperCase(), 84, 47);
         
-        doc.setFont("helvetica", "bold"); doc.text("FECHA INSP.: ", 141, 38.5);
-        doc.setFont("helvetica", "normal"); doc.text(fecha, 141, 41.5);
+        doc.setFont("helvetica", "bold"); doc.text("FECHA INSP.: ", 141, 39);
+        doc.setFont("helvetica", "normal"); doc.text(fecha, 141, 42);
         
-        doc.setFont("helvetica", "bold"); doc.text("KM / HORÓMETRO: ", 141, 46.5);
-        doc.setFont("helvetica", "normal"); doc.text(km.toUpperCase(), 168, 46.5);
+        doc.setFont("helvetica", "bold"); doc.text("KM / HORÓMETRO: ", 141, 47);
+        doc.setFont("helvetica", "normal"); doc.text(km.toUpperCase(), 168, 47);
 
         doc.setFillColor(68, 114, 196); doc.rect(10, 51, 190, 5.5, 'F');
         doc.setTextColor(255); doc.setFontSize(7.5); doc.text("C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO", 100, 55, { align: 'center' });
@@ -832,7 +787,6 @@
 
         currentY += 5;
         
-        // Renderização compacta para fazer com que todas as 23 perguntas entrem na mesma folha
         preguntasAtuais.forEach((p, idx) => {
             doc.setFont("helvetica", "normal"); doc.setFontSize(7);
             doc.rect(10, currentY, 190, 5.8); doc.line(135, currentY, 135, currentY + 5.8); doc.line(145, currentY, 145, currentY + 5.8); doc.line(155, currentY, 155, currentY + 5.8); doc.line(165, currentY, 165, currentY + 5.8);
@@ -852,7 +806,6 @@
             currentY += 5.8;
         });
 
-        // BLOCO CONTÍNUO: Observações Gerais e Medidas na mesma página
         doc.rect(10, currentY, 190, 15);
         doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); doc.text("COMENTARIOS Y OBSERVACIONES GENERALES:", 12, currentY + 3.5);
         doc.setFont("helvetica", "normal"); doc.setFontSize(7); doc.text(doc.splitTextToSize(document.getElementById('obs_generales').value.toUpperCase(), 180), 12, currentY + 8);
@@ -863,7 +816,6 @@
         doc.setFont("helvetica", "normal"); doc.setFontSize(7); doc.text(doc.splitTextToSize(document.getElementById('medidas_correctivas').value.toUpperCase(), 180), 12, currentY + 8);
         currentY += 15;
 
-        // Bloco de Resultado da Liberação
         doc.rect(10, currentY, 190, 8); doc.line(50, currentY, 50, currentY + 8); doc.line(100, currentY, 100, currentY + 8); doc.line(150, currentY, 150, currentY + 8);
         doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); doc.text("RESULTADO:", 12, currentY + 5);
         const finalRes = document.querySelector('input[name="resultado_final"]:checked')?.value || "";
@@ -872,7 +824,6 @@
         doc.text(finalRes === "NO_LIBERADO" ? "[ X ] NO LIBERADO" : "[   ] NO LIBERADO", 155, currentY + 5);
         currentY += 8;
 
-        // Bloco de Assinaturas (Fechando rigorosamente na margem inferior da Página 1)
         doc.rect(10, currentY, 190, 32); doc.line(73, currentY, 73, currentY + 32); doc.line(136, currentY, 136, currentY + 32);
         
         let condBytes = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
@@ -892,7 +843,7 @@
         doc.text("SUPERVISOR / ENCARGADO", 104, currentY + 28, {align:'center'});
         doc.text("SEGURIDAD DO TRABAJO", 168, currentY + 28, {align:'center'});
 
-        // --- FOLHA 2: Registro Fotográfico Isolado ---
+        // --- FOLHA 2: Fotos Anexas Integradas ---
         doc.addPage();
         desenharCabecalhoEstaticoSST(doc, 2, totalPaginasCalculadas, logoDataUrl);
 
@@ -902,6 +853,7 @@
         let imgX = 15, imgY = 52, contadorGrid = 0;
         for (let keyIdx = 1; keyIdx <= 8; keyIdx++) {
             const dataBase64Imagem = bancoImagensFotos[`foto_${keyIdx}`];
+            // CORREÇÃO: Lê o repositório global local assíncrono para garantir a injeção da imagem no PDF
             if (dataBase64Imagem && dataBase64Imagem.trim() !== "") {
                 try {
                     doc.addImage(dataBase64Imagem, 'JPEG', imgX, imgY, 42, 32);

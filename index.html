@@ -16,8 +16,8 @@
     .logo-elecnor { max-height: 25px; object-fit: contain; }
     .status-badge { background: #e8f5e9; color: #2ecc71; font-weight: bold; font-size: 11px; padding: 5px 12px; border-radius: 20px; }
     
-    /* AJUSTE LOGO CENTRAL: Maior e com efeito de sombra para realçar o 3D */
-    .logo-inspex { max-height: 190px; margin: 15px 0 5px 0; object-fit: contain; filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.12)); transition: transform 0.2s; }
+    /* IMAGEM CENTRAL DETALHADA: Ampliada e normal (sem efeitos 3D) */
+    .logo-inspex { width: 90%; max-height: 240px; margin: 20px 0 10px 0; object-fit: contain; }
     
     .search-box { position: relative; width: 100%; }
     .search-box input { width: 100%; padding: 13px 15px 13px 40px; border-radius: 10px; border: 1px solid #d0d5dd; background: #fff; font-size: 14px; outline: none; }
@@ -297,7 +297,7 @@
             "EXTINTOR DE INCENDIO VALIDO Y ADECUADO",
             "VENTILACIÓN NATURAL OR ARTIFICIAL",
             "NEUMATICOS CALIBRADOS Y EN BUEN ESTADO DE USO - IMP",
-            "ALARMA Y SIRENA DE EMERGENCIA FUNCIONANDO - IMP",
+            "ALARMA Y SIRENA DE EMERGENCY FUNCIONANDO - IMP",
             "CUÑA PARA RUEDAS",
             "CONSERVACIÓN DEL INTERIOR DEL VEHÍCULO",
             "IDENTIFICACIÓN DEL VEHÍCULO DE EMBARQUE - IMP"
@@ -685,7 +685,7 @@
             { label: "Página:", value: `${paginaAtual} de ${totalPaginas}` },
             { label: "Revisión:", value: "00" },
             { label: "Categoria:", value: "General" },
-            { label: "Sector:", value: "Securidad" }
+            { label: "Sector:", value: "Seguridad" }
         ];
 
         dadosMetadados.forEach((item, index) => {

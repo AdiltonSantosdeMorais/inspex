@@ -351,11 +351,9 @@
         ]
     };
 
-    // CHAVE AJUSTADA: Vincula perfeitamente com a imagem da árvore de diretórios apresentada
+    // MAPA CORRIGIDO DINAMICAMENTE: Alinhamento perfeito com todos os arquivos físicos reais da imagem
     const MAPA_IDENTIFICADORES = {
         "ambulancia": "ambulancia",
-        "transporte_colectivo_furgonetas": "transporte_colectivo_furgonetas",
-        "vehiculos_ligeros_camionetas": "vehiculos_ligeros_camionetas",
         "camion_aljibe": "general_maquinaria",
         "camion_betonera": "general_maquinaria",
         "camion_cama_baja": "general_maquinaria",
@@ -376,7 +374,9 @@
         "rodillo_compactador": "general_maquinaria",
         "taladro_de_roca": "general_maquinaria",
         "tractor_de_neumaticos": "general_maquinaria",
-        "tractor_orugas_motoniveladora": "general_maquinaria"
+        "tractor_orugas_motoniveladora": "general_maquinaria",
+        "transporte_colectivo_furgonetas": "transporte_colectivo_furgonetas",
+        "vehiculos_ligeros_camionetas": "vehiculos_ligeros_camionetas"
     };
 
     function filtrarEquipamentos() {
@@ -455,7 +455,7 @@
                     }
                 }
             } catch (e) { 
-                console.error("Falha ao carregar arquivo remoto, usando banco offline local estável:", e); 
+                console.error("Falha ao carregar arquivo remoto, usando contingencia offline:", e); 
             }
         }
         return perguntasLocais;
@@ -692,6 +692,7 @@
         return null;
     }
 
+    // PDF BUILDER CONTEXT
     function desenharCabecalhoEstaticoSST(doc, pagina, totalPaginas, logoDataUrl) {
         doc.setLineWidth(0.4); 
         doc.setDrawColor(0);
@@ -721,7 +722,7 @@
             { label: "Página:", value: `${paginaAtual} de ${totalPaginas}` },
             { label: "Revisión:", value: "00" },
             { label: "Categoria:", value: "General" },
-            { label: "Sector:", value: "Seguridad" }
+            { label: "Sector:", value: "Securidad" }
         ];
 
         dadosMetadados.forEach((item, index) => {

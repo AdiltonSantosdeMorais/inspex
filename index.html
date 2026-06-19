@@ -43,7 +43,7 @@
     .info-sub-table tr:last-child td { border-bottom: none !important; }
     
     .vehicle-data-table { table-layout: fixed; width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-top; overflow: hidden; position: relative; }
+    .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; overflow: hidden; position: relative; }
     .vehicle-data-table input { width: 100%; max-width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; display: block; position: relative; z-index: 10000; -webkit-user-select: text; user-select: text; }
     
     .required-field { border-left: 4px solid #e74c3c !important; background-color: #fff6f6 !important; }
@@ -360,13 +360,13 @@
             "CUÑA PARA RUEDAS",
             "¿Limpiaparabrisas funcionando correctamente?",
             "¿Kit de herramientas (llave de rueda, barra de fuerza, gato, triángulo, conos)?",
-            "¿Neumáticos calibrados y en buen estado de uso? - IMP",
+            "¿Neumáticos calibrados and en buen estado de uso? - IMP",
             "¿Freno de estacionamiento?",
             "¿Sistema eléctrico funcionando correctamente?",
-            "¿Faros y luces funcionando correctamente?",
+            "¿Faros and luces funcionando correctamente?",
             "¿Bocina/CÁMARA DE MARCHA ATRÁS y alarma sonora de marcha atrás? - IMP",
             "¿Velocímetro / tacógrafo?",
-            "¿Puertas y ventanas funcionando correctamente?",
+            "¿Puertas and ventanas funcionando correctamente?",
             "¿Asientos en buen estado?",
             "¿Cinturones de segurança conservados en todos los asientos - IMP",
             "¿Espejos retrovisores? - IMP",
@@ -399,7 +399,6 @@
         ]
     };
 
-    // FIX ABSOLUTO DO MAPEADOR: Associa cada chamada física ao respectivo ID interno idêntico
     const MAPA_IDENTIFICADORES = {
         "ambulancia": "ambulancia",
         "camion_aljibe": "general_maquinaria",
@@ -503,7 +502,7 @@
                     }
                 }
             } catch (e) { 
-                console.error("Falha ao ler html físico remoto, mudando para contingencia local:", e); 
+                console.error("Falha ao ler html físico remoto, mudando para contingência local:", e); 
             }
         }
         return perguntasLocais;
@@ -769,7 +768,7 @@
             { label: "Página:", value: `${paginaAtual} de ${totalPaginas}` },
             { label: "Revisión:", value: "00" },
             { label: "Categoria:", value: "General" },
-            { label: "Sector:", value: "Securidad" }
+            { label: "Sector:", value: "Seguridad" }
         ];
 
         dadosMetadados.forEach((item, index) => {
@@ -824,6 +823,8 @@
         const inspectorNome = prompt("Por favor, ingrese o NOME COMPLETO do inspetor:");
         if (!inspectorNome || inspectorNome.trim() === "") { alert("❌ O nome do inspetor é obrigatório!"); return; }
 
+        // FIX DO TRAVAMENTO OFFLINE: nomeInspetor unificado globalmente para impedir exceção por variável inexistente
+        const nomeEmMaiusculo = inspectorNome.toUpperCase();
         const status = document.getElementById('statusMsg');
         const btn = document.getElementById('btn-save-main');
         
@@ -927,7 +928,7 @@
 
         // --- FOLHA 2: Fotos Anexas Integradas ---
         doc.addPage();
-        desenharCabecalho(2);
+        desenharCabecalhoEstaticoSST(doc, 2, totalPaginasCalculadas, logoDataUrl);
         
         doc.rect(10, 38, 190, 240);
         doc.setFontSize(9.5); doc.text("EVIDENCIAS REGISTRADAS (MÁXIMO 8 FOTOS):", 14, 46);
@@ -952,7 +953,7 @@
         }
 
         const pdfBase64 = doc.output('datauristring').split(',')[1];
-        const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado.toUpperCase()}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${fecha}.pdf`;
+        const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado.toUpperCase()}_${patente.toUpperCase()}_Por_${nomeEmMaiusculo}_${fecha}.pdf`;
         
         const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
         

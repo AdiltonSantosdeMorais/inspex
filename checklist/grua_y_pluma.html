@@ -43,7 +43,7 @@
     .info-sub-table tr:last-child td { border-bottom: none !important; }
     
     .vehicle-data-table { table-layout: fixed; width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; overflow: hidden; position: relative; }
+    .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-top; overflow: hidden; position: relative; }
     .vehicle-data-table input { width: 100%; max-width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; display: block; position: relative; z-index: 10000; -webkit-user-select: text; user-select: text; }
     
     .required-field { border-left: 4px solid #e74c3c !important; background-color: #fff6f6 !important; }
@@ -275,7 +275,6 @@
     let perguntasAtuais = []; 
     let isSyncing = false;
 
-    // DICIONÁRIO DE PERGUNTAS ATUALIZADO: Contém todas as listas específicas baseadas em seus arquivos reais para funcionamento offline perfeito
     const DICIONARIO_PERGUNTAS = {
         "ambulancia": [
             "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
@@ -351,6 +350,37 @@
             "CLAXON (BUCINA) - IMP",
             "CUÑA PARA RUEDAS"
         ],
+        "grua_y_pluma": [
+            "¿Correas en buen estado de conservación? - IMP",
+            "¿Filtros en buenas condiciones?",
+            "¿Aceites con nivel correcto y dentro del prazo de validez?",
+            "¿Mangueras de conexiones sin fugas?",
+            "¿Palancas de mando funcionando correctamente? - IMP",
+            "¿Freno de ruedas funcionando correctamente? - IMP",
+            "CUÑA PARA RUEDAS",
+            "¿Limpiaparabrisas funcionando correctamente?",
+            "¿Kit de herramientas (llave de rueda, barra de fuerza, gato, triángulo, conos)?",
+            "¿Neumáticos calibrados y en buen estado de uso? - IMP",
+            "¿Freno de estacionamiento?",
+            "¿Sistema eléctrico funcionando correctamente?",
+            "¿Faros y luces funcionando correctamente?",
+            "¿Bocina/CÁMARA DE MARCHA ATRÁS y alarma sonora de marcha atrás? - IMP",
+            "¿Velocímetro / tacógrafo?",
+            "¿Puertas y ventanas funcionando correctamente?",
+            "¿Asientos en buen estado?",
+            "¿Cinturones de segurança conservados en todos los asientos - IMP",
+            "¿Espejos retrovisores? - IMP",
+            "¿Extintor de incendios válido y adecuado?",
+            "¿Ventilación natural o artificial?",
+            "¿Cables, cintas y accesorios en buenas condiciones? - IMP",
+            "¿Pluma y polea en buenas condiciones and con seguros? - IMP",
+            "¿Las patolas funcionando correctamente? - IMP",
+            "¿Condiciones del terreno para apoyo de las patolas? - IMP",
+            "¿Panel funcionando correctamente?",
+            "¿Poleas del cabrestante and punta de la pluma? - IMP",
+            "¿Limitador del cabrestante?",
+            "¿Anemómetro?"
+        ],
         "general_maquinaria": [
             "ESTADO DE LOS NEUMÁTICOS / ORUGAS Y AJUSTE DE PERNOS - IMP",
             "NIVEL DE ACEITE DE MOTOR, HIDRÁULICO Y TRANSMISIÓN",
@@ -369,7 +399,7 @@
         ]
     };
 
-    // MAPA REVERSO DE ACESSO DIRETO: Garante o carregamento offline cruzando ID com os nomes dos seus arquivos .html
+    // FIX ABSOLUTO DO MAPEADOR: Associa cada chamada física ao respectivo ID interno idêntico
     const MAPA_IDENTIFICADORES = {
         "ambulancia": "ambulancia",
         "camion_aljibe": "general_maquinaria",
@@ -380,7 +410,7 @@
         "camiones_3_4": "general_maquinaria",
         "eslingas_y_grilletes": "general_maquinaria",
         "excavadora_hidraulica": "general_maquinaria",
-        "grua_y_pluma": "general_maquinaria",
+        "grua_y_pluma": "grua_y_pluma",
         "manipuladora_telescopica": "general_maquinaria",
         "maquina_perforadora": "general_maquinaria",
         "mini_rodillo_compactador": "general_maquinaria",
@@ -451,7 +481,6 @@
         reader.readAsDataURL(input.files[0]);
     }
 
-    // FIX DEFINITIVO OFFLINE-FIRST: Intervém na lógica para carregar as perguntas locais sem quebrar o tablet
     async function carregarListaDePerguntasEstavel(nomeArquivo) {
         const chaveDicionario = MAPA_IDENTIFICADORES[nomeArquivo] || "general_maquinaria";
         const perguntasLocais = DICIONARIO_PERGUNTAS[chaveDicionario] || DICIONARIO_PERGUNTAS["general_maquinaria"];
@@ -474,7 +503,7 @@
                     }
                 }
             } catch (e) { 
-                console.error("Falha ao ler html físico remoto, mudando para contingência local:", e); 
+                console.error("Falha ao ler html físico remoto, mudando para contingencia local:", e); 
             }
         }
         return perguntasLocais;

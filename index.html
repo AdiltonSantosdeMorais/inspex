@@ -368,7 +368,7 @@
         ]
     };
 
-    // MAPA UNIFICADO PARA OFFLINE EXATO: Combina com os nomes dos seus arquivos .html reais
+    // MAPEADOR CRÍTICO SINCRONIZADO: Corresponde rigorosamente aos seus arquivos físicos da pasta checklist/
     const MAPA_IDENTIFICADORES = {
         "ambulancia": "ambulancia",
         "camion_aljibe": "general_maquinaria",
@@ -458,7 +458,7 @@
             try {
                 const resposta = await fetch(`/checklist/${nomeArquivo}.html`);
                 if (resposta.ok) {
-                    const htmlTexto = await resposta.text();
+                    const htmlTexto = await response.text();
                     const matchRegex = /const\s+preguntas\s*=\s*\[([\s\S]*?)\]\s*;/i.exec(htmlTexto);
                     if (matchRegex && matchRegex[1]) {
                         const bloco = matchRegex[1];

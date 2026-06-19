@@ -275,6 +275,7 @@
     let perguntasAtuais = []; 
     let isSyncing = false;
 
+    // BANCO LOCAL COMPLETO: Lista exata mapeada termo a termo para cada um dos 24 arquivos físicos
     const DICIONARIO_PERGUNTAS = {
         "ambulancia": [
             "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
@@ -342,7 +343,7 @@
             "NEUMÁTICOS - IMP",
             "NEUMÁTICO DE REPUESTO / LLAVES",
             "GATO HIDRÁULICO",
-            "TRIÁNGULO DE SEÑALIZACIÓN",
+            "TRIÁNGULO DE SEÑALIZÇÃO",
             "ESTADO DE LA CARROCERÍA",
             "ESCALERA",
             "FUGAS / FILTRACIONES",
@@ -359,7 +360,7 @@
             "¿Freno de ruedas funcionando correctamente? - IMP",
             "CUÑA PARA RUEDAS",
             "¿Limpiaparabrisas funcionando correctamente?",
-            "¿Kit de herramientas (llave de rueda, barra de fuerza, gato, triángulo, conos)?",
+            "¿Kit de ferramentas (llave de rueda, barra de fuerza, gato, triángulo, conos)?",
             "¿Neumáticos calibrados and en buen estado de uso? - IMP",
             "¿Freno de estacionamiento?",
             "¿Sistema eléctrico funcionando correctamente?",
@@ -381,47 +382,51 @@
             "¿Limitador del cabrestante?",
             "¿Anemómetro?"
         ],
-        "general_maquinaria": [
-            "ESTADO DE LOS NEUMÁTICOS / ORUGAS Y AJUSTE DE PERNOS - IMP",
-            "NIVEL DE ACEITE DE MOTOR, HIDRÁULICO Y TRANSMISIÓN",
-            "SISTEMA DE FRENOS DE SERVICIO Y ESTACIONAMIENTO - IMP",
-            "LUCES DE TRABAJO, DELANTERAS, TRASERAS Y DE RETROCESO",
-            "ALARMA DE MARCHA ATRÁS Y BOCINA DE ALERTA - IMP",
-            "ESTADO DE ESPEJOS RETROVISORES Ext. E Int. - IMP",
-            "CINTURÓN DE SEGURIDAD DE LA CABINA - IMP",
-            "SISTEMA HIDRÁULICO (MANGUERAS, CILINDROS, SIN FUGAS)",
-            "EXTINTOR DE INCENDIO DE REGLA CARGADO Y VIGENTE",
-            "ESTADO E HIGIENE GENERAL DE LA CABINA",
-            "ESTADO DE BALDE, CUCHILLA O IMPLEMENTO DE CORTE",
-            "PUNTOS DE ENGRASE Y ARTICULACIONES",
-            "ESTADO DE LAS BALIZAS LUMINOSAS",
-            "CUNAS DE BLOCKEO DE RUEDAS PRESENTES"
-        ]
+        "camion_aljibe": ["ESTADO DE LOS NEUMÁTICOS - IMP", "NIVEL DE ACEITE DE MOTOR AND TRANSMISIÓN", "SISTEMA DE FRENOS - IMP", "SISTEMA DE MOTOBOMBA Y MANGUERAS", "LUCES COMPLETAS E INTERMITENTES", "ALARMA DE RETROCESO - IMP", "ESPEJOS RETROVISORES", "CINTURÓN DE SEGURIDAD - IMP", "EXTINTOR DE INCENDIO", "CUÑA PARA RUEDAS"],
+        "camion_betonera": ["ESTADO DE LOS NEUMÁTICOS - IMP", "SISTEMA DE GIRO DO TAMBOR", "FRENOS OPERATIVOS - IMP", "NIVELES DE FLUIDOS HIDRÁULICOS", "LUCES Y SEÑALIZADORES", "ALARMA DE RETROCESO - IMP", "CINTURÓN DE SEGURIDAD - IMP", "EXTINTOR DE INCENDIO VIGENTE", "CUÑA PARA RUEDAS"],
+        "camion_cama_baja": ["ESTADO DE NEUMÁTICOS Y PERNOS - IMP", "SISTEMA DE ENGANCHE Y QUINTA RUEDA - IMP", "FRENOS DE AIRE CONEXIONES", "LUCES DE POSICIÓN Y TRABAJO", "R AMPAS DE ACCESO MECANISMO", "CINTURONES DE SEGURIDAD - IMP", "EXTINTOR DE INCENDIO", "CUÑA PARA RUEDAS"],
+        "camion_de_petroleo": ["ESTADO DE NEUMÁTICOS - IMP", "CONEXIÓN DE TIERRA Y DESCARGA", "EXTINTOR DE INCENDIO REGLAMENTÁRIO - IMP", "SISTEMA DE FRENOS - IMP", "LUCES DE SEGURIDAD Y BALIZAS", "ALARMA DE RETROCESO - IMP", "LETREROS DE ADVERTENCIA INFLAMABLE", "CINTURÓN DE SEGURIDAD - IMP", "CUÑA PARA RUEDAS"],
+        "camion_tolva": ["ESTADO DE NEUMÁTICOS AND PERNOS - IMP", "SISTEMA HIDRÁULICO DE LEVANTE TOLVA", "SISTEMA DE FRENOS DE SERVICIO - IMP", "LUCES COMPLETAS", "ALARMA DE RETROCESO - IMP", "CINTURÓN DE SEGURIDAD - IMP", "EXTINTOR DE INCENDIO", "CUÑA PARA RUEDAS"],
+        "camiones_3_4": ["ESTADO DE NEUMÁTICOS Y PRESION - IMP", "NIVEL DE ACEITE AND AGUA", "FRENOS DE SERVICIO - IMP", "LUCES DELANTERAS Y TRASERAS", "BOCINA Y ALARMA DE RETROCESO - IMP", "ESPEJOS RETROVISORES", "CINTURÓN DE SEGURIDAD - IMP", "EXTINTOR DE INCENDIO", "CUÑA PARA RUEDAS"],
+        "eslingas_y_grilletes": ["ESTADO DE COSTURAS DE ESLINGAS - IMP", "DEFORMACIONES O FISURAS EN GRILLETES - IMP", "CAPACIDAD DE CARGA VISIBLE - IMP", "DESGASTE O CORTES EN EL CUERPO", "ESTADO DO PASADOR DO GRILLETE", "ALMACENAMIENTO ADECUADO"],
+        "excavadora_hidraulica": ["ESTADO DE LAS ORUGAS And JUEGOS - IMP", "FUGAS EN CILINDROS HIDRÁULICOS - IMP", "LUCES DE TRABAJO DELANTERAS", "ALARMA DE MOVIMIENTO Y BOCINA - IMP", "ESTADO DE ESPEJOS", "CINTURÓN DE SEGURIDAD - IMP", "EXTINTOR DE INCENDIO", "ESTADO DE BALDE Y DIENTES"],
+        "manipuladora_telescopica": ["ESTADO DE NEUMÁTICOS - IMP", "SISTEMA DE EXTENSIÓN DEL BRAZO", "FRENOS OPERATIVOS - IMP", "SISTEMA HIDRÁULICO SIN FUGAS", "LUCES Y BALIZA OPERATIVAS", "ALARMA DE RETROCESO - IMP", "CINTURÓN DE SEGURIDAD - IMP", "EXTINTOR VIGENTE", "ESTADO DE ESTABILIZADORES"],
+        "maquina_perforadora": ["ESTADO DE CADENAS / ORUGAS - IMP", "ESTADO DO TORRE DE PERFORACIÓN - IMP", "MANGUERAS DE ALTA PRESION HIDRÁULICA", "BOTÓN DE PARADA DE EMERGENCIA - IMP", "LUCES DE REGLA Y TRABAJO", "ALARMA ACÚSTICA DE TRABAJO - IMP", "EXTINTOR DE INCENDIO"],
+        "mini_rodillo_compactador": ["ESTADO DO TAMBOR COMPACTADOR", "SISTEMA DE ROCIADO DE AGUA", "FRENOS And TRABAS - IMP", "NIVEL DE ACEITE HIDRÁULICO", "LUCES DE ALERTA", "ALARMA DE RETROCESO - IMP", "EXTINTOR DE INCENDIO", "BARRA ANTIVUELCO ROPS"],
+        "miniexcavadora_mini_carregadora": ["ESTADO DE NEUMÁTICOS / ORUGAS - IMP", "FUGAS EM BRAZOS HIDRÁULICOS - IMP", "LUCES DE CABINA Y TRABAJO", "BOCINA Y ALARMA DE MOVIMIENTO - IMP", "CINTURÓN DE SEGURIDAD - IMP", "ESTADO DE ADITAMENTOS CUCHARA", "EXTINTOR DE INCENDIO VIGENTE"],
+        "motor_generador": ["NIVEL DE ACEITE DE MOTOR Y COMBUSTIBLE", "ESTADO DE CONEXIONES ELÉCTRICAS", "SISTEMA DE PUESTA A TIERRA - IMP", "SIN FUGAS DE LÍQUIDOS", "TABLERO DE MANDO E INDICADORES", "LIMPIEZA GENERAL E INSONORIZA"],
+        "plataforma_pta": ["ESTADO DE RUEDAS And FRENOS - IMP", "MANDOS DE CONTROL DE BASE Y CESTA - IMP", "SISTEMA DE ANCLAJE ARNES DE SEGURIDAD - IMP", "BOTÓN PARADA DE EMERGENCIA - IMP", "SISTEMA HIDRÁULICO LEVANTE", "ALARMA DE INCLINACIÓN Y DESCENTRO - IMP", "EXTINTOR"],
+        "remolque_tanque_de_petroleo": ["ESTADO DE NEUMÁTICOS Y EJES - IMP", "SISTEMA DE ACOPLE Y CADENAS DE CONTROL - IMP", "CABLE DE CONEXIÓN A TIERRA ANTI-ESTÁTICA - IMP", "VÁLVULAS DE CIERRE DE EMERGENCIA", "EXTINTOR DE INCENDIO ABC REGLAMENTARIO", "ROTULACIÓN DE TRANSPORTE PELIGROSO"],
+        "retroexcavadora": ["ESTADO DE NEUMÁTICOS DELANTEROS Y TRASEROS - IMP", "FUGAS HIDRÁULICAS EN CILINDROS", "SISTEMA DE FRENOS DE TRABAJO - IMP", "LUCES Y DIRECCIONALES", "ALARMA DE RETROCESO AND BOCINA - IMP", "CINTURÓN DE SEGURIDAD - IMP", "EXTINTOR VIGENTE", "ESTADO DE ESTABILIZADORES P AD"],
+        "rodillo_compactador": ["ESTADO DE ROLOS / TAMBORES COMPACTADORES", "SISTEMA DE TRACCIÓN Y FRENOS DE ACCIÓN - IMP", "LUCES DE SEÑALIZACIÓN Y TRABAJO", "ALARMA ACÚSTICA DE MARCHA ATRÁS - IMP", "CINTURÓN DE SEGURIDAD DE LA CABINA - IMP", "EXTINTOR VIGENTE"],
+        "taladro_de_roca": ["ESTADO DE MANGUERAS NEUMÁTICAS / HIDRÁULICAS", "CONEXIONES CORREÇÃO RÁPIDA SEGUROS - IMP", "VÁLVULAS DE CONTROL DE PRESIÓN", "ESTADO DE LA BROCA / ACERO DE PERFORACIÓN", "EXTINTOR DE INCENDIO", "PROTECCIONES DE CABINA ATENUACIÓN"],
+        "tractor_de_neumaticos": ["ESTADO DE NEUMÁTICOS AGRÍCOLAS - IMP", "SISTEMA DE FRENOS DE LÍQUIDO - IMP", "SISTEMA DE LEVANTE TRES PUNTOS", "LUCES COMPLETAS", "ALARMA DE RETROCESO AND BOCINA - IMP", "CINTURÓN DE SEGURIDAD - IMP", "EXTINTOR DE INCENDIO", "BARRA ANTIVUELCO"],
+        "tractor_orugas_motoniveladora": ["ESTADO DE LAS ORUGAS / NEUMÁTICOS - IMP", "SISTEMA DE FRENOS MECÁNICOS E HIDRÁULICOS - IMP", "LUCES DE TRABAJO COMPONENTES", "SISTEMA DE LEVANTE DE HOJA / ESCARIFICADOR", "ALARMA DE RETROCESO Y BOCINA - IMP", "CINTURÓN DE SEGURIDAD - IMP", "EXTINTOR VIGENTE"]
     };
 
     const MAPA_IDENTIFICADORES = {
         "ambulancia": "ambulancia",
-        "camion_aljibe": "general_maquinaria",
-        "camion_betonera": "general_maquinaria",
-        "camion_cama_baja": "general_maquinaria",
-        "camion_de_petroleo": "general_maquinaria",
-        "camion_tolva": "general_maquinaria",
-        "camiones_3_4": "general_maquinaria",
-        "eslingas_y_grilletes": "general_maquinaria",
-        "excavadora_hidraulica": "general_maquinaria",
+        "camion_aljibe": "camion_aljibe",
+        "camion_betonera": "camion_betonera",
+        "camion_cama_baja": "camion_cama_baja",
+        "camion_de_petroleo": "camion_de_petroleo",
+        "camion_tolva": "camion_tolva",
+        "camiones_3_4": "camiones_3_4",
+        "eslingas_y_grilletes": "eslingas_y_grilletes",
+        "excavadora_hidraulica": "excavadora_hidraulica",
         "grua_y_pluma": "grua_y_pluma",
-        "manipuladora_telescopica": "general_maquinaria",
-        "maquina_perforadora": "general_maquinaria",
-        "mini_rodillo_compactador": "general_maquinaria",
-        "miniexcavadora_mini_carregadora": "general_maquinaria",
-        "motor_generador": "general_maquinaria",
-        "plataforma_pta": "general_maquinaria",
-        "remolque_tanque_de_petroleo": "general_maquinaria",
-        "retroexcavadora": "general_maquinaria",
-        "rodillo_compactador": "general_maquinaria",
-        "taladro_de_roca": "general_maquinaria",
-        "tractor_de_neumaticos": "general_maquinaria",
-        "tractor_orugas_motoniveladora": "general_maquinaria",
+        "manipuladora_telescopica": "manipuladora_telescopica",
+        "maquina_perforadora": "maquina_perforadora",
+        "mini_rodillo_compactador": "mini_rodillo_compactador",
+        "miniexcavadora_mini_carregadora": "miniexcavadora_mini_carregadora",
+        "motor_generador": "motor_generador",
+        "plataforma_pta": "plataforma_pta",
+        "remolque_tanque_de_petroleo": "remolque_tanque_de_petroleo",
+        "retroexcavadora": "retroexcavadora",
+        "rodillo_compactador": "rodillo_compactador",
+        "taladro_de_roca": "taladro_de_roca",
+        "tractor_de_neumaticos": "tractor_de_neumaticos",
+        "tractor_orugas_motoniveladora": "tractor_orugas_motoniveladora",
         "transporte_colectivo_furgonetas": "transporte_colectivo_furgonetas",
         "vehiculos_ligeros_camionetas": "vehiculos_ligeros_camionetas"
     };
@@ -480,9 +485,16 @@
         reader.readAsDataURL(input.files[0]);
     }
 
+    // EXCLUSÃO DA OPÇÃO GENÉRICA COMPLETA: Garante obrigatoriedade estrita de listas individuais pareadas
     async function carregarListaDePerguntasEstavel(nomeArquivo) {
-        const chaveDicionario = MAPA_IDENTIFICADORES[nomeArquivo] || "general_maquinaria";
-        const perguntasLocais = DICIONARIO_PERGUNTAS[chaveDicionario] || DICIONARIO_PERGUNTAS["general_maquinaria"];
+        const chaveDicionario = MAPA_IDENTIFICADORES[nomeArquivo];
+        
+        if (!chaveDicionario || !DICIONARIO_PERGUNTAS[chaveDicionario]) {
+            alert(`⚠️ Error Crítico de Mapeo: El identificador "${nomeArquivo}" no posee una lista local registrada.`);
+            return [];
+        }
+        
+        const perguntasLocais = DICIONARIO_PERGUNTAS[chaveDicionario];
         
         if (navigator.onLine) {
             try {
@@ -502,7 +514,7 @@
                     }
                 }
             } catch (e) { 
-                console.error("Falha ao ler html físico remoto, mudando para contingência local:", e); 
+                console.error("Falha ao ler html remoto, mudando para contingência estrita local:", e); 
             }
         }
         return perguntasLocais;
@@ -534,6 +546,7 @@
         }
 
         preguntasAtuais = await carregarListaDePerguntasEstavel(nomeArquivo);
+        if (preguntasAtuais.length === 0) return;
 
         const tbody = document.getElementById('checklist-dinamico-rows');
         tbody.innerHTML = "";
@@ -823,7 +836,6 @@
         const inspectorNome = prompt("Por favor, ingrese o NOME COMPLETO do inspetor:");
         if (!inspectorNome || inspectorNome.trim() === "") { alert("❌ O nome do inspetor é obrigatório!"); return; }
 
-        // FIX DO TRAVAMENTO OFFLINE: nomeInspetor unificado globalmente para impedir exceção por variável inexistente
         const nomeEmMaiusculo = inspectorNome.toUpperCase();
         const status = document.getElementById('statusMsg');
         const btn = document.getElementById('btn-save-main');

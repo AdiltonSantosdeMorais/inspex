@@ -3,17 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checklist Transporte Colectivo y Furgonetas - SST</title>
+<title>InspeX - Elecnor</title>
+<link rel="manifest" href="/manifest.json">
 <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
-    body { background:#e5e5e5; padding:20px; color: #000; }
-    .page { width:100%; max-width:1050px; margin:auto; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { background: #f5f7fa; padding: 20px; color: #333; display: flex; justify-content: center; }
+    
+    .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; transition: max-width 0.2s; }
+    
+    .header-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; }
+    .header-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+    .logo-elecnor { max-height: 25px; object-fit: contain; }
+    .status-badge { background: #e8f5e9; color: #2ecc71; font-weight: bold; font-size: 11px; padding: 5px 12px; border-radius: 20px; }
+    
+    .logo-inspex { width: 90%; max-height: 240px; margin: 20px 0 10px 0; object-fit: contain; }
+    
+    .search-box { position: relative; width: 100%; }
+    .search-box input { width: 100%; padding: 13px 15px 13px 40px; border-radius: 10px; border: 1px solid #d0d5dd; background: #fff; font-size: 14px; outline: none; }
+    .search-box input:focus { border-color: #0055a5; }
+    .search-box::before { content: "🔍"; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.5; }
+    
+    .equip-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+    .equip-card { background: #fff; border-radius: 6px; padding: 18px 15px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border-left: 4px solid #0055a5; cursor: pointer; transition: transform 0.1s; }
+    .equip-card:active { transform: scale(0.99); }
+    .equip-name { color: #003366; font-weight: bold; font-size: 14px; text-transform: uppercase; }
+    .disponivel-badge { background: #2ecc71; color: #fff; font-weight: bold; font-size: 10px; padding: 4px 10px; border-radius: 12px; text-transform: capitalize; }
+
+    .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     
     .header-table { table-layout: fixed; width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; overflow: hidden; }
     .logo-box { width: 20%; height: 100px; text-align: center; padding: 5px; }
     .logo-box img { max-height: 80px; max-width: 100%; object-fit: contain; }
-    .title-box { width: 55%; text-align: center; font-weight: bold; font-size: 16px; padding: 10px; word-break: break-word; }
+    .title-box { width: 55%; text-align: center; font-weight: bold; font-size: 16px; padding: 10px; color: #333; word-break: break-word; }
     
     .info-box-cell { width: 25%; padding: 0 !important; }
     .info-sub-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
@@ -21,278 +43,499 @@
     .info-sub-table tr:last-child td { border-bottom: none !important; }
     
     .vehicle-data-table { table-layout: fixed; width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; overflow: hidden; }
-    .vehicle-data-table input { width: 100%; max-width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; display: block; }
-    .col-1 { width: 45%; } .col-2 { width: 30%; } .col-3 { width: 25%; }
+    .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; overflow: hidden; position: relative; }
+    .vehicle-data-table input { width: 100%; max-width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; display: block; position: relative; z-index: 10000; -webkit-user-select: text; user-select: text; }
     
+    .required-field { border-left: 4px solid #e74c3c !important; background-color: #fff6f6 !important; }
+    
+    .col-1 { width: 40%; } .col-2 { width: 35%; } .col-3 { width: 25%; }
     .legend-row { background-color: #4472c4; color: #ffffff; text-align: center; font-weight: bold; font-size: 12px; height: 28px; letter-spacing: 0.5px; padding: 6px 0 !important; }
     
-    .checklist { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: -1px; }
-    .checklist th, .checklist td { border: 1px solid #000; padding: 6px 8px; vertical-align: middle; }
-    .checklist th { background:#f2f2f2; font-weight: bold; text-align: center; height: 32px; }
-    
+    .checklist-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: -1px; }
+    .checklist-table th, .checklist-table td { border: 1px solid #000; padding: 6px 8px; vertical-align: middle; }
+    .checklist-table th { background:#f2f2f2; font-weight: bold; text-align: center; height: 32px; }
     .center { text-align: center; width: 55px; }
     .center input[type="radio"] { transform: scale(1.3); cursor: pointer; width: 18px; height: 18px; }
-    
     .comment-col { width: 25%; }
     .comment-col input[type="text"] { width: 100%; border: none; background: transparent; font-size: 11px; outline: none; border-bottom: 1px dashed #eee; text-transform: uppercase; }
     
+    .row-incomplete { background-color: #fce4d6 !important; border-left: 4px solid #e74c3c !important; }
+    
+    .photos-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
+    .photos-table td { border: 1px solid #000; padding: 12px; font-size: 11px; font-weight: bold; background: #fafafa; }
+    .photos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 8px; }
+    .photo-slot { border: 1px dashed #4472c4; background: #fff; padding: 8px; text-align: center; border-radius: 4px; position: relative; }
+    .photo-slot input[type="file"] { width: 100%; font-size: 10px; margin-top: 5px; cursor: pointer; }
+    .photo-preview { max-width: 100%; height: 60px; object-fit: contain; display: none; margin-top: 5px; border-radius: 2px; border: 1px solid #ddd; margin-left: auto; margin-right: auto; }
+
     .footer-obs-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
     .footer-obs-table td { border: 1px solid #000; padding: 8px; font-size: 11px; font-weight: bold; vertical-align: top; }
     .footer-obs-table textarea { width: 100%; height: 60px; border: 1px solid #eee; resize: none; font-size: 11px; outline: none; margin-top: 5px; font-family: Arial; padding: 5px; text-transform: uppercase; }
     
-    .photos-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
-    .photos-table td { border: 1px solid #000; padding: 10px; font-size: 11px; font-weight: bold; }
-    .photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
-    .photo-item { position: relative; border: 1px dashed #bbb; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; }
-    .photo-item img { width: 100%; height: 100%; object-fit: cover; }
-    .photo-item input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5; }
-    .photo-label { font-size: 10px; color: #7f8c8d; text-align: center; pointer-events: none; }
-
     .result-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
     .result-table td { border: 1px solid #000; padding: 8px; font-size: 11px; font-weight: bold; vertical-align: middle; }
     .result-title { background-color: #e1e1e1; text-align: center; width: 25%; }
     .result-option { width: 17%; text-align: center; }
     .result-checkbox { width: 8%; text-align: center; }
     .result-checkbox input { transform: scale(1.4); cursor: pointer; }
-    
     .disabled-option { opacity: 0.4; pointer-events: none; background-color: #f2f2f2; }
     
     .signatures-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
     .signatures-table td { border: 1px solid #000; text-align: center; height: 140px; vertical-align: top; font-weight: bold; font-size: 11px; padding: 6px; width: 33.33%; color: #333; }
-    
     .canvas-container { margin-top: 5px; background: #fcfcfc; display: inline-block; text-align: center; }
     .sig-canvas { border: 1px dashed #999; background: #fff; display: block; cursor: crosshair; }
     .btn-clear { background: #e74c3c; color: white; border: none; padding: 2px 6px; font-size: 9px; border-radius: 2px; cursor: pointer; margin-top: 4px; display: inline-block; }
 
-    .btn-container { display: flex; justify-content: center; gap: 15px; margin: 20px auto; width: 100%; max-width: 1050px; padding: 0 10px; }
+    #statusMsg { font-size: 14px; text-align: center; padding: 12px; display: none; font-weight: bold; background: #fff; border-radius: 6px; border: 1px solid #ccc; margin-top: 10px; }
+    .sync-alert-banner { display: none; background: #f39c12; color: #fff; font-weight: bold; text-align: center; padding: 10px; font-size: 12px; border-radius: 6px; margin-bottom: 5px; }
+
+    .btn-container { display: flex; justify-content: center; gap: 15px; margin: 20px auto; width: 100%; padding: 0 10px; }
     .btn-salvar { background: #4472c4; color: white; border: none; padding: 16px 45px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     .btn-salvar:hover { background: #355a9c; }
-    .btn-voltar { background: #95a5a6; color: white; border: none; padding: 16px 25px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; text-decoration: none; text-align: center; }
+    .btn-salvar:disabled { background: #7f8c8d; cursor: not-allowed; opacity: 0.6; }
+    .btn-voltar { background: #95a5a6; color: white; border: none; padding: 16px 25px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; text-align: center; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-<div class="page" id="printable-area">
-    <table class="header-table">
-        <tr>
-            <td class="logo-box"><img id="v_logo" src="/static/logo-elecnor.png" alt="Logo Elecnor"></td>
-            <td class="title-box">LISTA DE VERIFICACIÓN MENSUAL PARA TRANSPORTE COLECTIVO Y FURGONETAS</td>
-            <td class="info-box-cell">
-                <table class="info-sub-table">
-                    <tr><td><strong>Código:</strong> 20.0009-SST-FL-0042</td></tr>
-                    <tr><td><strong>Fecha:</strong> 06/06/2026</td></tr>
-                    <tr><td><strong>Página:</strong> 1/1</td></tr>
-                    <tr><td><strong>Revisión:</strong> 00</td></tr>
-                    <tr><td><strong>Categoria:</strong> Colectivo</td></tr>
-                    <tr><td><strong>Sector:</strong> Operaciones</td></tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+<div class="container" id="main-container">
+    
+    <div id="section-lista" style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
+        <div class="header-card">
+            <div class="header-top">
+                <img id="imagem-logo-tela" class="logo-elecnor" src="/static/logo-elecnor.png" alt="Elecnor">
+                <span class="status-badge" id="net-status">Online</span>
+            </div>
+            <img class="logo-inspex" src="/static/inspex.png" alt="InspeX">
+        </div>
 
-    <table class="vehicle-data-table">
-        <tr>
-            <td class="col-1">EQUIPO / MODELO: <input type="text" id="v_equipo" value="TRANSPORTE COLECTIVO Y FURGONETAS"></td>
-            <td class="col-2">PATENTE / IDENT.: <input type="text" id="v_patente" placeholder="DIGITE AQUÍ LA PATENTE"></td>
-            <td class="col-3">FECHA DE INSPECCIÓN: <input type="date" id="v_fecha"></td>
-        </tr>
-        <tr>
-            <td class="col-1">EMPRESA: <input type="text" id="v_empresa" value="ELECNOR"></td>
-            <td class="col-2">AÑO: <input type="text" id="v_anio" placeholder="Ex: 2024" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></td>
-            <td class="col-3">KM / HORÓMETRO: <input type="text" id="v_km" placeholder="Ex: 95000" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></td>
-        </tr>
-        <tr>
-            <td colspan="3" class="legend-row">
-                C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO
-            </td>
-        </tr>
-    </table>
+        <div id="sync-banner" class="sync-alert-banner">⏳ Guardados inspecciones offline. Sincronizando en segundo plano...</div>
 
-    <table class="checklist">
-        <thead>
-            <tr>
-                <th>ELEMENTOS VERIFICADOS</th>
-                <th class="center">C</th>
-                <th class="center">NC</th>
-                <th class="center">NA</th>
-                <th class="comment-col">COMENTARIOS</th>
-            </tr>
-        </thead>
-        <tbody id="checklist-body"></tbody>
-    </table>
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Buscar equipamento..." oninput="filtrarEquipamentos()">
+        </div>
 
-    <table class="footer-obs-table">
-        <tr>
-            <td>COMENTARIOS Y OBSERVACIONES GENERALES
-                <textarea id="obs_generales" placeholder="Digite observaciones generales sobre el estado del microbús, autobús o furgoneta..."></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>MEDIDAS CORRECTIVAS ADOPTADAS:
-                <textarea id="medidas_correctivas" placeholder="Descreva ações tomadas para os itens marcados como NC..."></textarea>
-            </td>
-        </tr>
-    </table>
+        <div class="equip-list" id="lista-container">
+            <div class="equip-card" onclick="abrirFormularioNativo('AMBULANCIA', 'ambulancia')" data-name="AMBULANCIA"><span class="equip-name">AMBULANCIA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN ALJIBE', 'camion_aljibe')" data-name="CAMIÓN ALJIBE"><span class="equip-name">CAMIÓN ALJIBE</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('CAMION BETONERA', 'camion_betonera')" data-name="CAMION BETONERA"><span class="equip-name">CAMION BETONERA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN CAMA BAJA', 'camion_cama_baja')" data-name="CAMIÓN CAMA BAJA"><span class="equip-name">CAMIÓN CAMA BAJA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN DE PETROLEO', 'camion_de_petroleo')" data-name="CAMIÓN DE PETROLEO"><span class="equip-name">CAMIÓN DE PETROLEO</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('CAMIÓN TOLVA', 'camion_tolva')" data-name="CAMIÓN TOLVA"><span class="equip-name">CAMIÓN TOLVA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('CAMIONES 3/4', 'camiones_3_4')" data-name="CAMIONES 3/4"><span class="equip-name">CAMIONES 3/4</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('ESSLINGAS Y GRILLETES', 'eslingas_y_grilletes')" data-name="ESLINGAS Y GRILLETES"><span class="equip-name">ESLINGAS Y GRILLETES</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('EXCAVADORA HIDRAULICA', 'excavadora_hidraulica')" data-name="EXCAVADORA HIDRAULICA"><span class="equip-name">EXCAVADORA HIDRAULICA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('GRUA Y PLUMA', 'grua_y_pluma')" data-name="GRUA Y PLUMA"><span class="equip-name">GRUA Y PLUMA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('MANIPULADORA TELESCOPICA', 'manipuladora_telescopica')" data-name="MANIPULADORA TELESCOPICA"><span class="equip-name">MANIPULADORA TELESCOPICA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('MAQUINA PERFORADORA', 'maquina_perforadora')" data-name="MAQUINA PERFORADORA"><span class="equip-name">MAQUINA PERFORADORA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('MINI RODILLO COMPACTADOR', 'mini_rodillo_compactador')" data-name="MINI RODILLO COMPACTADOR"><span class="equip-name">MINI RODILLO COMPACTADOR</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('MINIEXCAVADORA MINI CARREGADORA', 'miniexcavadora_mini_carregadora')" data-name="MINIEXCAVADORA MINI CARREGADORA"><span class="equip-name">MINIEXCAVADORA MINI CARREGADORA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('MOTOR GENERADOR', 'motor_generador')" data-name="MOTOR GENERADOR"><span class="equip-name">MOTOR GENERADOR</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('PLATAFORMA PTA', 'plataforma_pta')" data-name="PLATAFORMA PTA"><span class="equip-name">PLATAFORMA PTA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('REMOLQUE TANQUE DE PETROLEO', 'remolque_tanque_de_petroleo')" data-name="REMOLQUE TANQUE DE PETROLEO"><span class="equip-name">REMOLQUE TANQUE DE PETROLEO</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('RETROEXCAVADORA', 'retroexcavadora')" data-name="RETROEXCAVADORA"><span class="equip-name">RETROEXCAVADORA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('RODILLO COMPACTADOR', 'rodillo_compactador')" data-name="RODILLO COMPACTADOR"><span class="equip-name">RODILLO COMPACTADOR</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('TALADRO DE ROCA', 'taladro_de_roca')" data-name="TALADRO DE ROCA"><span class="equip-name">TALADRO DE ROCA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('TRACTOR DE NEUMATICOS', 'tractor_de_neumaticos')" data-name="TRACTOR DE NEUMATICOS"><span class="equip-name">TRACTOR DE NEUMATICOS</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('TRACTOR DE ORUGAS MOTONIVELADORA', 'tractor_orugas_motoniveladora')" data-name="TRACTOR DE ORUGAS MOTONIVELADORA"><span class="equip-name">TRACTOR DE ORUGAS MOTONIVELADORA</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('TRANSPORTE COLECTIVO FURGONETAS', 'transporte_colectivo_furgonetas')" data-name="TRANSPORTE COLECTIVO FURGONETAS"><span class="equip-name">TRANSPORTE COLECTIVO FURGONETAS</span><span class="disponivel-badge">Disponible</span></div>
+            <div class="equip-card" onclick="abrirFormularioNativo('VEHICULOS LIGEROS CAMIONETAS', 'vehiculos_ligeros_camionetas')" data-name="VEHICULOS LIGEROS CAMIONETAS"><span class="equip-name">VEHICULOS LIGEROS CAMIONETAS</span><span class="disponivel-badge">Disponible</span></div>
+        </div>
+    </div>
 
-    <table class="photos-table">
-        <tr>
-            <td>EVIDENCIAS FOTOGRÁFICAS (MÁXIMO 08 FOTOS)
-                <div class="photo-grid">
-                    <script>
-                        for(let f_count=1; f_count<=8; f_count++) {
-                            document.write(`
-                                <div class="photo-item" id="box_photo_${f_count}">
-                                    <span class="photo-label" id="label_photo_${f_count}">📸 Foto ${f_count}</span>
-                                    <input type="file" accept="image/*" capture="environment" onchange="compressAndLoadPhoto(this, ${f_count})">
-                                    <img id="img_preview_${f_count}" style="display:none; width:100%; height:100%; object-fit:cover;">
-                                </div>
-                            `);
-                        }
-                    </script>
-                </div>
-            </td>
-        </tr>
-    </table>
+    <div id="section-formulario" style="display: none; width: 100%;">
+        <div class="page-sheet" id="area-folha-pdf">
+            <table class="header-table">
+                <tr>
+                    <td class="logo-box"><img src="/static/logo-elecnor.png" alt="Logo Elecnor"></td>
+                    <td class="title-box" id="dinamico-titulo-equip">LISTA DE VERIFICACIÓN MENSUAL</td>
+                    <td class="info-box-cell">
+                        <table class="info-sub-table">
+                            <tr><td><strong>Código:</strong> 20.0009-SST-FL-0036</td></tr>
+                            <tr><td><strong>Fecha Ref:</strong> 15/06/2026</td></tr>
+                            <tr><td><strong>Página:</strong> 1/1</td></tr>
+                            <tr><td><strong>Revisión:</strong> 00</td></tr>
+                            <tr><td><strong>Categoria:</strong> General</td></tr>
+                            <tr><td><strong>Sector:</strong> Seguridad</td></tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
 
-    <table class="result-table">
-        <tr>
-            <td class="result-title">RESULTADO</td>
-            <td class="result-option" id="cell_liberado">LIBERADO</td>
-            <td class="result-checkbox" id="check_liberado"><input type="radio" name="resultado_final" id="res_liberado" value="LIBERADO"></td>
-            <td class="result-option" id="cell_obs">LIBERADO COM OBS.</td>
-            <td class="result-checkbox" id="check_obs"><input type="radio" name="resultado_final" id="res_obs" value="LIBERADO_OBS"></td>
-            <td class="result-option" id="cell_no_liberado">NO LIBERADO</td>
-            <td class="result-checkbox" id="check_no_liberado"><input type="radio" name="resultado_final" id="res_no_liberado" value="NO_LIBERADO"></td>
-        </tr>
-    </table>
+            <table class="vehicle-data-table">
+                <tr>
+                    <td class="col-1" id="box_equipo">EQUIPO / MODELO: <input type="text" id="v_equipo" placeholder="INGRESE EQUIPO / MODELO" oninput="equipoSeleccionado = this.value"></td>
+                    <td class="col-2" id="box_patente">PATENTE / IDENT.: * <input type="text" id="v_patente" placeholder="DIGITE AQUÍ LA PATENTE"></td>
+                    <td class="col-3" id="box_fecha">FECHA DE INSPECCIÓN: * <input type="date" id="v_fecha"></td>
+                </tr>
+                <tr>
+                    <td class="col-1">EMPRESA: <input type="text" id="v_empresa" value="ELECNOR"></td>
+                    <td class="col-2">AÑO: <input type="text" id="v_anio" placeholder="Ex: 2024" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></td>
+                    <td class="col-3" id="box_km">KM / HORÓMETRO: * <input type="text" id="v_km" placeholder="Ex: 45000" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="legend-row">C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO</td>
+                </tr>
+            </table>
 
-    <table class="signatures-table">
-        <tr>
-            <td>OPERADOR / CONDUCTOR
-                <div class="canvas-container no-print">
-                    <canvas id="canvas_conductor" class="sig-canvas" width="220" height="75"></canvas>
-                    <button class="btn-clear" onclick="limparCanvas('canvas_conductor')">🗑️ Limpar</button>
-                </div>
-            </td>
-            <td>SUPERVISOR / ENCARGADO / CAPATAZ
-                <div class="canvas-container no-print">
-                    <canvas id="canvas_supervisor" class="sig-canvas" width="220" height="75"></canvas>
-                    <button class="btn-clear" onclick="limparCanvas('canvas_supervisor')">🗑️ Limpar</button>
-                </div>
-            </td>
-            <td>SEGURIDAD DO TRABAJO
-                <div class="canvas-container no-print">
-                    <canvas id="canvas_seguridad" class="sig-canvas" width="220" height="75"></canvas>
-                    <button class="btn-clear" onclick="limparCanvas('canvas_seguridad')">🗑️ Limpar</button>
-                </div>
-            </td>
-        </tr>
-    </table>
-</div>
+            <table class="checklist-table">
+                <thead>
+                    <tr>
+                        <th>ELEMENTOS VERIFICADOS</th>
+                        <th class="center">C</th>
+                        <th class="center">NC</th>
+                        <th class="center">NA</th>
+                        <th>COMENTARIOS</th>
+                    </tr>
+                </thead>
+                <tbody id="checklist-dinamico-rows"></tbody>
+            </table>
 
-<div class="btn-container">
-    <a href="/" class="btn-voltar">⬅ Voltar</a>
-    <button class="btn-salvar" onclick="validarEEnviar()">💾 ENVIAR Y SALVAR CHECKLIST</button>
+            <table class="photos-table">
+                <tr>
+                    <td>REGISTRO FOTOGRÁFICO DE EVIDENCIAS (MÁXIMO 8 FOTOS)
+                        <div class="photos-grid">
+                            <div class="photo-slot"><span>Foto 1</span><input type="file" accept="image/*" capture="environment" id="input_foto_1" onchange="processarFoto(1)"><img id="prev_foto_1" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 2</span><input type="file" accept="image/*" capture="environment" id="input_foto_2" onchange="processarFoto(2)"><img id="prev_foto_2" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 3</span><input type="file" accept="image/*" capture="environment" id="input_foto_3" onchange="processarFoto(3)"><img id="prev_foto_3" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 4</span><input type="file" accept="image/*" capture="environment" id="input_foto_4" onchange="processarFoto(4)"><img id="prev_foto_4" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 5</span><input type="file" accept="image/*" capture="environment" id="input_foto_5" onchange="processarFoto(5)"><img id="prev_foto_5" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 6</span><input type="file" accept="image/*" capture="environment" id="input_foto_6" onchange="processarFoto(6)"><img id="prev_foto_6" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 7</span><input type="file" accept="image/*" capture="environment" id="input_foto_7" onchange="processarFoto(7)"><img id="prev_foto_7" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 8</span><input type="file" accept="image/*" capture="environment" id="input_foto_8" onchange="processarFoto(8)"><img id="prev_foto_8" class="photo-preview"></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="footer-obs-table">
+                <tr>
+                    <td>COMENTARIOS Y OBSERVACIONES GENERALES
+                        <textarea id="obs_generales" placeholder="Digite observaciones generales..."></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>MEDIDAS CORRECTIVAS ADOPTADAS:
+                        <textarea id="medidas_correctivas" placeholder="Descreva ações tomadas..."></textarea>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="result-table">
+                <tr>
+                    <td class="result-title">RESULTADO</td>
+                    <td class="result-option" id="cell_liberado">LIBERADO</td>
+                    <td class="result-checkbox" id="check_liberado"><input type="radio" name="resultado_final" id="res_liberado" value="LIBERADO"></td>
+                    <td class="result-option" id="cell_obs">LIBERADO COM OBS.</td>
+                    <td class="result-checkbox" id="check_obs"><input type="radio" name="resultado_final" id="res_obs" value="LIBERADO_OBS"></td>
+                    <td class="result-option" id="cell_no_liberado">NO LIBERADO</td>
+                    <td class="result-checkbox" id="check_no_liberado"><input type="radio" name="resultado_final" id="res_no_liberado" value="NO_LIBERADO"></td>
+                </tr>
+            </table>
+
+            <table class="signatures-table">
+                <tr>
+                    <td>OPERADOR / CONDUCTOR
+                        <div class="canvas-container">
+                            <canvas id="canvas_conductor" class="sig-canvas" width="220" height="75"></canvas>
+                            <button class="btn-clear" onclick="limparCanvas('canvas_conductor')">🗑️ Limpar</button>
+                        </div>
+                    </td>
+                    <td>SUPERVISOR / ENCARGADO / CAPATAZ
+                        <div class="canvas-container">
+                            <canvas id="canvas_supervisor" class="sig-canvas" width="220" height="75"></canvas>
+                            <button class="btn-clear" onclick="limparCanvas('canvas_supervisor')">🗑️ Limpar</button>
+                        </div>
+                    </td>
+                    <td>SEGURIDAD DO TRABAJO
+                        <div class="canvas-container">
+                            <canvas id="canvas_seguridad" class="sig-canvas" width="220" height="75"></canvas>
+                            <button class="btn-clear" onclick="limparCanvas('canvas_seguridad')">🗑️ Limpar</button>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="statusMsg"></div>
+        <div class="btn-container">
+            <button class="btn-voltar" onclick="fecharFormularioNativo()">⬅ Voltar</button>
+            <button type="button" class="btn-salvar" id="btn-save-main" onclick="salvarEMontarPDF_Original_SST()">💾 ENVIAR Y SALVAR CHECKLIST</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    const preguntas = [
-        "DOCUMENTACIÓN DEL VEHÍCULO",
-        "INDICADOR DE COMBUSTIBLE",
-        "FAROS (LUZ ALTA Y BAJA)",
-        "DIRECCIONALES DELANTERAS Y TRASERAS",
-        "LUCES INTERMITENTES (PISCA ALERTA)",
-        "LUZ DE FRENO Y MARCHA ATRÁS",
-        "VELOCÍMETRO / TACÓGRAFO",
-        "FRENO DE PIE - IMP",
-        "FRENO DE MANO O PALANCA DE ESTACIONAMIENTO",
-        "DIRECCIÓN",
-        "CONDICIÓN DE LOS ASIENTOS / TAPICERÍA",
-        "CINTURONES DE SEGURIDAD - IMP",
-        "EXTINTOR DE INCENDIOS",
-        "LIMPIADOR DE PARABRISAS",
-        "VIDRIOS Y ESPEJOS - IMP",
-        "PUERTAS Y VENTANAS",
-        "NEUMÁTICOS - IMP",
-        "NEUMÁTICO DE REPUESTO / LLAVES",
-        "GATO HIDRÁULICO",
-        "TRIÁNGULO DE SEÑALIZACIÓN",
-        "ESTADO DE LA CARROCERÍA",
-        "ESCALERA",
-        "FUGAS / FILTRACIONES",
-        "ALARMA SONORA DE REVERSA / CÁMARA DE MARCHA ATRÁS - IMP",
-        "CLAXON (BUCINA) - IMP",
-        "CUÑA PARA RUEDAS"
-    ];
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
 
-    document.getElementById('v_fecha').valueAsDate = new Date();
+    let equipoBaseSeleccionado = ""; 
+    let equipoSeleccionado = "";     
+    let bancoImagensFotos = {}; 
+    let perguntasAtuais = []; 
+    let isSyncing = false;
 
-    const tbody = document.getElementById('checklist-body');
-    preguntas.forEach((pregunta, index) => {
-        const id = index + 1;
-        const row = `
-            <tr>
-                <td><strong>${id}.</strong> ${pregunta}</td>
-                <td class="center"><input type="radio" name="item_${id}" value="C" onchange="verificarReglasResultados()"></td>
-                <td class="center"><input type="radio" name="item_${id}" value="NC" onchange="verificarReglasResultados()"></td>
-                <td class="center"><input type="radio" name="item_${id}" value="NA" onchange="verificarReglasResultados()"></td>
-                <td class="comment-col"><input type="text" id="comment_${id}" placeholder="Nota..."></td>
-            </tr>
-        `;
-        tbody.innerHTML += row;
-    });
+    const DICIONARIO_PERGUNTAS = {
+        "ambulancia": [
+            "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
+            "FRENO DE LAS RUEDAS FUNCIONANDO CORRECTAMENTE - IMP",
+            "FRENO DE ESTACIONAMIENTO",
+            "AGUA DEL RADIADOR CON NIVEL ADECUADO",
+            "LIMPIAPARABRISAS FUNCIONANDO CORRECTAMENTE",
+            "KIT DE HERRAMIENTAS (LLAVE DE RUEDAS, CRIQUE, GATO, TRIANGULO)",
+            "TUERCA DE FIJACIÓN DE LAS RUEDAS",
+            "SISTEMA ELÉCTRICO FUNCIONANDO CORRECTAMENTE",
+            "FAROS Y LUCES FUNCIONANDO CORRECTAMENTE",
+            "CLAXON/CAMARA DE MARCHA ATRÁS Y ALARMA SONORA DE MARCHA ATRÁS - IMP",
+            "RUEDAS SIN JUEGO EN EL VOLANTE",
+            "VELOCÍMETRO/TACOGRAFO",
+            "PUERTAS Y VENTANAS FUNCIONANDO CORRECTAMENTE",
+            "ASIENTOS EN BUEN ESTADO",
+            "ESPEJOS RETROVISORES - IMP",
+            "CINTURONES DE SEGURIDAD CONSERVADOS EN TODOS OS ASIENTOS - IMP",
+            "EXTINTOR DE INCENDIO VALIDO Y ADECUADO",
+            "VENTILACIÓN NATURAL OR ARTIFICIAL",
+            "NEUMATICOS CALIBRADOS Y EN BUEN ESTADO DE USO - IMP",
+            "ALARMA Y SIRENA DE EMERGENCIA FUNCIONANDO - IMP",
+            "CUÑA PARA RUEDAS",
+            "CONSERVACIÓN DEL INTERIOR DEL VEHÍCULO",
+            "IDENTIFICACIÓN DEL VEHÍCULO DE EMBARQUE - IMP"
+        ],
+        "vehiculos_ligeros_camionetas": [
+            "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
+            "FRENO DE LAS RUEDAS FUNCIONANDO CORRECTAMENTE - IMP",
+            "FRENO DE ESTACIONAMIENTO",
+            "AGUA DEL RADIADOR CON NIVEL ADECUADO",
+            "LIMPIAPARABRISAS FUNCIONANDO CORRECTAMENTE",
+            "KIT DE HERRAMIENTAS (LLAVE DE RUEDAS, CRIQUE, GATO, TRIANGULO)",
+            "TUERCA DE FIJACIÓN DE LAS RUEDAS",
+            "SISTEMA ELÉCTRICO FUNCIONANDO CORRECTAMENTE",
+            "FAROS Y LUCES FUNCIONANDO CORRECTAMENTE",
+            "CLAXON/CAMARA DE MARCHA ATRÁS Y ALARMA SONORA DE MARCHA ATRÁS - IMP",
+            "RUEDAS SIN JUEGO EN EL VOLANTE",
+            "VELOCÍMETRO/TACOGRAFO",
+            "PUERTAS Y VENTANAS FUNCIONANDO CORRECTAMENTE",
+            "ASIENTOS EN BUEN ESTADO",
+            "ESPEJOS RETROVISORES - IMP",
+            "CINTURONES DE SEGURIDAD CONSERVADOS EN TODOS OS ASIENTOS - IMP",
+            "EXTINTOR DE INCENDIO VALIDO Y ADECUADO",
+            "NEUMATICOS CALIBRADOS Y EN BUEN ESTADO DE USO - IMP",
+            "CUÑA PARA RUEDAS"
+        ],
+        "transporte_colectivo_furgonetas": [
+            "ESTADO DE NEUMÁTICOS Y REVISIÓN DE PRESION - IMP",
+            "CINTURONES DE SEGURIDAD EN TODOS LOS ASIENTOS - IMP",
+            "ESTADO DE PARABRISAS AND ESPEJOS RETROVISORES - IMP",
+            "SISTEMA DE DIRECCIÓN Y LUCES COMPLETAS",
+            "EXTINTOR DE INCENDIO REGLAMENTARIO CARGADO Y VIGENTE",
+            "DOCUMENTACIÓN DEL VEHÍCULO AL DÍA",
+            "SISTEMA DE FRENOS DE TRABAJO Y ESTACIONAMIENTO - IMP",
+            "ALARMA DE RETROCESO Y BOCINA OPERATIVAS - IMP",
+            "BOTIQUÍN DE PRIMEROS AUXILIOS Y KIT DE EMERGENCIA"
+        ],
+        "general_maquinaria": [
+            "ESTADO DE LOS NEUMÁTICOS / ORUGAS Y AJUSTE DE PERNOS - IMP",
+            "NIVEL DE ACEITE DE MOTOR, HIDRÁULICO Y TRANSMISIÓN",
+            "SISTEMA DE FRENOS DE SERVICIO Y ESTACIONAMIENTO - IMP",
+            "LUCES DE TRABAJO, DELANTERAS, TRASERAS Y DE RETROCESO",
+            "ALARMA DE MARCHA ATRÁS Y BOCINA DE ALERTA - IMP",
+            "ESTADO DE ESPEJOS RETROVISORES Ext. E Int. - IMP",
+            "CINTURÓN DE SEGURIDAD DE LA CABINA - IMP",
+            "SISTEMA HIDRÁULICO (MANGUERAS, CILINDROS, SIN FUGAS)",
+            "EXTINTOR DE INCENDIO DE REGLA CARGADO Y VIGENTE",
+            "ESTADO E HIGIENE GENERAL DE LA CABINA",
+            "ESTADO DE BALDE, CUCHILLA O IMPLEMENTO DE CORTE",
+            "PUNTOS DE ENGRASE Y ARTICULACIONES",
+            "ESTADO DE LAS BALIZAS LUMINOSAS",
+            "CUNAS DE BLOCKEO DE RUEDAS PRESENTES"
+        ]
+    };
 
-    const canvases = ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'];
-    canvases.forEach(id => {
-        const canvas = document.getElementById(id);
-        const ctx = canvas.getContext('2d');
-        ctx.lineWidth = 2; ctx.strokeStyle = "#004B87";
-        let desenhando = false;
+    // MAPA CORRIGIDO DINAMICAMENTE: Alinhamento perfeito com todos os arquivos físicos reais da imagem
+    const MAPA_IDENTIFICADORES = {
+        "ambulancia": "ambulancia",
+        "camion_aljibe": "general_maquinaria",
+        "camion_betonera": "general_maquinaria",
+        "camion_cama_baja": "general_maquinaria",
+        "camion_de_petroleo": "general_maquinaria",
+        "camion_tolva": "general_maquinaria",
+        "camiones_3_4": "general_maquinaria",
+        "eslingas_y_grilletes": "general_maquinaria",
+        "excavadora_hidraulica": "general_maquinaria",
+        "grua_y_pluma": "general_maquinaria",
+        "manipuladora_telescopica": "general_maquinaria",
+        "maquina_perforadora": "general_maquinaria",
+        "mini_rodillo_compactador": "general_maquinaria",
+        "miniexcavadora_mini_carregadora": "general_maquinaria",
+        "motor_generador": "general_maquinaria",
+        "plataforma_pta": "general_maquinaria",
+        "remolque_tanque_de_petroleo": "general_maquinaria",
+        "retroexcavadora": "general_maquinaria",
+        "rodillo_compactador": "general_maquinaria",
+        "taladro_de_roca": "general_maquinaria",
+        "tractor_de_neumaticos": "general_maquinaria",
+        "tractor_orugas_motoniveladora": "general_maquinaria",
+        "transporte_colectivo_furgonetas": "transporte_colectivo_furgonetas",
+        "vehiculos_ligeros_camionetas": "vehiculos_ligeros_camionetas"
+    };
+
+    function filtrarEquipamentos() {
+        const filter = document.getElementById('search-input').value.toUpperCase();
+        const cards = document.querySelectorAll('.equip-card');
+        cards.forEach(card => {
+            const nome = card.getAttribute('data-name');
+            card.style.display = nome && nome.includes(filter) ? "flex" : "none";
+        });
+    }
+
+    function atualizarStatusRede() {
+        const badge = document.getElementById('net-status');
+        if (!badge) return;
+        const online = navigator.onLine;
+        badge.innerText = online ? "Online" : "Offline";
+        badge.style.background = online ? "#e8f5e9" : "#ffebee";
+        badge.style.color = online ? "#2ecc71" : "#e74c3c";
         
-        function obterPosicao(e) {
-            const rect = canvas.getBoundingClientRect();
-            const clienteX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clienteY = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: clienteX - rect.left, y: clienteY - rect.top };
-        }
-        function iniciar(e) { desenhando = true; ctx.beginPath(); const p = obterPosicao(e); ctx.moveTo(p.x, p.y); }
-        function mover(e) {
-            if (!desenhando) return;
-            if (e.touches) e.preventDefault();
-            const pos = obterPosicao(e); ctx.lineTo(pos.x, pos.y); ctx.stroke();
-        }
-        function parar() { desenhando = false; }
-
-        canvas.addEventListener('mousedown', iniciar);
-        canvas.addEventListener('mousemove', mover);
-        window.addEventListener('mouseup', parar);
-        canvas.addEventListener('touchstart', iniciar, {passive:false});
-        canvas.addEventListener('touchmove', mover, {passive:false});
-        window.addEventListener('touchend', parar);
-    });
-
-    function limparCanvas(id) {
-        const canvas = document.getElementById(id);
-        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+        if (online) { syncQueue(); }
     }
 
-    function verificarCanvasVazio(id) {
-        const canvas = document.getElementById(id);
-        const branco = document.createElement('canvas');
-        branco.width = canvas.width; branco.height = canvas.height;
-        return canvas.toDataURL() === branco.toDataURL();
+    function processarFoto(id) {
+        const input = document.getElementById(`input_foto_${id}`);
+        if (!input || !input.files[0]) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const maxDim = 800;
+                let width = img.width;
+                let height = img.height;
+                if (width > height) {
+                    if (width > maxDim) { height *= maxDim / width; width = maxDim; }
+                } else {
+                    if (height > maxDim) { width *= maxDim / height; height = maxDim; }
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const compressedUrl = canvas.toDataURL('image/jpeg', 0.7);
+                bancoImagensFotos[`foto_${id}`] = compressedUrl;
+
+                const preview = document.getElementById(`prev_foto_${id}`);
+                if(preview) { preview.src = compressedUrl; preview.style.display = "block"; }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
     }
 
-    function verificarReglasResultados() {
+    async function carregarListaDePerguntasEstavel(nomeArquivo) {
+        const chaveDicionario = MAPA_IDENTIFICADORES[nomeArquivo] || "general_maquinaria";
+        const perguntasLocais = DICIONARIO_PERGUNTAS[chaveDicionario] || DICIONARIO_PERGUNTAS["general_maquinaria"];
+        
+        if (navigator.onLine) {
+            try {
+                const resposta = await fetch(`/checklist/${nomeArquivo}.html`);
+                if (resposta.ok) {
+                    const htmlTexto = await resposta.text();
+                    const matchRegex = /const\s+preguntas\s*=\s*\[([\s\S]*?)\]\s*;/i.exec(htmlTexto);
+                    if (matchRegex && matchRegex[1]) {
+                        const bloco = matchRegex[1];
+                        const regexItens = /["'`]([\s\S]*?)["'`]/g;
+                        let itemMatch; let l = [];
+                        while ((itemMatch = regexItens.exec(bloco)) !== null) {
+                            let txt = itemMatch[1].trim();
+                            if (txt.length > 2) l.push(txt);
+                        }
+                        if (l.length > 0) return l;
+                    }
+                }
+            } catch (e) { 
+                console.error("Falha ao carregar arquivo remoto, usando contingencia offline:", e); 
+            }
+        }
+        return perguntasLocais;
+    }
+
+    async function abrirFormularioNativo(nomeVisual, nomeArquivo) {
+        equipoBaseSeleccionado = nomeVisual;
+        equipoSeleccionado = nomeVisual;
+        bancoImagensFotos = {}; 
+        
+        document.getElementById('v_equipo').value = nomeVisual;
+        document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + nomeVisual.toUpperCase();
+        document.getElementById('v_fecha').valueAsDate = new Date();
+        document.getElementById('v_patente').value = "";
+        document.getElementById('v_anio').value = "";
+        document.getElementById('v_km').value = "";
+        document.getElementById('obs_generales').value = "";
+        document.getElementById('medidas_correctivas').value = "";
+
+        document.getElementById('box_patente').classList.remove('required-field');
+        document.getElementById('box_km').classList.remove('required-field');
+        document.getElementById('box_fecha').classList.remove('required-field');
+
+        for (let idx = 1; idx <= 8; idx++) {
+            const fileInput = document.getElementById(`input_foto_${idx}`);
+            const preview = document.getElementById(`prev_foto_${idx}`);
+            if(fileInput) fileInput.value = "";
+            if(preview) { preview.style.display = "none"; preview.src = ""; }
+        }
+
+        preguntasAtuais = await carregarListaDePerguntasEstavel(nomeArquivo);
+
+        const tbody = document.getElementById('checklist-dinamico-rows');
+        tbody.innerHTML = "";
+        
+        preguntasAtuais.forEach((pregunta, index) => {
+            const id = index + 1;
+            tbody.innerHTML += `
+                <tr id="row_item_${id}">
+                    <td><strong>${id}.</strong> ${pregunta}</td>
+                    <td class="center"><input type="radio" name="item_${id}" value="C" onchange="verificarReglasResultados(${id})"></td>
+                    <td class="center"><input type="radio" name="item_${id}" value="NC" onchange="verificarReglasResultados(${id})"></td>
+                    <td class="center"><input type="radio" name="item_${id}" value="NA" onchange="verificarReglasResultados(${id})"></td>
+                    <td class="comment-col"><input type="text" id="comment_${id}" placeholder="Nota..."></td>
+                </tr>
+            `;
+        });
+
+        document.getElementById('main-container').style.maxWidth = "1050px";
+        document.getElementById('section-lista').style.display = "none";
+        document.getElementById('section-formulario').style.display = "block";
+        window.scrollTo(0,0);
+        
+        inicializarCanvases();
+        verificarReglasResultados();
+    }
+
+    function fecharFormularioNativo() {
+        document.getElementById('main-container').style.maxWidth = "450px";
+        document.getElementById('section-formulario').style.display = "none";
+        document.getElementById('section-lista').style.display = "block";
+        window.scrollTo(0,0);
+        checkFilaVisualIndicator();
+    }
+
+    function verificarReglasResultados(rowIdMudado = null) {
         let bloqueioImpeditivo = false;
         let falhaComumDetectada = false;
+        let todasRespondidas = true;
 
-        preguntas.forEach((pregunta, index) => {
+        if(rowIdMudado) {
+            document.getElementById(`row_item_${rowIdMudado}`).classList.remove('row-incomplete');
+        }
+
+        preguntasAtuais.forEach((pregunta, index) => {
             const id = index + 1;
-            const radioNC = document.querySelector(`input[name="item_${id}"][value="NC"]:checked`);
-            if (radioNC) {
+            const marcado = document.querySelector(`input[name="item_${id}"]:checked`);
+            if (!marcado) {
+                todasRespondidas = false;
+            } else if (marcado.value === "NC") {
                 if (pregunta.toUpperCase().includes("IMP")) {
                     bloqueioImpeditivo = true;
                 } else {
@@ -305,279 +548,355 @@
         const btnObs = document.getElementById('res_obs');
         const btnNoLiberado = document.getElementById('res_no_liberado');
 
-        const itensLayout = [
-            document.getElementById('cell_liberado'), document.getElementById('check_liberado'),
-            document.getElementById('cell_obs'), document.getElementById('check_obs'),
-            document.getElementById('cell_no_liberado'), document.getElementById('check_no_liberado')
-        ];
+        const elLib = document.getElementById('cell_liberado');
+        const chLib = document.getElementById('check_liberado');
+        const elObs = document.getElementById('cell_obs');
+        const chObs = document.getElementById('check_obs');
+        const elNoLib = document.getElementById('cell_no_liberado');
+        const chNoLib = document.getElementById('check_no_liberado');
 
-        itensLayout.forEach(el => el.classList.remove('disabled-option'));
-        btnLiberado.disabled = false; btnObs.disabled = false; btnNoLiberado.disabled = false;
+        if ([elLib, chLib, elObs, chObs, elNoLib, chNoLib].every(el => el !== null)) {
+            [elLib, chLib, elObs, chObs, elNoLib, chNoLib].forEach(el => { el.classList.remove('disabled-option'); });
+        }
+        if(btnLiberado) btnLiberado.disabled = false; 
+        if(btnObs) btnObs.disabled = false; 
+        if(btnNoLiberado) btnNoLiberado.disabled = false;
 
         if (bloqueioImpeditivo) {
-            btnNoLiberado.checked = true;
-            itensLayout.slice(0, 4).forEach(el => el.classList.add('disabled-option'));
-            btnLiberado.disabled = true; btnObs.disabled = true;
-        } else if (falhaComumDetectada) {
-            btnObs.checked = true;
-            itensLayout.slice(0, 2).concat(itensLayout.slice(4, 6)).forEach(el => el.classList.add('disabled-option'));
-            btnLiberado.disabled = true; btnNoLiberado.disabled = true;
-        } else {
-            btnLiberado.checked = true;
+            if(btnNoLiberado) btnNoLiberado.checked = true;
+            [elLib, chLib, elObs, chObs].forEach(el => { if(el) el.classList.add('disabled-option'); });
+            if(btnLiberado) btnLiberado.disabled = true; if(btnObs) btnObs.disabled = true;
+        } 
+        else if (falhaComumDetectada) {
+            if(btnObs) btnObs.checked = true;
+            [elLib, chLib, elNoLib, chNoLib].forEach(el => { if(el) el.classList.add('disabled-option'); });
+            if(btnLiberado) btnLiberado.disabled = true; if(btnNoLiberado) btnNoLiberado.disabled = true;
+        } 
+        else if (todasRespondidas) {
+            if(btnLiberado) btnLiberado.checked = true;
         }
     }
 
-    function compressAndLoadPhoto(input, index) {
-        const file = input.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imgElement = new Image();
-                const imgBox = document.getElementById(`img_preview_${index}`);
-                imgElement.src = e.target.result;
-                imgElement.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const MAX_WIDTH = 600;
-                    const MAX_HEIGHT = 450;
-                    let width = imgElement.width;
-                    let height = imgElement.height;
+    function inicializarCanvases() {
+        ['canvas_conductor', 'canvas_supervisor', 'canvas_seguridad'].forEach(id => {
+            const canvas = document.getElementById(id);
+            if(!canvas) return;
+            const clone = canvas.cloneNode(true);
+            if(canvas.parentNode) canvas.parentNode.replaceChild(clone, canvas);
+            const novoCanvas = document.getElementById(id);
+            const ctx = novoCanvas.getContext('2d');
+            ctx.lineWidth = 2; ctx.strokeStyle = "#004B87";
+            let drawing = false;
 
-                    if (width > height) {
-                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                    } else {
-                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-                    }
-                    canvas.width = width; canvas.height = height;
-                    ctx.drawImage(imgElement, 0, 0, width, height);
-                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
-                    document.getElementById(`label_photo_${index}`).style.display = "none";
-                    imgBox.src = compressedBase64; imgBox.style.display = "block";
+            function pos(e) {
+                const r = novoCanvas.getBoundingClientRect();
+                const x = e.touches ? e.touches[0].clientX : e.clientX;
+                const y = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: x - r.left, y: y - r.top };
+            }
+            novoCanvas.onmousedown = (e) => { drawing = true; ctx.beginPath(); const p = pos(e); ctx.moveTo(p.x, p.y); };
+            novoCanvas.onmousemove = (e) => { if (drawing) { const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); } };
+            window.addEventListener('mouseup', () => drawing = false);
+            
+            novoCanvas.ontouchstart = (e) => { 
+                if (e.target === novoCanvas) {
+                    drawing = true; ctx.beginPath(); const p = pos(e); ctx.moveTo(p.x, p.y); 
                 }
-            }
-            reader.readAsDataURL(file);
-        }
-    }
-
-    let logoBase64Global = "";
-    function carregarLogoParaPdf() {
-        const img = document.getElementById('v_logo');
-        if (img) {
-            const extrair = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
-                canvas.getContext('2d').drawImage(img, 0, 0);
-                logoBase64Global = canvas.toDataURL('image/png');
             };
-            if (img.complete) extrair();
-            else img.onload = extrair;
+            novoCanvas.ontouchmove = (e) => { 
+                if (drawing && e.target === novoCanvas) { 
+                    e.preventDefault(); 
+                    const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); 
+                } 
+            };
+            window.addEventListener('touchend', () => drawing = false);
+        });
+    }
+
+    function limparCanvas(id) {
+        const canvas = document.getElementById(id);
+        if(canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function saveToQueue(data) {
+        let queue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
+        queue.push(data);
+        localStorage.setItem('hse_queue', JSON.stringify(queue));
+    }
+
+    function checkFilaVisualIndicator() {
+        const banner = document.getElementById('sync-banner');
+        if(!banner) return;
+        let queue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
+        if(queue.length > 0 && navigator.onLine) {
+            banner.style.display = "block";
+            banner.innerText = `⏳ Hay ${queue.length} inspección(es) pendiente(s) de sincronizar. Procesando...`;
+            banner.style.background = "#f39c12";
+        } else if (queue.length > 0 && !navigator.onLine) {
+            banner.style.display = "block";
+            banner.innerText = `☁️ Modo Offline: ${queue.length} inspección(es) guardada(s) en el equipo.`;
+            banner.style.background = "#7f8c8d";
+        } else {
+            banner.style.display = "none";
         }
     }
-    window.addEventListener('DOMContentLoaded', carregarLogoParaPdf);
 
-    async function validarEEnviar() {
-        const patenteRaw = document.getElementById('v_patente').value;
-        if (!patenteRaw) { alert("❌ Erro: O preenchimento da PATENTE / IDENT. é obrigatório!"); return; }
+    async function syncQueue() {
+        if (!navigator.onLine || isSyncing) return;
+        let queue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
+        if (queue.length === 0) {
+            checkFilaVisualIndicator();
+            return;
+        }
 
-        let itensIncompletos = [];
-        let precisaDeFoto = false;
-        let payloadAnswers = {};
-        let payloadComments = {};
+        isSyncing = true;
+        checkFilaVisualIndicator();
 
-        for (let i = 1; i <= preguntas.length; i++) {
-            const radio = document.querySelector(`input[name="item_${i}"]:checked`);
-            if (!radio) { 
-                itensIncompletos.push(i); 
+        try {
+            while (queue.length > 0 && navigator.onLine) {
+                let itemAtual = queue[0];
+                
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(itemAtual)
+                });
+                
+                queue.shift(); 
+                localStorage.setItem('hse_queue', JSON.stringify(queue));
+            }
+            console.log("🚀 Fila sincronizada exitosamente!");
+        } catch (error) {
+            console.error("Erro no envio em lote:", error);
+        }
+
+        isSyncing = false;
+        checkFilaVisualIndicator();
+    }
+
+    window.addEventListener('online', () => { atualizarStatusRede(); syncQueue(); });
+    window.addEventListener('load', () => { atualizarStatusRede(); syncQueue(); });
+
+    function extrairLogoDaTela() {
+        let logoCanvas = document.createElement('canvas');
+        let logoImgElement = document.getElementById('imagem-logo-tela');
+        if (logoImgElement) {
+            logoCanvas.width = logoImgElement.naturalWidth || 200;
+            logoCanvas.height = logoImgElement.naturalHeight || 80;
+            try {
+                logoCanvas.getContext('2d').drawImage(logoImgElement, 0, 0);
+                return logoCanvas.toDataURL('image/png');
+            } catch(e) { return null; }
+        }
+        return null;
+    }
+
+    // PDF BUILDER CONTEXT
+    function desenharCabecalhoEstaticoSST(doc, pagina, totalPaginas, logoDataUrl) {
+        doc.setLineWidth(0.4); 
+        doc.setDrawColor(0);
+        doc.rect(10, 10, 140, 25); 
+        doc.line(50, 10, 50, 35); 
+        
+        if (logoDataUrl) { 
+            try { doc.addImage(logoDataUrl, 'PNG', 12, 14, 35, 16); } catch(e){} 
+        }
+
+        doc.setFontSize(11); 
+        doc.setFont("helvetica", "bold");
+        doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
+        doc.text(equipoSeleccionado.toUpperCase(), 100, 27, { align: 'center' });
+
+        desenharTabelaMetadadosSST(doc, pagina, totalPaginas);
+    }
+
+    function desenharTabelaMetadadosSST(doc, paginaAtual, totalPaginas) {
+        const startX_pos = 150; const startY = 10; const totalWidth = 50; const rowHeight = 4.166;
+        doc.setDrawColor(0); doc.setLineWidth(0.4); doc.rect(startX_pos, startY, totalWidth, 25);
+        const colSplitX = startX_pos + 17; doc.line(colSplitX, startY, colSplitX, startY + 25);
+
+        const dadosMetadados = [
+            { label: "Código:", value: "20.0009-SST-FL-0036" },
+            { label: "Fecha Ref:", value: "15/06/2026" },
+            { label: "Página:", value: `${paginaAtual} de ${totalPaginas}` },
+            { label: "Revisión:", value: "00" },
+            { label: "Categoria:", value: "General" },
+            { label: "Sector:", value: "Securidad" }
+        ];
+
+        dadosMetadados.forEach((item, index) => {
+            const currentLineY = startY + (index * rowHeight);
+            if (index > 0) doc.line(startX_pos, currentLineY, startX_pos + totalWidth, currentLineY);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(6.5); doc.text(item.label, startX_pos + 1.5, currentLineY + 3);
+            doc.setFont("helvetica", "normal"); doc.setFontSize(6.5); doc.text(item.value, colSplitX + 1.5, currentLineY + 3);
+        });
+    }
+
+    async function salvarEMontarPDF_Original_SST() {
+        const equipoInputVal = document.getElementById('v_equipo').value.trim();
+        if(equipoInputVal !== "") {
+            equipoSeleccionado = equipoInputVal;
+        }
+
+        const patente = document.getElementById('v_patente').value.trim();
+        const km = document.getElementById('v_km').value.trim();
+        const fecha = document.getElementById('v_fecha').value;
+
+        document.getElementById('box_patente').classList.remove('required-field');
+        document.getElementById('box_km').classList.remove('required-field');
+        document.getElementById('box_fecha').classList.remove('required-field');
+
+        let errosCampos = [];
+        if (!patente) { errosCampos.push("Patente / Ident."); document.getElementById('box_patente').classList.add('required-field'); }
+        if (!km) { errosCampos.push("KM / Horómetro"); document.getElementById('box_km').classList.add('required-field'); }
+        if (!fecha) { errosCampos.push("Fecha de Inspección"); document.getElementById('box_fecha').classList.add('required-field'); }
+
+        if (errosCampos.length > 0) {
+            alert(`❌ Error: Los siguientes campos de cabecera son obligatorios:\n- ${errosCampos.join('\n- ')}`);
+            return;
+        }
+
+        let itensNaoRespondidos = [];
+        preguntasAtuais.forEach((p, index) => {
+            const id = index + 1;
+            const verificado = document.querySelector(`input[name="item_${id}"]:checked`);
+            if (!verificado) {
+                itensNaoRespondidos.push(id);
+                document.getElementById(`row_item_${id}`).classList.add('row-incomplete');
             } else {
-                payloadAnswers[`item_${i}`] = radio.value;
-                payloadComments[`item_${i}`] = document.getElementById(`comment_${i}`).value.toUpperCase();
-                if (radio.value === "NC" || radio.value === "NA") { precisaDeFoto = true; }
+                document.getElementById(`row_item_${id}`).classList.remove('row-incomplete');
             }
-        }
-
-        if (itensIncompletos.length > 0) {
-            alert(`❌ Erro impeditivo: Todos os itens de escolha são obrigatórios!\nVocê esqueceu de marcar os seguintes itens: ${itensIncompletos.join(', ')}`);
-            return;
-        }
-
-        let fotosBase64 = [];
-        for (let f_count = 1; f_count <= 8; f_count++) {
-            const img = document.getElementById('img_preview_' + f_count);
-            if(img && img.src && img.style.display !== "none") fotosBase64.push(img.src);
-        }
-
-        if (precisaDeFoto && fotosBase64.length === 0) {
-            alert("❌ Erro de Segurança Elecnor:\nVocê marcou itens como 'NC' ou 'NA'. É OBRIGATÓRIO tirar ou anexar pelo menos 01 foto como evidência antes de salvar!");
-            return;
-        }
-
-        if (verificarCanvasVazio('canvas_conductor')) {
-            alert("❌ Erro: A assinatura em tela do OPERADOR / CONDUCTOR é obrigatória!");
-            return;
-        }
-
-        let nomeInspetor = "";
-        while (nomeInspetor.trim().length < 5) {
-            nomeInspetor = prompt("✍️ Digite seu NOME COMPLETO para registro digital da folha:");
-            if (nomeInspetor === null) return;
-        }
-
-        const nomeEmMaiusculo = nomeInspetor.toUpperCase();
-        const botaoSalvar = document.querySelector('.btn-salvar');
-        if(botaoSalvar) { botaoSalvar.innerText = "⏳ Compilando Reporte PDF..."; botaoSalvar.disabled = true; }
-
-        let conductorSigBase64 = document.getElementById('canvas_conductor').toDataURL();
-        let supervisorSigBase64 = !verificarCanvasVazio('canvas_supervisor') ? document.getElementById('canvas_supervisor').toDataURL() : "";
-        let seguridadSigBase64 = !verificarCanvasVazio('canvas_seguridad') ? document.getElementById('canvas_seguridad').toDataURL() : "";
-        
-        const radioResultado = document.querySelector('input[name="resultado_final"]:checked');
-        const resultadoFinal = radioResultado ? radioResultado.value : "LIBERADO";
-
-        const equipoTexto = document.getElementById('v_equipo').value.toUpperCase();
-
-        let payload = {
-            id_interno: Date.now().toString(),
-            inspector: nomeEmMaiusculo,
-            equipo: equipoTexto,
-            patente: patenteRaw.toUpperCase(),
-            fecha: document.getElementById('v_fecha').value,
-            empresa: document.getElementById('v_empresa').value.toUpperCase(),
-            anio: document.getElementById('v_anio').value.toUpperCase(),
-            km_horometro: document.getElementById('v_km').value.toUpperCase(),
-            respuestas: payloadAnswers,
-            comentarios: payloadComments,
-            observaciones_generales: document.getElementById('obs_generales').value.toUpperCase(),
-            medidas_correctivas: document.getElementById('medidas_correctivas').value.toUpperCase(),
-            resultado_final: resultadoFinal,
-            fotos: fotosBase64,
-            assinatura_conductor: conductorSigBase64,
-            assinatura_supervisor: supervisorSigBase64,
-            assinatura_seguridad: seguridadSigBase64
-        };
-
-        let inspecoesSalvas = JSON.parse(localStorage.getItem('inspecoes_offline')) || [];
-        inspecoesSalvas.push(payload);
-        localStorage.setItem('inspecoes_offline', JSON.stringify(inspecoesSalvas));
-        
-        ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal, equipoTexto);
-    }
-
-    // ARQUITETURA DE MONTAGEM CORRIGIDA PARA GERAR EXATAMENTE 2 PÁGINAS (PÁG 1: FORMULÁRIO / PÁG 2: FOTOS)
-    function ejecutarGeracaoPDF(patenteRaw, nomeEmMaiusculo, fotosBase64, resultadoFinal, equipoTexto) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        const azulElecnor = [0, 51, 102];
-        const cinzaFundo = [240, 240, 240];
-        const totalPaginasCalculadas = 2;
-
-        function desenharCabecalho(numPagina) {
-            doc.setDrawColor(0); doc.setLineWidth(0.4);
-            doc.rect(10, 10, 190, 22);
-            doc.line(45, 10, 45, 32); doc.line(145, 10, 145, 32);
-            if (logoBase64Global) doc.addImage(logoBase64Global, 'PNG', 13, 12, 28, 17);
-            
-            doc.setFont("helvetica", "bold"); doc.setFontSize(9.5); doc.setTextColor(0);
-            const tituloQuebrado = doc.splitTextToSize(`LISTA DE VERIFICACIÓN MENSUAL PARA ${equipoTexto}`, 95);
-            doc.text(tituloQuebrado, 95, 18, {align:"center"});
-            
-            doc.setFontSize(6.5);
-            doc.text(`CÓDIGO: 20.0009-SST-FL-0042\nFECHA REF: 06/06/2026\nPÁGINA: ${numPagina} DE ${totalPaginasCalculadas}\nREVISIÓN: 00\nCATEGORÍA: COLECTIVO\nSECTOR: OPERACIONES`, 147, 14);
-        }
-
-        // --- PÁGINA 1: CONTEÚDO INTEGRAL COMPACTO ---
-        desenharCabecalho(1);
-        
-        doc.rect(10, 32, 190, 13); doc.line(75, 32, 75, 45); doc.line(140, 32, 140, 45);
-        doc.setFontSize(6.5); doc.setTextColor(...azulElecnor);
-        doc.text("EQUIPO / MODELO:", 12, 35.5); doc.text("PATENTE / IDENT.:", 77, 35.5); doc.text("FECHA DE INSPECCIÓN:", 142, 35.5);
-        doc.setFontSize(8.5); doc.setTextColor(0);
-        doc.text(doc.splitTextToSize(equipoTexto, 62), 12, 40.5);
-        doc.text(patenteRaw.toUpperCase(), 77, 41);
-        doc.text(document.getElementById('v_fecha').value, 142, 41);
-
-        doc.rect(10, 45, 190, 12); doc.line(75, 45, 75, 57); doc.line(140, 45, 140, 57);
-        doc.setFontSize(6.5); doc.setTextColor(...azulElecnor);
-        doc.text("EMPRESA:", 12, 48); doc.text("INSPECTOR / REVISADO POR:", 77, 48); doc.text("KM / HORÓMETRO:", 142, 48);
-        doc.setFontSize(8.5); doc.setTextColor(0);
-        doc.text(document.getElementById('v_empresa').value.toUpperCase(), 12, 53);
-        doc.text(nomeEmMaiusculo, 77, 53);
-        doc.text(document.getElementById('v_km').value.toUpperCase(), 142, 53);
-
-        doc.setFillColor(...azulElecnor); doc.rect(10, 57, 190, 5.5, 'F');
-        doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); doc.setTextColor(255);
-        doc.text("C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO", 105, 61, {align:"center"});
-
-        doc.setTextColor(0); doc.setFillColor(...cinzaFundo); doc.rect(10, 62.5, 190, 5.5, 'F'); doc.rect(10, 62.5, 190, 5.5);
-        doc.line(120, 62.5, 120, 68); doc.line(132, 62.5, 132, 68); doc.line(144, 62.5, 144, 68); doc.line(156, 62.5, 156, 68);
-        doc.text("ELEMENTOS VERIFICADOS", 12, 66.5); doc.text("C", 126, 66.5, {align:"center"}); doc.text("NC", 138, 66.5, {align:"center"}); doc.text("NA", 150, 66.5, {align:"center"}); doc.text("COMENTARIOS", 158, 66.5);
-
-        let y_dinamico = 68;
-        
-        // Renderização milimétrica ultrafina para que caibam todas as perguntas na Página 1
-        preguntas.forEach((p, index) => {
-            const i = index + 1;
-            doc.rect(10, y_dinamico, 190, 5.2); 
-            doc.line(120, y_dinamico, 120, y_dinamico + 5.2); doc.line(132, y_dinamico, 132, y_dinamico + 5.2); 
-            doc.line(144, y_dinamico, 144, y_dinamico + 5.2); doc.line(156, y_dinamico, 156, y_dinamico + 5.2);
-            
-            doc.setFont("helvetica", "normal"); doc.setFontSize(6.5);
-            doc.text(`${i}. ${p.substring(0, 78)}`, 12, y_dinamico + 3.8);
-            
-            doc.setFont("helvetica", "bold");
-            const radioMarcado = document.querySelector(`input[name="item_${i}"]:checked`);
-            if (radioMarcado) {
-                if (radioMarcado.value === "C") doc.text("C", 126, y_dinamico + 3.8, {align:"center"});
-                if (radioMarcado.value === "NC") doc.text(p.toUpperCase().includes("IMP") ? "IMP" : "NC", 138, y_dinamico + 3.8, {align:"center"});
-                if (radioMarcado.value === "NA") doc.text("NA", 150, y_dinamico + 3.8, {align:"center"});
-            }
-            const txtCom = document.getElementById(`comment_${i}`).value.toUpperCase();
-            if (txtCom) doc.text(txtCom.substring(0, 22), 158, y_dinamico + 3.8);
-            y_dinamico += 5.2;
         });
 
-        // Bloco Observações
-        doc.rect(10, y_dinamico, 190, 14);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(7); doc.text("COMENTARIOS Y OBSERVACIONES GENERALES:", 12, y_dinamico + 3.5);
-        doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(document.getElementById('obs_generales').value.toUpperCase() || "SIN OBSERVACIONES", 185), 12, y_dinamico + 8);
-        y_dinamico += 14;
+        if (itensNaoRespondidos.length > 0) {
+            alert(`❌ Error: ¡Todos los ELEMENTOS VERIFICADOS são de resposta obrigatória!\nFalta responder o(s) ítem(ns): ${itensNaoRespondidos.join(', ')}`);
+            return;
+        }
 
-        // Bloco Medidas Corretivas
-        doc.rect(10, y_dinamico, 190, 14);
-        doc.setFont("helvetica", "bold"); doc.text("MEDIDAS CORRECTIVAS ADOPTADAS:", 12, y_dinamico + 3.5);
-        doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(document.getElementById('medidas_correctivas').value.toUpperCase() || "SIN MEDIDAS CORRECTIVAS REGISTRADAS", 185), 12, y_dinamico + 8);
-        y_dinamico += 14;
+        const inspectorNome = prompt("Por favor, ingrese o NOME COMPLETO do inspetor:");
+        if (!inspectorNome || inspectorNome.trim() === "") { alert("❌ O nome do inspetor é obrigatório!"); return; }
 
-        // Bloco Resultado Final Liberação
-        doc.rect(10, y_dinamico, 190, 8); doc.line(50, y_dinamico, 50, y_dinamico + 8); doc.line(100, y_dinamico, 100, y_dinamico + 8); doc.line(150, y_dinamico, 150, y_dinamico + 8);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); doc.text("RESULTADO:", 12, y_dinamico + 5);
-        doc.text(resultadoFinal === "LIBERADO" ? "[ X ] LIBERADO" : "[   ] LIBERADO", 55, y_dinamico + 5);
-        doc.text(resultadoFinal === "LIBERADO_OBS" ? "[ X ] LIBERADO C/ OBS." : "[   ] LIBERADO C/ OBS.", 103, y_dinamico + 5);
-        doc.text(resultadoFinal === "NO_LIBERADO" ? "[ X ] NO LIBERADO" : "[   ] NO LIBERADO", 155, y_dinamico + 5);
-        y_dinamico += 8;
-
-        // Bloco Assinaturas
-        doc.rect(10, y_dinamico, 190, 26); doc.line(73.33, y_dinamico, 73.33, y_dinamico + 26); doc.line(136.66, y_dinamico, 136.66, y_dinamico + 26);
-        doc.setFontSize(6); doc.setTextColor(...azulElecnor); 
-        doc.text("OPERADOR / CONDUCTOR", 12, y_dinamico + 4); doc.text("SUPERVISOR / ENCARGADO", 75.33, y_dinamico + 4); doc.text("SEGURIDAD TRABAJO", 138.66, y_dinamico + 4);
+        const status = document.getElementById('statusMsg');
+        const btn = document.getElementById('btn-save-main');
         
-        doc.addImage(document.getElementById('canvas_conductor').toDataURL(), 'PNG', 14, y_dinamico + 5, 48, 14);
-        if(!verificarCanvasVazio('canvas_supervisor')) doc.addImage(document.getElementById('canvas_supervisor').toDataURL(), 'PNG', 77, y_dinamico + 5, 48, 14);
-        if(!verificarCanvasVazio('canvas_seguridad')) doc.addImage(document.getElementById('canvas_seguridad').toDataURL(), 'PNG', 140, y_dinamico + 5, 48, 14);
+        btn.disabled = true;
+        status.style.display = "block"; status.style.color = "orange"; status.innerText = "⏳ PROCESANDO REPORTE E CALCULANDO DINAMICAMENTE...";
 
-        // --- PÁGINA 2: EVIDÊNCIAS FOTOGRÁFICAS ISOLADAS ---
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        const corDeFundo = [240, 240, 240];
+        const logoDataUrl = extrairLogoDaTela();
+
+        const totalPaginasCalculadas = 2;
+
+        desenharCabecalhoEstaticoSST(doc, 1, totalPaginasCalculadas, logoDataUrl);
+
+        doc.rect(10, 35, 190, 16); doc.line(72, 35, 72, 51); doc.line(138, 35, 138, 51); doc.line(10, 43, 190, 43);
+        doc.setFontSize(7); 
+        
+        doc.setFont("helvetica", "bold"); doc.text("EQUIPO / MODELO: ", 12, 39);
+        doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(equipoSeleccionado.toUpperCase(), 58), 12, 42); 
+        
+        doc.setFont("helvetica", "bold"); doc.text("EMPRESA: ", 12, 47);
+        doc.setFont("helvetica", "normal"); doc.text("ELECNOR", 12, 50);
+
+        doc.setFont("helvetica", "bold"); doc.text("PATENTE / IDENT.: ", 75, 39);
+        doc.setFont("helvetica", "normal"); doc.text(patente.toUpperCase(), 75, 42);
+        
+        doc.setFont("helvetica", "bold"); doc.text("AÑO: ", 75, 47);
+        doc.setFont("helvetica", "normal"); doc.text(document.getElementById('v_anio').value.toUpperCase(), 84, 47);
+        
+        doc.setFont("helvetica", "bold"); doc.text("FECHA INSP.: ", 141, 39);
+        doc.setFont("helvetica", "normal"); doc.text(fecha, 141, 42);
+        
+        doc.setFont("helvetica", "bold"); doc.text("KM / HORÓMETRO: ", 141, 47);
+        doc.setFont("helvetica", "normal"); doc.text(km.toUpperCase(), 168, 47);
+
+        doc.setFillColor(68, 114, 196); doc.rect(10, 51, 190, 5.5, 'F');
+        doc.setTextColor(255); doc.setFontSize(7.5); doc.text("C = CONFORME / NC = NO CONFORME / NA = NO APLICA / IMP = IMPEDITIVO", 100, 55, { align: 'center' });
+        doc.setTextColor(0);
+
+        let currentY = 56.5;
+
+        doc.setFillColor(...corDeFundo); doc.rect(10, currentY, 190, 5, 'F'); doc.rect(10, currentY, 190, 5);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); doc.text("ELEMENTOS VERIFICADOS", 12, currentY + 3.5);
+        doc.text("C", 137, currentY + 3.5); doc.text("NC", 146, currentY + 3.5); doc.text("NA", 156, currentY + 3.5); doc.text("COMENTARIOS", 166, currentY + 3.5);
+
+        currentY += 5;
+        
+        preguntasAtuais.forEach((p, idx) => {
+            doc.setFont("helvetica", "normal"); doc.setFontSize(7);
+            doc.rect(10, currentY, 190, 5.8); doc.line(135, currentY, 135, currentY + 5.8); doc.line(145, currentY, 145, currentY + 5.8); doc.line(155, currentY, 155, currentY + 5.8); doc.line(165, currentY, 165, currentY + 5.8);
+            
+            doc.text(`${idx+1}. ${p.substring(0, 78)}`, 12, currentY + 4);
+            
+            const val = document.querySelector(`input[name="item_${idx+1}"]:checked`).value;
+            const comment = document.getElementById(`comment_${idx+1}`).value.toUpperCase();
+
+            doc.setFont("helvetica", "bold");
+            if(val === "C") doc.text("C", 138, currentY + 4);
+            if(val === "NC") doc.text("NC", 147, currentY + 4);
+            if(val === "NA") doc.text("NA", 157, currentY + 4);
+            
+            doc.setFont("helvetica", "normal"); doc.setFontSize(6);
+            doc.text(comment.substring(0, 16), 166, currentY + 4);
+            currentY += 5.8;
+        });
+
+        doc.rect(10, currentY, 190, 15);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); doc.text("COMENTARIOS Y OBSERVACIONES GENERALES:", 12, currentY + 3.5);
+        doc.setFont("helvetica", "normal"); doc.setFontSize(7); doc.text(doc.splitTextToSize(document.getElementById('obs_generales').value.toUpperCase(), 180), 12, currentY + 8);
+        currentY += 15;
+
+        doc.rect(10, currentY, 190, 15);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); doc.text("MEDIDAS CORRECTIVAS ADOPTADAS:", 12, currentY + 3.5);
+        doc.setFont("helvetica", "normal"); doc.setFontSize(7); doc.text(doc.splitTextToSize(document.getElementById('medidas_correctivas').value.toUpperCase(), 180), 12, currentY + 8);
+        currentY += 15;
+
+        doc.rect(10, currentY, 190, 8); doc.line(50, currentY, 50, currentY + 8); doc.line(100, currentY, 100, currentY + 8); doc.line(150, currentY, 150, currentY + 8);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); doc.text("RESULTADO:", 12, currentY + 5);
+        const finalRes = document.querySelector('input[name="resultado_final"]:checked')?.value || "";
+        doc.text(finalRes === "LIBERADO" ? "[ X ] LIBERADO" : "[   ] LIBERADO", 55, currentY + 5);
+        doc.text(finalRes === "LIBERADO_OBS" ? "[ X ] LIBERADO C/ OBS." : "[   ] LIBERADO C/ OBS.", 103, currentY + 5);
+        doc.text(finalRes === "NO_LIBERADO" ? "[ X ] NO LIBERADO" : "[   ] NO LIBERADO", 155, currentY + 5);
+        currentY += 8;
+
+        doc.rect(10, currentY, 190, 32); doc.line(73, currentY, 73, currentY + 32); doc.line(136, currentY, 136, currentY + 32);
+        
+        let condBytes = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+        let supBytes = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+        let segBytes = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
+        try { condBytes = document.getElementById('canvas_conductor').toDataURL(); } catch(e){}
+        try { supBytes = document.getElementById('canvas_supervisor').toDataURL(); } catch(e){}
+        try { segBytes = document.getElementById('canvas_seguridad').toDataURL(); } catch(e){}
+        
+        try { doc.addImage(condBytes, 'PNG', 12, currentY + 1, 58, 22); } catch(e){}
+        try { doc.addImage(supBytes, 'PNG', 75, currentY + 1, 58, 22); } catch(e){}
+        try { doc.addImage(segBytes, 'PNG', 138, currentY + 1, 58, 22); } catch(e){}
+
+        doc.setFontSize(7);
+        doc.text("OPERADOR / CONDUCTOR", 41, currentY + 28, {align:'center'});
+        doc.text("SUPERVISOR / ENCARGADO", 104, currentY + 28, {align:'center'});
+        doc.text("SEGURIDAD DO TRABAJO", 168, currentY + 28, {align:'center'});
+
+        // --- FOLHA 2: Fotos Anexas Integradas ---
         doc.addPage();
-        desenharCabecalho(2);
-        
-        y_dinamico = 35;
-        doc.rect(10, y_dinamico, 190, 240);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(9.5); doc.setTextColor(0);
-        doc.text("EVIDENCIAS REGISTRADAS (MÁXIMO 8 FOTOS):", 14, y_dinamico + 8);
+        desenharCabecalhoEstaticoSST(doc, 2, totalPaginasCalculadas, logoDataUrl);
 
-        let imgX = 15, imgY = y_dinamico + 14, contadorGrid = 0;
+        doc.rect(10, 38, 190, 240);
+        doc.setFontSize(9.5); doc.text("EVIDENCIAS REGISTRADAS (MÁXIMO 8 FOTOS):", 14, 46);
+
+        let imgX = 15, imgY = 52, contadorGrid = 0;
         for (let keyIdx = 1; keyIdx <= 8; keyIdx++) {
-            const imgBox = document.getElementById(`img_preview_${keyIdx}`);
-            if (imgBox && imgBox.src && imgBox.style.display !== "none") {
-                doc.addImage(imgBox.src, 'JPEG', imgX, imgY, 42, 32);
+            const dataBase64Imagem = bancoImagensFotos[`foto_${keyIdx}`];
+            if (dataBase64Imagem && dataBase64Imagem.trim() !== "") {
+                try {
+                    doc.addImage(dataBase64Imagem, 'JPEG', imgX, imgY, 42, 32);
+                } catch(e) {
+                    try { doc.addImage(dataBase64Imagem, 'PNG', imgX, imgY, 42, 32); } catch(err){}
+                }
                 doc.setFontSize(7); doc.text(`FOTO ANEXO ${keyIdx}`, imgX + 21, imgY + 36, {align:'center'});
             } else {
                 doc.setDrawColor(200); doc.rect(imgX, imgY, 42, 32);
@@ -588,20 +907,65 @@
             if(contadorGrid === 4) { imgX = 15; imgY += 45; } 
         }
 
-        setTimeout(async function() {
-            const pdfBase64 = doc.output('datauristring').split(',')[1];
-            const nomeDoArquivo = `Checklist_${equipoTexto}_${patenteRaw.toUpperCase()}_Por_${nomeEmMaiusculo}_${document.getElementById('v_fecha').value}.pdf`;
-            const payloadDrive = { name: nomeDoArquivo, bytes: pdfBase64 };
-            const urlGoogleScript = "https://script.google.com/macros/s/AKfycbwKtOBULBDKez5XRf-FEkhdSeUcrZsQXpmftV92ZfQfRR5fuzy_Sw-0IsUhVgo2twjtSA/exec";
+        const pdfBase64 = doc.output('datauristring').split(',')[1];
+        const nomeDoFicheiroPDF = `Checklist_${equipoSeleccionado.toUpperCase()}_${patente.toUpperCase()}_Por_${inspectorNome.toUpperCase()}_${fecha}.pdf`;
+        
+        const payload = { name: nomeDoFicheiroPDF, bytes: pdfBase64 };
+        
+        saveToQueue(payload);
+        doc.save(nomeDoFicheiroPDF);
 
+        if (navigator.onLine) {
             try {
-                await fetch(urlGoogleScript, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payloadDrive) });
-                alert("✅ ¡Inspección procesada exitosamente!\nEl reporte PDF de 2 páginas con todas las fotos ha sido enviado al Google Drive.");
-                window.location.href = "/";
+                status.innerText = "🚀 ENVIANDO ARQUIVO AL GOOGLE DRIVE...";
+                await fetch(GOOGLE_SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload) 
+                });
+                
+                let currentQueue = JSON.parse(localStorage.getItem('hse_queue') || '[]');
+                if (currentQueue.length > 0) {
+                    currentQueue.pop(); 
+                    localStorage.setItem('hse_queue', JSON.stringify(currentQueue));
+                }
+                
+                status.innerText = "✅ ¡ENVIADO EXITOSAMENTE AL DRIVE!"; status.style.color = "green";
             } catch (err) {
-                console.error(err); window.location.href = "/";
+                console.error(err);
+                status.innerText = "⚠️ REPORTE GUARDADO EN LA COLA LOCAL (ERROR DE RED)."; status.style.color = "orange";
             }
-        }, 1000);
+        } else {
+            status.innerText = "☁️ MODO OFFLINE: REPORTE GUARDADO EN DISPOSITIVO."; status.style.color = "blue";
+        }
+
+        setTimeout(() => {
+            status.style.display = 'none';
+            btn.disabled = false;
+            fecharFormularioNativo();
+            syncQueue(); 
+        }, 1500);
+    }
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').then(reg => {
+                reg.update();
+                reg.onupdatefound = () => {
+                    const installingWorker = reg.installing;
+                    if (installingWorker == null) return;
+                    installingWorker.onstatechange = () => {
+                        if (installingWorker.state === 'installed') {
+                            if (navigator.serviceWorker.controller) {
+                                console.log('Nueva versión detectada. Limpiando cache y actualizando...');
+                                window.location.reload(true);
+                            }
+                        }
+                    };
+                };
+            }).catch(()=>{});
+        });
     }
 </script>
 </body>

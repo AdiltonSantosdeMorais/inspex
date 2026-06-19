@@ -275,6 +275,7 @@
     let perguntasAtuais = []; 
     let isSyncing = false;
 
+    // BANCO COMPLETO OFFLINE-FIRST: Garante todas as perguntas corretas sem depender de internet
     const DICIONARIO_PERGUNTAS = {
         "ambulancia": [
             "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
@@ -432,7 +433,11 @@
         reader.readAsDataURL(input.files[0]);
     }
 
+    // LÓGICA REVISADA: Sempre lê o banco interno primeiro para garantir estabilidade offline completa
     async function carregarListaDePerguntasEstavel(nomeArquivo) {
+        const chaveDicionario = MAPA_IDENTIFICADORES[nomeArquivo] || "general_maquinaria";
+        const perguntasLocais = DICIONARIO_PERGUNTAS[chaveDicionario] || DICIONARIO_PERGUNTAS["general_maquinaria"];
+        
         if (navigator.onLine) {
             try {
                 const resposta = await fetch(`/checklist/${nomeArquivo}.html`);
@@ -451,11 +456,10 @@
                     }
                 }
             } catch (e) { 
-                console.error("Falha ao ler html físico remoto, mudando para contingência local:", e); 
+                console.error("Falha ao carregar arquivo remoto, usando banco offline local estável:", e); 
             }
         }
-        const chaveDicionario = MAPA_IDENTIFICADORES[nomeArquivo] || "general_maquinaria";
-        return DICIONARIO_PERGUNTAS[chaveDicionario] || DICIONARIO_PERGUNTAS["general_maquinaria"];
+        return perguntasLocais;
     }
 
     async function abrirFormularioNativo(nomeVisual, nomeArquivo) {
@@ -476,7 +480,6 @@
         document.getElementById('box_km').classList.remove('required-field');
         document.getElementById('box_fecha').classList.remove('required-field');
 
-        // CRÍTICO: Não limpamos os inputs físicos com innerHTML para não estragar a escuta da câmera do tablet
         for (let idx = 1; idx <= 8; idx++) {
             const fileInput = document.getElementById(`input_foto_${idx}`);
             const preview = document.getElementById(`prev_foto_${idx}`);

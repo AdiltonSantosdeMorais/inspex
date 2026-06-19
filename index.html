@@ -30,6 +30,7 @@
 
     .page-sheet { width:100%; background:#fff; border:1px solid #000; padding:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     
+    /* BLOQUEIO DE LAYOUT DO CABEÇALHO SUPERIOR */
     .header-table { table-layout: fixed; width: 100%; border-collapse: collapse; margin-bottom: 0; }
     .header-table td { border: 1px solid #000; vertical-align: middle; overflow: hidden; }
     .logo-box { width: 20%; height: 100px; text-align: center; padding: 5px; }
@@ -41,6 +42,7 @@
     .info-sub-table td { border: none !important; border-bottom: 1px solid #000 !important; padding: 3px 8px !important; font-size: 11px; line-height: 1.3; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
     .info-sub-table tr:last-child td { border-bottom: none !important; }
     
+    /* ALINHAMENTO REVISADO DOS INPUTS PARA TABLETS */
     .vehicle-data-table { table-layout: fixed; width: 100%; border-collapse: collapse; margin-top: -1px; }
     .vehicle-data-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; font-weight: bold; height: 52px; vertical-align: top; overflow: hidden; position: relative; }
     .vehicle-data-table input { width: 100%; max-width: 100%; border: none; background: transparent; font-size: 11px; margin-top: 6px; border-bottom: 1px dashed #ccc; outline: none; padding: 2px; color: #333; text-transform: uppercase; display: block; position: relative; z-index: 10000; -webkit-user-select: text; user-select: text; }
@@ -148,7 +150,6 @@
             <table class="header-table">
                 <tr>
                     <td class="logo-box"><img src="/static/logo-elecnor.png" alt="Logo Elecnor"></td>
-                    <!-- TÍTULO GRANDE PROTEGIDO: Fica fixado e não se altera ao digitar -->
                     <td class="title-box" id="dinamico-titulo-equip">LISTA DE VERIFICACIÓN MENSUAL</td>
                     <td class="info-box-cell">
                         <table class="info-sub-table">
@@ -196,14 +197,14 @@
                 <tr>
                     <td>REGISTRO FOTOGRÁFICO DE EVIDENCIAS (MÁXIMO 8 FOTOS)
                         <div class="photos-grid">
-                            <div class="photo-slot"><span>Foto 1</span><input type="file" accept="image/*" id="input_foto_1" onchange="processarFoto(1)"><img id="prev_foto_1" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 2</span><input type="file" accept="image/*" id="input_foto_2" onchange="processarFoto(2)"><img id="prev_foto_2" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 3</span><input type="file" accept="image/*" id="input_foto_3" onchange="processarFoto(3)"><img id="prev_foto_3" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 4</span><input type="file" accept="image/*" id="input_foto_4" onchange="processarFoto(4)"><img id="prev_foto_4" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 5</span><input type="file" accept="image/*" id="input_foto_5" onchange="processarFoto(5)"><img id="prev_foto_5" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 6</span><input type="file" accept="image/*" id="input_foto_6" onchange="processarFoto(6)"><img id="prev_foto_6" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 7</span><input type="file" accept="image/*" id="input_foto_7" onchange="processarFoto(7)"><img id="prev_foto_7" class="photo-preview"></div>
-                            <div class="photo-slot"><span>Foto 8</span><input type="file" accept="image/*" id="input_foto_8" onchange="processarFoto(8)"><img id="prev_foto_8" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 1</span><input type="file" accept="image/*" capture="environment" id="input_foto_1" onchange="processarFoto(1)"><img id="prev_foto_1" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 2</span><input type="file" accept="image/*" capture="environment" id="input_foto_2" onchange="processarFoto(2)"><img id="prev_foto_2" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 3</span><input type="file" accept="image/*" capture="environment" id="input_foto_3" onchange="processarFoto(3)"><img id="prev_foto_3" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 4</span><input type="file" accept="image/*" capture="environment" id="input_foto_4" onchange="processarFoto(4)"><img id="prev_foto_4" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 5</span><input type="file" accept="image/*" capture="environment" id="input_foto_5" onchange="processarFoto(5)"><img id="prev_foto_5" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 6</span><input type="file" accept="image/*" capture="environment" id="input_foto_6" onchange="processarFoto(6)"><img id="prev_foto_6" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 7</span><input type="file" accept="image/*" capture="environment" id="input_foto_7" onchange="processarFoto(7)"><img id="prev_foto_7" class="photo-preview"></div>
+                            <div class="photo-slot"><span>Foto 8</span><input type="file" accept="image/*" capture="environment" id="input_foto_8" onchange="processarFoto(8)"><img id="prev_foto_8" class="photo-preview"></div>
                         </div>
                     </td>
                 </tr>
@@ -331,7 +332,7 @@
             "DOCUMENTACIÓN DEL VEHÍCULO AL DÍA",
             "SISTEMA DE FRENOS DE TRABAJO Y ESTACIONAMIENTO - IMP",
             "ALARMA DE RETROCESO Y BOCINA OPERATIVAS - IMP",
-            "BOTIQUÍN DE PRIMEROS AUXILIOS Y KIT DE EMERGENCY"
+            "BOTIQUÍN DE PRIMEROS AUXILIOS Y KIT DE EMERGENCIA"
         ],
         "general_maquinaria": [
             "ESTADO DE LOS NEUMÁTICOS / ORUGAS Y AJUSTE DE PERNOS - IMP",
@@ -464,7 +465,6 @@
         bancoImagensFotos = {}; 
         
         document.getElementById('v_equipo').value = nomeVisual;
-        // DEFINIÇÃO FIXA: Mantém estável o título da tabela sem misturar com digitações futuras
         document.getElementById('dinamico-titulo-equip').innerText = "LISTA DE VERIFICACIÓN MENSUAL PARA " + nomeVisual.toUpperCase();
         document.getElementById('v_fecha').valueAsDate = new Date();
         document.getElementById('v_patente').value = "";
@@ -703,7 +703,7 @@
         doc.setFontSize(11); 
         doc.setFont("helvetica", "bold");
         doc.text("LISTA DE VERIFICACIÓN MENSUAL", 100, 20, { align: 'center' });
-        doc.text(equipoBaseSeleccionado.toUpperCase(), 100, 27, { align: 'center' });
+        doc.text(equipoSeleccionado.toUpperCase(), 100, 27, { align: 'center' });
 
         desenharTabelaMetadadosSST(doc, pagina, totalPaginas);
     }
@@ -719,7 +719,7 @@
             { label: "Página:", value: `${paginaAtual} de ${totalPaginas}` },
             { label: "Revisión:", value: "00" },
             { label: "Categoria:", value: "General" },
-            { label: "Sector:", value: "Securidad" }
+            { label: "Sector:", value: "Seguridad" }
         ];
 
         dadosMetadados.forEach((item, index) => {

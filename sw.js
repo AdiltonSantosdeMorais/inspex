@@ -1,14 +1,11 @@
-const CACHE_NAME = 'inspex-cache-v3'; // Versão atualizada para forçar o tablet a renovar o cache
+const CACHE_NAME = 'inspex-cache-v4';
 
-// LISTA COMPLETA DOS SEUS ARQUIVOS (Baseado na estrutura das suas pastas)
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
   '/static/logo-elecnor.png',
   '/static/inspex.png',
-  
-  // Rotas dos arquivos da sua pasta /checklist
   '/checklist/ambulancia.html',
   '/checklist/camion_aljibe.html',
   '/checklist/camion_betonera.html',
@@ -35,7 +32,6 @@ const urlsToCache = [
   '/checklist/vehiculos_ligeros_camionetas.html'
 ];
 
-// Instalação do Service Worker
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
@@ -45,7 +41,6 @@ self.addEventListener('install', event => {
   );
 });
 
-// Limpa caches antigos e ativa o novo imediatamente
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -60,7 +55,6 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Estratégia Network-First com Fallback para Cache Offline
 self.addEventListener('fetch', event => {
   event.respondWith(
     fetch(event.request).then(response => {

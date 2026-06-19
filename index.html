@@ -323,15 +323,32 @@
             "CUÑA PARA RUEDAS"
         ],
         "transporte_colectivo_furgonetas": [
-            "ESTADO DE NEUMÁTICOS Y REVISIÓN DE PRESION - IMP",
-            "CINTURONES DE SEGURIDAD EN TODOS LOS ASIENTOS - IMP",
-            "ESTADO DE PARABRISAS AND ESPEJOS RETROVISORES - IMP",
-            "SISTEMA DE DIRECCIÓN Y LUCES COMPLETAS",
-            "EXTINTOR DE INCENDIO REGLAMENTARIO CARGADO Y VIGENTE",
-            "DOCUMENTACIÓN DEL VEHÍCULO AL DÍA",
-            "SISTEMA DE FRENOS DE TRABAJO Y ESTACIONAMIENTO - IMP",
-            "ALARMA DE RETROCESO Y BOCINA OPERATIVAS - IMP",
-            "BOTIQUÍN DE PRIMEROS AUXILIOS Y KIT DE EMERGENCIA"
+            "DOCUMENTACIÓN DEL VEHÍCULO",
+            "INDICADOR DE COMBUSTIBLE",
+            "FAROS (LUZ ALTA Y BAJA)",
+            "DIRECCIONALES DELANTERAS Y TRASERAS",
+            "LUCES INTERMITENTES (PISCA ALERTA)",
+            "LUZ DE FRENO Y MARCHA ATRÁS",
+            "VELOCÍMETRO / TACÓGRAFO",
+            "FRENO DE PIE - IMP",
+            "FRENO DE MANO O PALANCA DE ESTACIONAMIENTO",
+            "DIRECCIÓN",
+            "CONDICIÓN DE LOS ASIENTOS / TAPICERÍA",
+            "CINTURONES DE SEGURIDAD - IMP",
+            "EXTINTOR DE INCENDIOS",
+            "LIMPIADOR DE PARABRISAS",
+            "VIDRIOS Y ESPEJOS - IMP",
+            "PUERTAS Y VENTANAS",
+            "NEUMÁTICOS - IMP",
+            "NEUMÁTICO DE REPUESTO / LLAVES",
+            "GATO HIDRÁULICO",
+            "TRIÁNGULO DE SEÑALIZACIÓN",
+            "ESTADO DE LA CARROCERÍA",
+            "ESCALERA",
+            "FUGAS / FILTRACIONES",
+            "ALARMA SONORA DE REVERSA / CÁMARA DE MARCHA ATRÁS - IMP",
+            "CLAXON (BUCINA) - IMP",
+            "CUÑA PARA RUEDAS"
         ],
         "general_maquinaria": [
             "ESTADO DE LOS NEUMÁTICOS / ORUGAS Y AJUSTE DE PERNOS - IMP",
@@ -351,7 +368,7 @@
         ]
     };
 
-    // MAPA CORRIGIDO DINAMICAMENTE: Alinhamento perfeito com todos os arquivos físicos reais da imagem
+    // MAPA UNIFICADO PARA OFFLINE EXATO: Combina com os nomes dos seus arquivos .html reais
     const MAPA_IDENTIFICADORES = {
         "ambulancia": "ambulancia",
         "camion_aljibe": "general_maquinaria",
@@ -692,7 +709,6 @@
         return null;
     }
 
-    // PDF BUILDER CONTEXT
     function desenharCabecalhoEstaticoSST(doc, pagina, totalPaginas, logoDataUrl) {
         doc.setLineWidth(0.4); 
         doc.setDrawColor(0);
@@ -722,7 +738,7 @@
             { label: "Página:", value: `${paginaAtual} de ${totalPaginas}` },
             { label: "Revisión:", value: "00" },
             { label: "Categoria:", value: "General" },
-            { label: "Sector:", value: "Securidad" }
+            { label: "Sector:", value: "Seguridad" }
         ];
 
         dadosMetadados.forEach((item, index) => {
@@ -850,8 +866,8 @@
         currentY += 15;
 
         doc.rect(10, currentY, 190, 15);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); doc.text("MEDIDAS CORRECTIVAS ADOPTADAS:", 12, currentY + 3.5);
-        doc.setFont("helvetica", "normal"); doc.setFontSize(7); doc.text(doc.splitTextToSize(document.getElementById('medidas_correctivas').value.toUpperCase(), 180), 12, currentY + 8);
+        doc.setFont("helvetica", "bold"); doc.text("MEDIDAS CORRECTIVAS ADOPTADAS:", 12, currentY + 3.5);
+        doc.setFont("helvetica", "normal"); doc.text(doc.splitTextToSize(document.getElementById('medidas_correctivas').value.toUpperCase(), 180), 12, currentY + 8);
         currentY += 15;
 
         doc.rect(10, currentY, 190, 8); doc.line(50, currentY, 50, currentY + 8); doc.line(100, currentY, 100, currentY + 8); doc.line(150, currentY, 150, currentY + 8);
@@ -863,6 +879,8 @@
         currentY += 8;
 
         doc.rect(10, currentY, 190, 32); doc.line(73, currentY, 73, currentY + 32); doc.line(136, currentY, 136, currentY + 32);
+        doc.setFontSize(6); doc.setTextColor(0, 51, 102); 
+        doc.text("OPERADOR / CONDUCTOR", 12, currentY + 4); doc.text("SUPERVISOR / ENCARGADO", 75.33, currentY + 4); doc.text("SEGURIDAD TRABAJO", 138.66, currentY + 4);
         
         let condBytes = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
         let supBytes = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
@@ -872,19 +890,14 @@
         try { supBytes = document.getElementById('canvas_supervisor').toDataURL(); } catch(e){}
         try { segBytes = document.getElementById('canvas_seguridad').toDataURL(); } catch(e){}
         
-        try { doc.addImage(condBytes, 'PNG', 12, currentY + 1, 58, 22); } catch(e){}
-        try { doc.addImage(supBytes, 'PNG', 75, currentY + 1, 58, 22); } catch(e){}
-        try { doc.addImage(segBytes, 'PNG', 138, currentY + 1, 58, 22); } catch(e){}
-
-        doc.setFontSize(7);
-        doc.text("OPERADOR / CONDUCTOR", 41, currentY + 28, {align:'center'});
-        doc.text("SUPERVISOR / ENCARGADO", 104, currentY + 28, {align:'center'});
-        doc.text("SEGURIDAD DO TRABAJO", 168, currentY + 28, {align:'center'});
+        try { doc.addImage(condBytes, 'PNG', 12, currentY + 5, 48, 14); } catch(e){}
+        try { doc.addImage(supBytes, 'PNG', 77, currentY + 5, 48, 14); } catch(e){}
+        try { doc.addImage(segBytes, 'PNG', 140, currentY + 5, 48, 14); } catch(e){}
 
         // --- FOLHA 2: Fotos Anexas Integradas ---
         doc.addPage();
-        desenharCabecalhoEstaticoSST(doc, 2, totalPaginasCalculadas, logoDataUrl);
-
+        desenharCabecalho(2);
+        
         doc.rect(10, 38, 190, 240);
         doc.setFontSize(9.5); doc.text("EVIDENCIAS REGISTRADAS (MÁXIMO 8 FOTOS):", 14, 46);
 

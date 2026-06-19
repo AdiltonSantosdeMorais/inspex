@@ -275,7 +275,6 @@
     let perguntasAtuais = []; 
     let isSyncing = false;
 
-    // BANCO COMPLETO OFFLINE-FIRST: Garante todas as perguntas corretas sem depender de internet
     const DICIONARIO_PERGUNTAS = {
         "ambulancia": [
             "ACEITES CON NIVEL CORRECTO Y DENTRO DE LA FECHA DE VENCIMIENTO",
@@ -352,6 +351,7 @@
         ]
     };
 
+    // CHAVE AJUSTADA: Vincula perfeitamente com a imagem da árvore de diretórios apresentada
     const MAPA_IDENTIFICADORES = {
         "ambulancia": "ambulancia",
         "transporte_colectivo_furgonetas": "transporte_colectivo_furgonetas",
@@ -433,7 +433,6 @@
         reader.readAsDataURL(input.files[0]);
     }
 
-    // LÓGICA REVISADA: Sempre lê o banco interno primeiro para garantir estabilidade offline completa
     async function carregarListaDePerguntasEstavel(nomeArquivo) {
         const chaveDicionario = MAPA_IDENTIFICADORES[nomeArquivo] || "general_maquinaria";
         const perguntasLocais = DICIONARIO_PERGUNTAS[chaveDicionario] || DICIONARIO_PERGUNTAS["general_maquinaria"];
